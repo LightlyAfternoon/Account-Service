@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>Account_Service</RootNamespace>
+    <UserSecretsId>5cd8d381-d65c-4894-b5a4-4675c9ecc366</UserSecretsId>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerfileContext>.</DockerfileContext>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.7" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.22.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Features\Accounts\AddAccount\" />
+    <Folder Include="Features\Accounts\DeleteAccount\" />
+    <Folder Include="Features\Accounts\UpdateAccount\" />
+    <Folder Include="Features\Accounts\UserAccount\" />
+    <Folder Include="Features\Accounts\UserAccountList\" />
+    <Folder Include="Features\Transactions\AddTransaction\" />
+    <Folder Include="Features\Transactions\DeleteTransaction\" />
+    <Folder Include="Features\Transactions\UpdateTransaction\" />
+    <Folder Include="Features\Transactions\UserTransactionList\" />
+    <Folder Include="Features\Transactions\UserTransaction\" />
+    <Folder Include="Identity\" />
+  </ItemGroup>
+
+</Project>
