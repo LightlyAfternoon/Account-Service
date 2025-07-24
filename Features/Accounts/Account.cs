@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Account_Service.Features.Transactions;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Account_Service.Features.Accounts
@@ -7,7 +8,7 @@ namespace Account_Service.Features.Accounts
     {
         [Required]
         [Column("id")]
-        public Guid Id { get; set; }
+        public Guid Id { get; }
         [Required]
         [Column("ownerId")]
         public User Owner { get; set; }
@@ -28,6 +29,23 @@ namespace Account_Service.Features.Accounts
         [Column("closeDate")]
         public DateOnly CloseDate { get; set; }
 
-        public virtual ICollection<Transaction> Transactions { get; set; }
+        public ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
+
+        public Account(Guid id)
+        {
+            Id = id;
+        }
+
+        public Account(Guid id, Account account)
+        {
+            Id = id;
+            Owner = new User(account.Owner.Id, account.Owner);
+            Type = account.Type;
+            Currency = account.Currency;
+            Balance = account.Balance;
+            InterestRate = account.InterestRate;
+            OpenDate = account.OpenDate;
+            CloseDate = account.CloseDate;
+        }
     }
 }

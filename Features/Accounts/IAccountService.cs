@@ -1,6 +1,9 @@
-﻿namespace Account_Service.Features.Accounts
+﻿using Account_Service.Infrastructure;
+
+namespace Account_Service.Features.Accounts
 {
-    public interface IAccountService
+    public interface IAccountService : IService<AccountDto>
     {
+        bool ClientWithIdHasAnyAccount(Guid id);
     }
 }

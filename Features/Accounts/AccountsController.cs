@@ -4,40 +4,58 @@
 
 namespace Account_Service.Features.Accounts
 {
-    [Route("api/[controller]")]
+    [Route("accounts")]
     [ApiController]
     public class AccountsController : ControllerBase
     {
-        // GET: api/<AccountsController>
+        private readonly IAccountService _accountService;
+
+        public AccountsController(IAccountService accountService)
+        {
+            _accountService = accountService;
+        }
+
         [HttpGet]
-        public IEnumerable<string> Get()
+        public IResult GetAllAccounts()
         {
-            return new string[] { "value1", "value2" };
+            return Results.Json(_accountService.FindAll());
         }
 
-        // GET api/<AccountsController>/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public IResult GetClientHasAnyAccount(Guid id, bool hasAnyAccount)
         {
-            return "value";
+            if (hasAnyAccount)
+            {
+                if (_accountService.ClientWithIdHasAnyAccount(id))
+                    return Results.Ok("Yes");
+                else
+                    return Results.Ok("No");
+            }
+            else
+            {
+                if (_accountService.ClientWithIdHasAnyAccount(id))
+                    return Results.Ok("No");
+                else
+                    return Results.Ok("Yes");
+            }
         }
 
-        // POST api/<AccountsController>
         [HttpPost]
-        public void Post([FromBody] string value)
+        public IResult Post([FromBody] AccountDto accountDto)
         {
+            return Results.Json(_accountService.Add(accountDto));
         }
 
-        // PUT api/<AccountsController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        public IResult Put(Guid id, [FromBody] AccountDto accountDto)
         {
+            return Results.Json(_accountService.Update(id, accountDto));
         }
 
-        // DELETE api/<AccountsController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public IResult Delete(Guid id)
         {
+            return Results.Json(_accountService.DeleteById(id));
         }
     }
 }
