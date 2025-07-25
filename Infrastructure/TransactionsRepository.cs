@@ -5,24 +5,24 @@ namespace Account_Service.Infrastructure
 {
     public class TransactionsRepository : ITransactionsRepository
     {
-        public Transaction? FindById(Guid id)
+        public async Task<Transaction?> FindById(Guid id)
         {
-            return TransactionsStorage.Find(id);
+            return await TransactionsStorage.Find(id);
         }
 
-        public List<Transaction> FindAll()
+        public async Task<List<Transaction>> FindAll()
         {
-            return TransactionsStorage.FindAll();
+            return await TransactionsStorage.FindAll();
         }
 
-        public Transaction? Save(Transaction entity)
+        public async Task<Transaction?> Save(Transaction entity)
         {
-            return TransactionsStorage.Update(entity);
+            return await TransactionsStorage.Update(entity);
         }
 
-        public bool DeleteById(Guid id)
+        public async Task<bool> DeleteById(Guid id)
         {
-            return TransactionsStorage.Delete(id);
+            return await TransactionsStorage.Delete(id);
         }
     }
 }

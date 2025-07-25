@@ -4,11 +4,11 @@ namespace Account_Service.ObjectStorage
 {
     public class AccountsStorage
     {
-        private static readonly List<Account> Accounts = new List<Account>();
+        private static readonly List<Account> Accounts = new();
         
-        public static Account? Find(Guid id)
+        public static async Task<Account?> Find(Guid id)
         {
-            Account? existedAccount = Accounts.Find(a => a.Id.Equals(id));
+            Account? existedAccount = await Task.Run(() => Accounts.Find(a => a.Id.Equals(id)));
 
             if (existedAccount != null)
             {
@@ -18,25 +18,25 @@ namespace Account_Service.ObjectStorage
             return existedAccount;
         }
 
-        public static List<Account> FindAll()
+        public static async Task<List<Account>> FindAll()
         {
-            return Accounts.Select(account => new Account(account.Id, account)).ToList();
+            return await Task.Run(() => Accounts.Select(account => new Account(account.Id, account)).ToList());
         }
 
-        public static Account Add(Account account)
+        public static async Task<Account> Add(Account account)
         {
             account = new Account(Guid.NewGuid(), account);
 
-            Accounts.Add(account);
+            await Task.Run(() => Accounts.Add(account));
 
             return account;
         }
 
-        public static Account? Update(Account account)
+        public static async Task<Account?> Update(Account account)
         {
             if (account.Id != Guid.Empty)
             {
-                Account? existedAccount = Accounts.Find(a => a.Id.Equals(account.Id));
+                Account? existedAccount = await Task.Run(() => Accounts.Find(a => a.Id.Equals(account.Id)));
 
                 if (existedAccount != null)
                 {
@@ -53,13 +53,13 @@ namespace Account_Service.ObjectStorage
             return null;
         }
 
-        public static bool Delete(Guid id)
+        public static async Task<bool> Delete(Guid id)
         {
-            Account? existedAccount = Accounts.Find(a => a.Id.Equals(id));
+            Account? existedAccount = await Task.Run(() => Accounts.Find(a => a.Id.Equals(id)));
 
             if (existedAccount != null)
             {
-                return Accounts.Remove(existedAccount);
+                return await Task.Run(() => Accounts.Remove(existedAccount));
             }
 
             return false;

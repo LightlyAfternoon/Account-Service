@@ -2,10 +2,9 @@
 {
     public interface IService<T>
     {
-        T? FindById(Guid id);
-        List<T> FindAll();
-        T? Add(T dto);
-        T? Update(Guid id, T dto);
-        bool DeleteById(Guid id);
+        Task<List<T>> FindAll();
+        Task<T?> Add(T dto);
+        Task<T?> Update(Guid id, T dto);
+        Task<bool> DeleteById(Guid id);
     }
 }

@@ -27,7 +27,7 @@ namespace Account_Service.Features.Accounts
         [Column("openDate")]
         public DateOnly OpenDate { get; set; }
         [Column("closeDate")]
-        public DateOnly CloseDate { get; set; }
+        public DateOnly? CloseDate { get; set; }
 
         public ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
 

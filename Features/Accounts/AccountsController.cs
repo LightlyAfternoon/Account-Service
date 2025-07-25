@@ -15,47 +15,68 @@ namespace Account_Service.Features.Accounts
             _accountService = accountService;
         }
 
+        /// <summary>
+        /// Получение списка всех счетов
+        /// </summary>
+        /// <returns>Все счета из БД</returns>
         [HttpGet]
-        public IResult GetAllAccounts()
+        public async Task<IResult> GetAllAccounts()
         {
-            return Results.Json(_accountService.FindAll());
+            return Results.Json(await _accountService.FindAll());
         }
 
-        [HttpGet("{id}")]
-        public IResult GetClientHasAnyAccount(Guid id, bool hasAnyAccount)
+        /// <summary>
+        /// Получение информации о том, есть или нет у данного счетов
+        /// </summary>
+        /// <param name="ownerId">id клиента</param>
+        /// <param name="hasAnyAccount">параметр-маркер</param>
+        /// <returns>Сообщение с информации о том, есть или нет у данного клиента счетов</returns>
+        [HttpGet]
+        public async Task<IResult> GetClientHasAnyAccount(Guid ownerId, bool hasAnyAccount)
         {
-            if (hasAnyAccount)
-            {
-                if (_accountService.ClientWithIdHasAnyAccount(id))
-                    return Results.Ok("Yes");
-                else
-                    return Results.Ok("No");
-            }
+            if (await _accountService.ClientWithIdHasAnyAccount(ownerId))
+                return Results.Ok(new { Message = "У данного пользователя есть счета" });
             else
-            {
-                if (_accountService.ClientWithIdHasAnyAccount(id))
-                    return Results.Ok("No");
-                else
-                    return Results.Ok("Yes");
-            }
+                return Results.Ok(new { Message = "У данного пользователя нет счётов" });
         }
 
+        /// <summary>
+        /// Добавление нового счёта
+        /// </summary>
+        /// <param name="accountDto">Данные нового счёта</param>
+        /// <returns>Данные счёта с новым id</returns>
         [HttpPost]
-        public IResult Post([FromBody] AccountDto accountDto)
+        public async Task<IResult> Post([FromBody] AccountDto accountDto)
         {
-            return Results.Json(_accountService.Add(accountDto));
+            return Results.Json(await _accountService.Add(accountDto));
         }
 
+        /// <summary>
+        /// Изменение данных счёта
+        /// </summary>
+        /// <param name="id">id счёта</param>
+        /// <param name="accountDto"> Данные счёта</param>
+        /// <returns>Данные изменённого счёта</returns>
         [HttpPut("{id}")]
-        public IResult Put(Guid id, [FromBody] AccountDto accountDto)
+        public async Task<IResult> Put(Guid id, [FromBody] AccountDto accountDto)
         {
-            return Results.Json(_accountService.Update(id, accountDto));
+            return Results.Json(await _accountService.Update(id, accountDto));
         }
 
+        /// <summary>
+        /// Удаление счёта
+        /// </summary>
+        /// <param name="id">id счёта</param>
+        /// <returns>Сообщение о том, удалён ли счёт или нет</returns>
         [HttpDelete("{id}")]
-        public IResult Delete(Guid id)
+        public async Task<IResult> Delete(Guid id)
         {
-            return Results.Json(_accountService.DeleteById(id));
+            bool isDeleted = await _accountService.DeleteById(id);
+
+            if (isDeleted)
+                return Results.Ok(new { Message = $"Пользователь с id={id} удалён" });
+            else
+                return Results.BadRequest(new { Message = $"Не получилось удалить пользователя с id={id}" });
         }
     }
 }

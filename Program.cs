@@ -1,4 +1,9 @@
 
+using Account_Service.Exceptions;
+using Account_Service.PipelineBehavior;
+using FluentValidation;
+using MediatR;
+
 namespace Account_Service
 {
     public class Program
@@ -8,6 +13,14 @@ namespace Account_Service
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+            
+            builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<Program>());
+            // Validation
+            builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+            builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
+            builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+
+            builder.Services.AddProblemDetails();
 
             builder.Services.AddControllers();
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi

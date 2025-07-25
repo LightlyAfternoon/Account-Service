@@ -4,6 +4,6 @@ namespace Account_Service.Features.Accounts
 {
     public interface IAccountService : IService<AccountDto>
     {
-        bool ClientWithIdHasAnyAccount(Guid id);
+        Task<bool> ClientWithIdHasAnyAccount(Guid id);
     }
 }

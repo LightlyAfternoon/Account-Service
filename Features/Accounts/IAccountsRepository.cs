@@ -4,6 +4,6 @@ namespace Account_Service.Features.Accounts
 {
     public interface IAccountsRepository : IRepository<Account>
     {
-        List<Account> FindAllByOwnerId(Guid ownerId);
+        Task<List<Account>> FindAllByOwnerId(Guid ownerId);
     }
 }

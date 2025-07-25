@@ -1,64 +1,67 @@
-﻿using Account_Service.Infrastructure;
+﻿using Account_Service.Features.Accounts.AccountsList;
+using Account_Service.Features.Accounts.AddAccount;
+using Account_Service.Features.Accounts.DeleteAccount;
+using Account_Service.Features.Accounts.UpdateAccount;
+using Account_Service.Features.Accounts.UserAccount;
+using Account_Service.Infrastructure;
+using MediatR;
 
 namespace Account_Service.Features.Accounts
 {
     public class AccountsService : IAccountService
     {
-        private readonly IAccountsRepository _accountsRepository;
+        private readonly IMediator _mediator;
 
-        public AccountsService(IAccountsRepository accountsRepository)
+        public AccountsService(IMediator mediator)
         {
-            _accountsRepository = accountsRepository;
+            _mediator = mediator;
         }
 
-        public AccountDto? FindById(Guid id)
+        public async Task<List<AccountDto>> FindAll()
         {
-            Account? account = _accountsRepository.FindById(id);
-
-            return account != null ? AccountMappers.MapToDto(account) : null;
+            return await _mediator.Send(new GetAccountsListRequestCommand());
         }
 
-        public List<AccountDto> FindAll()
+        public async Task<AccountDto?> Add(AccountDto dto)
         {
-            return _accountsRepository.FindAll().Select(AccountMappers.MapToDto).ToList();
-        }
-
-        public AccountDto? Add(AccountDto dto)
-        {
-            dto = new AccountDto(Guid.Empty, dto);
-
-            Account? account = _accountsRepository.Save(AccountMappers.MapToEntity(dto));
-
-            if (account != null)
+            var addAccountRequestCommand = new AddAccountRequestCommand()
             {
-                return AccountMappers.MapToDto(account);
-            }
+                Owner = dto.Owner,
+                Type = dto.Type,
+                Currency = dto.Currency,
+                Balance = dto.Balance,
+                InterestRate = dto.InterestRate,
+                OpenDate = dto.OpenDate,
+                CloseDate = dto.CloseDate
+            };
 
-            return null;
+            return await _mediator.Send(addAccountRequestCommand);
         }
 
-        public AccountDto? Update(Guid id, AccountDto dto)
+        public async Task<AccountDto?> Update(Guid id, AccountDto dto)
         {
-            dto = new AccountDto(id, dto);
-
-            Account? account = _accountsRepository.Save(AccountMappers.MapToEntity(dto));
-
-            if (account != null)
+            var updateAccountRequestCommand = new UpdateAccountRequestCommand(id)
             {
-                return AccountMappers.MapToDto(account);
-            }
+                Owner = dto.Owner,
+                Type = dto.Type,
+                Currency = dto.Currency,
+                Balance = dto.Balance,
+                InterestRate = dto.InterestRate,
+                OpenDate = dto.OpenDate,
+                CloseDate = dto.CloseDate
+            };
 
-            return null;
+            return await _mediator.Send(updateAccountRequestCommand);
         }
 
-        public bool DeleteById(Guid id)
+        public async Task<bool> DeleteById(Guid id)
         {
-            return _accountsRepository.DeleteById(id);
+            return await _mediator.Send(new DeleteAccountRequestCommand(id));
         }
 
-        public bool ClientWithIdHasAnyAccount(Guid id)
+        public async Task<bool> ClientWithIdHasAnyAccount(Guid ownerId)
         {
-            return _accountsRepository.FindAllByOwnerId(id).Count > 0;
+            return await _mediator.Send(new ClientWithIdHasAnyAccountRequestCommand(ownerId));
         }
     }
 }

@@ -1,85 +1,80 @@
-﻿using Account_Service.Features.Accounts;
-using Account_Service.Infrastructure;
+﻿using Account_Service.Features.Transactions.AddTransaction;
+using Account_Service.Features.Transactions.AddTransferTransactions;
+using Account_Service.Features.Transactions.DeleteTransaction;
+using Account_Service.Features.Transactions.GetAccountStatementOnPeriod;
+using Account_Service.Features.Transactions.TransactionsList;
+using Account_Service.Features.Transactions.UpdateTransaction;
+using MediatR;
 
 namespace Account_Service.Features.Transactions
 {
     public class TransactionsService : ITransactionsService
     {
-        private readonly ITransactionsRepository _transactionsRepository;
-        private readonly IAccountsRepository _accountsRepository;
+        private readonly IMediator _mediator;
 
-        public TransactionsService(ITransactionsRepository transactionsRepository, IAccountsRepository accountsRepository)
+        public TransactionsService(IMediator mediator)
         {
-            _transactionsRepository = transactionsRepository;
-            _accountsRepository = accountsRepository;
+            _mediator = mediator;
         }
 
-        public TransactionDto? FindById(Guid id)
+        public async Task<List<TransactionDto>> FindAll()
         {
-            Transaction? transaction = _transactionsRepository.FindById(id);
-
-            return transaction != null ? TransactionMappers.MapToDto(transaction) : null;
+            return await _mediator.Send(new GetTransactionsListRequestCommand());
         }
 
-        public List<TransactionDto> FindAll()
+        public async Task<TransactionDto?> Add(TransactionDto dto)
         {
-            return _transactionsRepository.FindAll().Select(TransactionMappers.MapToDto).ToList();
-        }
-
-        public TransactionDto? Add(TransactionDto dto)
-        {
-            dto = new TransactionDto(Guid.Empty, dto);
-
-            Transaction? transaction = _transactionsRepository.Save(TransactionMappers.MapToEntity(dto));
-
-            if (transaction != null)
+            AddTransactionRequestCommand addTransactionRequestCommand = new()
             {
-                return TransactionMappers.MapToDto(transaction);
-            }
+                Account = dto.Account,
+                CounterpartyAccount = dto.CounterpartyAccount,
+                Sum = dto.Sum,
+                Currency = dto.Currency,
+                Type = dto.Type,
+                Description = dto.Description,
+                DateTime = dto.DateTime
+            };
 
-            return null;
+            return await _mediator.Send(addTransactionRequestCommand);
         }
 
-        public TransactionDto? Update(Guid id, TransactionDto dto)
+        public async Task<TransactionDto?> Update(Guid id, TransactionDto dto)
         {
-            dto = new TransactionDto(id, dto);
-
-            Transaction? transaction = _transactionsRepository.Save(TransactionMappers.MapToEntity(dto));
-
-            if (transaction != null)
+            UpdateTransactionRequestCommand updateTransactionRequestCommand = new(id)
             {
-                return TransactionMappers.MapToDto(transaction);
-            }
+                Account = dto.Account,
+                CounterpartyAccount = dto.CounterpartyAccount,
+                Sum = dto.Sum,
+                Currency = dto.Currency,
+                Type = dto.Type,
+                Description = dto.Description,
+                DateTime = dto.DateTime
+            };
 
-            return null;
+            return await _mediator.Send(updateTransactionRequestCommand);
         }
 
-        public bool DeleteById(Guid id)
+        public async Task<bool> DeleteById(Guid id)
         {
-            return _transactionsRepository.DeleteById(id);
+            return await _mediator.Send(new DeleteTransactionRequestCommand(id));
         }
 
-        public List<TransactionDto> GetAccountStatementOnPeriod(Guid accountId, DateTime startDate, DateTime endDate)
+        public async Task<List<TransactionDto>> GetAccountStatementOnPeriod(Guid accountId, DateTime startDate, DateTime endDate)
         {
-            return _transactionsRepository.FindAll().Where(t => t.Account.Id.Equals(accountId) && t.DateTime >= startDate && t.DateTime <= endDate).Select(TransactionMappers.MapToDto).ToList();
+            return await _mediator.Send(new GetAccountStatementOnPeriodRequestCommand(accountId, startDate, endDate));
         }
 
-        public TransactionDto? Transfer(Guid fromAccountId, Guid toAccountId, TransactionDto transactionDto)
+        public async Task<TransactionDto?> Transfer(Guid fromAccountId, Guid toAccountId, TransactionDto transactionDto)
         {
-            Account? from = _accountsRepository.FindById(fromAccountId);
-            Account? to = _accountsRepository.FindById(toAccountId);
-            Transaction? transactionFrom = new Transaction(Guid.Empty, from, to, transactionDto.Sum, transactionDto.Currency,
-                                                                    TransactionType.Credit, transactionDto.Description, transactionDto.DateTime);
-            Transaction transactionTo = new Transaction(Guid.Empty, to, from, transactionDto.Sum, transactionDto.Currency,
-                                                                TransactionType.Debit, transactionDto.Description, transactionDto.DateTime);
-
-            _transactionsRepository.Save(transactionTo);
-            if ((transactionFrom = _transactionsRepository.Save(transactionFrom)) != null)
+            AddTransferTransactionsRequestCommand addTransferTransactionsRequestCommand = new(fromAccountId, toAccountId)
             {
-                return TransactionMappers.MapToDto(transactionFrom);
-            }
+                Sum = transactionDto.Sum,
+                Currency = transactionDto.Currency,
+                Description = transactionDto.Description,
+                DateTime = transactionDto.DateTime
+            };
 
-            return null;
+            return await _mediator.Send(addTransferTransactionsRequestCommand);
         }
     }
 }

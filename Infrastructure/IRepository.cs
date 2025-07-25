@@ -2,9 +2,9 @@
 {
     public interface IRepository<T>
     {
-        T? FindById(Guid id);
-        List<T> FindAll();
-        T? Save(T entity);
-        bool DeleteById(Guid id);
+        Task<T?> FindById(Guid id);
+        Task<List<T>> FindAll();
+        Task<T?> Save(T entity);
+        Task<bool> DeleteById(Guid id);
     }
 }

@@ -1,7 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-
-namespace Account_Service.Features.Accounts
+﻿namespace Account_Service.Features.Accounts
 {
     public class AccountDto
     {
@@ -12,7 +9,7 @@ namespace Account_Service.Features.Accounts
         public decimal Balance { get; set; }
         public decimal? InterestRate { get; set; }
         public DateOnly OpenDate { get; set; }
-        public DateOnly CloseDate { get; set; }
+        public DateOnly? CloseDate { get; set; }
 
         public AccountDto(Guid id)
         {

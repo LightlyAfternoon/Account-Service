@@ -4,11 +4,11 @@ namespace Account_Service.ObjectStorage
 {
     public class TransactionsStorage
     {
-        private static readonly List<Transaction> Transactions = new List<Transaction>();
+        private static readonly List<Transaction> Transactions = new();
 
-        public static Transaction? Find(Guid id)
+        public static async Task<Transaction?> Find(Guid id)
         {
-            Transaction? existedAccount = Transactions.Find(a => a.Id.Equals(id));
+            Transaction? existedAccount = await Task.Run(() => Transactions.Find(a => a.Id.Equals(id)));
 
             if (existedAccount != null)
             {
@@ -18,25 +18,25 @@ namespace Account_Service.ObjectStorage
             return existedAccount;
         }
 
-        public static List<Transaction> FindAll()
+        public static async Task<List<Transaction>> FindAll()
         {
-            return Transactions.Select(account => new Transaction(account.Id, account)).ToList();
+            return await Task.Run(() => Transactions.Select(account => new Transaction(account.Id, account)).ToList());
         }
 
-        public static Transaction Add(Transaction transaction)
+        public static async Task<Transaction> Add(Transaction transaction)
         {
             transaction = new Transaction(Guid.NewGuid(), transaction);
 
-            Transactions.Add(transaction);
+            await Task.Run(() => Transactions.Add(transaction));
 
             return transaction;
         }
 
-        public static Transaction? Update(Transaction transaction)
+        public static async Task<Transaction?> Update(Transaction transaction)
         {
             if (transaction.Id != Guid.Empty)
             {
-                Transaction? existedTransaction = Transactions.Find(a => a.Id.Equals(transaction.Id));
+                Transaction? existedTransaction = await Task.Run(() => Transactions.Find(a => a.Id.Equals(transaction.Id)));
 
                 if (existedTransaction != null)
                 {
@@ -53,13 +53,13 @@ namespace Account_Service.ObjectStorage
             return null;
         }
 
-        public static bool Delete(Guid id)
+        public static async Task<bool> Delete(Guid id)
         {
-            Transaction? existedTransaction = Transactions.Find(a => a.Id.Equals(id));
+            Transaction? existedTransaction = await Task.Run(() => Transactions.Find(a => a.Id.Equals(id)));
 
             if (existedTransaction != null)
             {
-                return Transactions.Remove(existedTransaction);
+                return await Task.Run(() => Transactions.Remove(existedTransaction));
             }
 
             return false;
