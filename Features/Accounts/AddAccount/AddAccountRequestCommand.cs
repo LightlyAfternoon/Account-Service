@@ -2,14 +2,36 @@
 
 namespace Account_Service.Features.Accounts.AddAccount
 {
-    public class AddAccountRequestCommand :IRequest<AccountDto>
+    /// <inheritdoc />
+    public class AddAccountRequestCommand(Guid ownerId, string type, string currency, decimal balance, decimal? interestRate, DateOnly openDate, DateOnly? closeDate) : IRequest<AccountDto>
     {
-        public User Owner { get; set; }
-        public AccountType Type { get; set; }
-        public CurrencyCode Currency { get; set; }
-        public decimal Balance { get; set; }
-        public decimal? InterestRate { get; set; }
-        public DateOnly OpenDate { get; set; }
-        public DateOnly? CloseDate { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        public Guid OwnerId { get; set; } = ownerId;
+        /// <summary>
+        /// 
+        /// </summary>
+        public string Type { get; set; } = type;
+        /// <summary>
+        /// 
+        /// </summary>
+        public string Currency { get; set; } = currency;
+        /// <summary>
+        /// 
+        /// </summary>
+        public decimal Balance { get; set; } = balance;
+        /// <summary>
+        /// 
+        /// </summary>
+        public decimal? InterestRate { get; set; } = interestRate;
+        /// <summary>
+        /// 
+        /// </summary>
+        public DateOnly OpenDate { get; set; } = openDate;
+        /// <summary>
+        /// 
+        /// </summary>
+        public DateOnly? CloseDate { get; set; } = closeDate;
     }
 }

@@ -1,29 +1,34 @@
-﻿using Account_Service.Infrastructure;
+﻿using Account_Service.Features.Accounts;
+using Account_Service.Infrastructure;
 using MediatR;
 
 namespace Account_Service.Features.Transactions.AddTransaction
 {
+    /// <inheritdoc />
     public class AddTransactionHandler : IRequestHandler<AddTransactionRequestCommand, TransactionDto?>
     {
         private readonly ITransactionsRepository _transactionsRepository;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="transactionsRepository"></param>
         public AddTransactionHandler(ITransactionsRepository transactionsRepository)
         {
             _transactionsRepository = transactionsRepository;
         }
 
+        /// <inheritdoc />
         public async Task<TransactionDto?> Handle(AddTransactionRequestCommand requestCommand, CancellationToken cancellationToken)
         {
-            TransactionDto dto = new TransactionDto(Guid.Empty)
-            {
-                Account = requestCommand.Account,
-                CounterpartyAccount = requestCommand.CounterpartyAccount,
-                Sum = requestCommand.Sum,
-                Currency = requestCommand.Currency,
-                Type = requestCommand.Type,
-                Description = requestCommand.Description,
-                DateTime = requestCommand.DateTime
-            };
+            TransactionDto dto = new TransactionDto(id: Guid.Empty,
+                accountId: requestCommand.AccountId,
+                counterpartyAccountId: Guid.Empty,
+                sum: requestCommand.Sum,
+                currency: Enum.Parse<CurrencyCode>(requestCommand.Currency),
+                type: Enum.Parse<TransactionType>(requestCommand.Type),
+                description: requestCommand.Description,
+                dateTime: requestCommand.DateTime);
 
             Transaction? transaction = await _transactionsRepository.Save(TransactionMappers.MapToEntity(dto));
 

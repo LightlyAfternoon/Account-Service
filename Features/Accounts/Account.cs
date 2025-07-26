@@ -4,48 +4,89 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Account_Service.Features.Accounts
 {
-    public class Account
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="ownerId"></param>
+    /// <param name="type"></param>
+    /// <param name="currency"></param>
+    /// <param name="balance"></param>
+    /// <param name="interestRate"></param>
+    /// <param name="openDate"></param>
+    /// <param name="closeDate"></param>
+    public class Account(
+        Guid id,
+        Guid ownerId,
+        AccountType type,
+        CurrencyCode currency,
+        decimal balance,
+        decimal? interestRate,
+        DateOnly openDate,
+        DateOnly? closeDate)
     {
+        /// <summary>
+        /// 
+        /// </summary>
         [Required]
         [Column("id")]
-        public Guid Id { get; }
+        public Guid Id { get; } = id;
+
+        /// <summary>
+        /// 
+        /// </summary>
         [Required]
         [Column("ownerId")]
-        public User Owner { get; set; }
+        public Guid OwnerId { get; set; } = ownerId;
+
+        /// <summary>
+        /// 
+        /// </summary>
         [Required]
         [Column("type")]
-        public AccountType Type { get; set; }
+        public AccountType Type { get; set; } = type;
+
+        /// <summary>
+        /// 
+        /// </summary>
         [Required]
         [Column("currency")]
-        public CurrencyCode Currency { get; set; }
+        public CurrencyCode Currency { get; set; } = currency;
+
+        /// <summary>
+        /// 
+        /// </summary>
         [Required]
         [Column("balance")]
-        public decimal Balance { get; set; }
+        public decimal Balance { get; set; } = balance;
+
+        /// <summary>
+        /// 
+        /// </summary>
         [Column("interestRate")]
-        public decimal? InterestRate { get; set; }
+        public decimal? InterestRate { get; set; } = interestRate;
+
+        /// <summary>
+        /// 
+        /// </summary>
         [Required]
         [Column("openDate")]
-        public DateOnly OpenDate { get; set; }
-        [Column("closeDate")]
-        public DateOnly? CloseDate { get; set; }
+        public DateOnly OpenDate { get; set; } = openDate;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        [Column("closeDate")]
+        public DateOnly? CloseDate { get; set; } = closeDate;
+
+        /// <summary>
+        /// 
+        /// </summary>
         public ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
 
-        public Account(Guid id)
+        /// <inheritdoc />
+        public Account(Guid id, Account account) : this(id, account.OwnerId, account.Type, account.Currency, account.Balance, account.InterestRate, account.OpenDate, account.CloseDate)
         {
-            Id = id;
-        }
-
-        public Account(Guid id, Account account)
-        {
-            Id = id;
-            Owner = new User(account.Owner.Id, account.Owner);
-            Type = account.Type;
-            Currency = account.Currency;
-            Balance = account.Balance;
-            InterestRate = account.InterestRate;
-            OpenDate = account.OpenDate;
-            CloseDate = account.CloseDate;
         }
     }
 }

@@ -3,27 +3,31 @@ using MediatR;
 
 namespace Account_Service.Features.Accounts.UpdateAccount
 {
+    /// <inheritdoc />
     public class UpdateAccountHandler : IRequestHandler<UpdateAccountRequestCommand, AccountDto?>
     {
         private readonly IAccountsRepository _accountsRepository;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="accountsRepository"></param>
         public UpdateAccountHandler(IAccountsRepository accountsRepository)
         {
             _accountsRepository = accountsRepository;
         }
 
+        /// <inheritdoc />
         public async Task<AccountDto?> Handle(UpdateAccountRequestCommand requestCommand, CancellationToken cancellationToken)
         {
-            AccountDto dto = new AccountDto(requestCommand.Id)
-            {
-                Owner = requestCommand.Owner,
-                Type = requestCommand.Type,
-                Currency = requestCommand.Currency,
-                Balance = requestCommand.Balance,
-                InterestRate = requestCommand.InterestRate,
-                OpenDate = requestCommand.OpenDate,
-                CloseDate = requestCommand.CloseDate
-            };
+            AccountDto dto = new AccountDto(id: requestCommand.Id,
+                ownerId: requestCommand.OwnerId,
+                type: Enum.Parse<AccountType>(requestCommand.Type),
+                currency: Enum.Parse<CurrencyCode>(requestCommand.Currency),
+                balance: requestCommand.Balance,
+                interestRate: requestCommand.InterestRate,
+                openDate: requestCommand.OpenDate,
+                closeDate: requestCommand.CloseDate);
 
             Account? account = await _accountsRepository.Save(AccountMappers.MapToEntity(dto));
 

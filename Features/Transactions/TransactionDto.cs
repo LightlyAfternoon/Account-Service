@@ -1,33 +1,66 @@
 ﻿using Account_Service.Features.Accounts;
+using System.Text.Json.Serialization;
 
 namespace Account_Service.Features.Transactions
 {
-    public class TransactionDto
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="accountId"></param>
+    /// <param name="counterpartyAccountId"></param>
+    /// <param name="sum"></param>
+    /// <param name="currency"></param>
+    /// <param name="type"></param>
+    /// <param name="description"></param>
+    /// <param name="dateTime"></param>
+    [method: JsonConstructor]
+    public class TransactionDto(
+        Guid id,
+        Guid accountId,
+        Guid counterpartyAccountId,
+        decimal sum,
+        CurrencyCode currency,
+        TransactionType type,
+        string description,
+        DateTime dateTime)
     {
-        public Guid Id { get; }
-        public Account Account { get; set; }
-        public Account CounterpartyAccount { get; set; }
-        public decimal Sum { get; set; }
-        public CurrencyCode Currency { get; set; }
-        public TransactionType Type { get; set; }
-        public string Description { get; set; }
-        public DateTime DateTime { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        public Guid Id { get; } = id;
+        /// <summary>
+        /// 
+        /// </summary>
+        public Guid AccountId { get; set; } = accountId;
+        /// <summary>
+        /// 
+        /// </summary>
+        public Guid CounterpartyAccountId { get; set; } = counterpartyAccountId;
+        /// <summary>
+        /// 
+        /// </summary>
+        public decimal Sum { get; set; } = sum;
+        /// <summary>
+        /// 
+        /// </summary>
+        public CurrencyCode Currency { get; set; } = currency;
+        /// <summary>
+        /// 
+        /// </summary>
+        public TransactionType Type { get; set; } = type;
+        /// <summary>
+        /// 
+        /// </summary>
+        public string Description { get; set; } = description;
+        /// <summary>
+        /// 
+        /// </summary>
+        public DateTime DateTime { get; set; } = dateTime;
 
-        public TransactionDto(Guid id)
+        /// <inheritdoc />
+        public TransactionDto(Guid id, TransactionDto transactionDto) : this(id, transactionDto.AccountId, transactionDto.CounterpartyAccountId, transactionDto.Sum, transactionDto.Currency, transactionDto.Type, transactionDto.Description, transactionDto.DateTime)
         {
-            Id = id;
-        }
-
-        public TransactionDto(Guid id, TransactionDto transactionDto)
-        {
-            Id = id;
-            Account = new Account(transactionDto.Account.Id, transactionDto.Account);
-            CounterpartyAccount = new Account(transactionDto.Account.Id, transactionDto.Account);
-            Sum = transactionDto.Sum;
-            Currency = transactionDto.Currency;
-            Type = transactionDto.Type;
-            Description = transactionDto.Description;
-            DateTime = transactionDto.DateTime;
         }
     }
 }

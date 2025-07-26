@@ -2,28 +2,27 @@
 
 namespace Account_Service.Infrastructure
 {
-    public class AccountMappers
+    /// <inheritdoc />
+    public class AccountMappers : IMappers<AccountDto, Account>
     {
-        public static AccountDto MapToDto(Account account) => new(account.Id)
-        {
-            Owner = new User(account.Owner.Id, account.Owner),
-            Type = account.Type,
-            Currency = account.Currency,
-            Balance = account.Balance,
-            InterestRate = account.InterestRate,
-            OpenDate = account.OpenDate,
-            CloseDate = account.CloseDate
-        };
+        /// <inheritdoc />
+        public static AccountDto MapToDto(Account account) => new(id: account.Id,
+            ownerId: account.OwnerId,
+            type: account.Type,
+            currency: account.Currency,
+            balance: account.Balance,
+            interestRate: account.InterestRate,
+            openDate: account.OpenDate,
+            closeDate: account.CloseDate);
 
-        public static Account MapToEntity(AccountDto accountDto) => new(accountDto.Id)
-        {
-            Owner = new User(accountDto.Owner.Id, accountDto.Owner),
-            Type = accountDto.Type,
-            Currency = accountDto.Currency,
-            Balance = accountDto.Balance,
-            InterestRate = accountDto.InterestRate,
-            OpenDate = accountDto.OpenDate,
-            CloseDate = accountDto.CloseDate
-        };
+        /// <inheritdoc />
+        public static Account MapToEntity(AccountDto accountDto) => new(id: accountDto.Id,
+            ownerId: accountDto.OwnerId,
+            type: accountDto.Type,
+            currency: accountDto.Currency,
+            balance: accountDto.Balance,
+            interestRate: accountDto.InterestRate,
+            openDate: accountDto.OpenDate,
+            closeDate: accountDto.CloseDate);
     }
 }

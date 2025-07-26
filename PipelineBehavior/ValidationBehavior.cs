@@ -1,20 +1,24 @@
-﻿using System.ComponentModel.DataAnnotations;
-using FluentValidation;
+﻿using FluentValidation;
 using MediatR;
-using ValidationException = FluentValidation.ValidationException;
 
 namespace Account_Service.PipelineBehavior
 {
+    /// <inheritdoc />
     public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
         where TRequest : IRequest<TResponse>
     {
         private readonly IEnumerable<IValidator<TRequest>> _validators;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="validators"></param>
         public ValidationBehavior(IEnumerable<IValidator<TRequest>> validators)
         {
             _validators = validators;
         }
 
+        /// <inheritdoc />
         public Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
         {
             var context = new ValidationContext<TRequest>(request);
@@ -28,7 +32,7 @@ namespace Account_Service.PipelineBehavior
                 throw new ValidationException(failures);
             }
 
-            return next();
+            return next(cancellationToken);
         }
     }
 }

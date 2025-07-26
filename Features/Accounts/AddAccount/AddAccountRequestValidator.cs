@@ -1,26 +1,35 @@
-﻿using FluentValidation;
+﻿using Account_Service.Features.Users;
+using FluentValidation;
 
 namespace Account_Service.Features.Accounts.AddAccount
 {
+    /// <inheritdoc />
     public class AddAccountRequestValidator : AbstractValidator<AddAccountRequestCommand>
     {
-        public AddAccountRequestValidator()
+        /// <inheritdoc />
+        public AddAccountRequestValidator(IUsersService usersService)
         {
-            RuleFor(a => a.Owner).NotEmpty();
+            RuleFor(a => a.OwnerId).NotEmpty().WithMessage("Отсутствует id владельца счёта");
 
-            RuleFor(a => a.Type).NotEmpty();
+            RuleFor(a => a.Type).NotEmpty().WithMessage("Отсутствует тип счёта");
 
-            RuleFor(a => a.Currency).NotEmpty();
+            RuleFor(a => a.Type).Must(type => Enum.TryParse(type, out AccountType _)).WithMessage("Данный тип счёта не существует");
 
-            RuleFor(a => a.Balance).NotEmpty();
+            RuleFor(a => a.Currency).NotEmpty().WithMessage("Отсутствует валюта счёта");
+
+            RuleFor(a => a.Currency).Must(type => Enum.TryParse(type, out CurrencyCode _)).WithMessage("Валюта с данным кодом не поддерживается");
+
+            RuleFor(a => a.Balance).NotEmpty().WithMessage("Отсутствует баланс счёта");
 
             RuleFor(a => a.InterestRate).Empty()
-                .When(a => a.Type.Equals(AccountType.Checking));
+                .When(a => a.Type.Equals(nameof(AccountType.Checking))).WithMessage("Для текущего счёта не может быть процентной ставки");
             
-            RuleFor(a => a.OpenDate).NotEmpty();
+            RuleFor(a => a.OpenDate).NotEmpty().WithMessage("Отсутствует дата открытия счёта");
 
             RuleFor(a => a.CloseDate).GreaterThanOrEqualTo(a => a.OpenDate)
-                .When(a => a.CloseDate != null);
+                .When(a => a.CloseDate != null).WithMessage("Дата закрытия счёта раньше даты открытия");
+
+            RuleFor(a => usersService.FindById(a.OwnerId)).NotEmpty().WithMessage("Владелец с данным id не существует");
         }
     }
 }

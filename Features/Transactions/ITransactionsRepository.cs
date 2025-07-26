@@ -2,7 +2,6 @@
 
 namespace Account_Service.Features.Transactions
 {
-    public interface ITransactionsRepository : IRepository<Transaction>
-    {
-    }
+    /// <inheritdoc />
+    public interface ITransactionsRepository : IRepository<Transaction>;
 }

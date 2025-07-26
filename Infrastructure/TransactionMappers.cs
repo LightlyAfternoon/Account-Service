@@ -1,30 +1,28 @@
-﻿using Account_Service.Features.Accounts;
-using Account_Service.Features.Transactions;
+﻿using Account_Service.Features.Transactions;
 
 namespace Account_Service.Infrastructure
 {
-    public class TransactionMappers
+    /// <inheritdoc />
+    public class TransactionMappers : IMappers<TransactionDto, Transaction>
     {
-        public static TransactionDto MapToDto(Transaction transaction) => new(transaction.Id)
-        {
-            Account = new Account(transaction.Account.Id, transaction.Account),
-            CounterpartyAccount = new Account(transaction.Account.Id, transaction.Account),
-            Sum = transaction.Sum,
-            Currency = transaction.Currency,
-            Type = transaction.Type,
-            Description = transaction.Description,
-            DateTime = transaction.DateTime
-        };
+        /// <inheritdoc />
+        public static TransactionDto MapToDto(Transaction transaction) => new(id: transaction.Id,
+            accountId: transaction.AccountId,
+            counterpartyAccountId: transaction.CounterpartyAccountId,
+            sum: transaction.Sum,
+            currency: transaction.Currency,
+            type: transaction.Type,
+            description: transaction.Description,
+            dateTime: transaction.DateTime);
 
-        public static Transaction MapToEntity(TransactionDto transactionDto) => new(transactionDto.Id)
-        {
-            Account = new Account(transactionDto.Account.Id, transactionDto.Account),
-            CounterpartyAccount = new Account(transactionDto.Account.Id, transactionDto.Account),
-            Sum = transactionDto.Sum,
-            Currency = transactionDto.Currency,
-            Type = transactionDto.Type,
-            Description = transactionDto.Description,
-            DateTime = transactionDto.DateTime
-        };
+        /// <inheritdoc />
+        public static Transaction MapToEntity(TransactionDto transactionDto) => new(id: transactionDto.Id,
+            accountId: transactionDto.AccountId,
+            counterpartyAccountId: transactionDto.CounterpartyAccountId,
+            sum: transactionDto.Sum,
+            currency: transactionDto.Currency,
+            type: transactionDto.Type,
+            description: transactionDto.Description,
+            dateTime: transactionDto.DateTime);
     }
 }

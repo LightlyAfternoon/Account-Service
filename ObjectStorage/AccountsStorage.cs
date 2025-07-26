@@ -2,10 +2,18 @@
 
 namespace Account_Service.ObjectStorage
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class AccountsStorage
     {
         private static readonly List<Account> Accounts = new();
         
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public static async Task<Account?> Find(Guid id)
         {
             Account? existedAccount = await Task.Run(() => Accounts.Find(a => a.Id.Equals(id)));
@@ -13,16 +21,27 @@ namespace Account_Service.ObjectStorage
             if (existedAccount != null)
             {
                 existedAccount = new Account(existedAccount.Id, existedAccount);
+
+                existedAccount.Transactions = (await TransactionsStorage.FindAll()).Where(t => t.AccountId.Equals(existedAccount.Id)).ToList();
             }
 
             return existedAccount;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public static async Task<List<Account>> FindAll()
         {
             return await Task.Run(() => Accounts.Select(account => new Account(account.Id, account)).ToList());
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="account"></param>
+        /// <returns></returns>
         public static async Task<Account> Add(Account account)
         {
             account = new Account(Guid.NewGuid(), account);
@@ -32,6 +51,11 @@ namespace Account_Service.ObjectStorage
             return account;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="account"></param>
+        /// <returns></returns>
         public static async Task<Account?> Update(Account account)
         {
             if (account.Id != Guid.Empty)
@@ -40,7 +64,7 @@ namespace Account_Service.ObjectStorage
 
                 if (existedAccount != null)
                 {
-                    existedAccount.Owner = account.Owner;
+                    existedAccount.OwnerId = account.OwnerId;
                     existedAccount.Type = account.Type;
                     existedAccount.Currency = account.Currency;
                     existedAccount.Balance = account.Balance;
@@ -53,6 +77,11 @@ namespace Account_Service.ObjectStorage
             return null;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public static async Task<bool> Delete(Guid id)
         {
             Account? existedAccount = await Task.Run(() => Accounts.Find(a => a.Id.Equals(id)));

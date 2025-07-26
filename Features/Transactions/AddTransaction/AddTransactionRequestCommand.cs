@@ -1,16 +1,33 @@
-﻿using Account_Service.Features.Accounts;
-using MediatR;
+﻿using MediatR;
 
 namespace Account_Service.Features.Transactions.AddTransaction
 {
-    public class AddTransactionRequestCommand :IRequest<TransactionDto>
+    /// <inheritdoc />
+    public class AddTransactionRequestCommand(Guid accountId, decimal sum, string currency, string type, string description, DateTime dateTime) : IRequest<TransactionDto>
     {
-        public Account Account { get; set; }
-        public Account CounterpartyAccount { get; set; }
-        public decimal Sum { get; set; }
-        public CurrencyCode Currency { get; set; }
-        public TransactionType Type { get; set; }
-        public string Description { get; set; }
-        public DateTime DateTime { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        public Guid AccountId { get; set; } = accountId;
+        /// <summary>
+        /// 
+        /// </summary>
+        public decimal Sum { get; set; } = sum;
+        /// <summary>
+        /// 
+        /// </summary>
+        public string Currency { get; set; } = currency;
+        /// <summary>
+        /// 
+        /// </summary>
+        public string Type { get; set; } = type;
+        /// <summary>
+        /// 
+        /// </summary>
+        public string Description { get; set; } = description;
+        /// <summary>
+        /// 
+        /// </summary>
+        public DateTime DateTime { get; set; } = dateTime;
     }
 }

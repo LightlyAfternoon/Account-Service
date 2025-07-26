@@ -4,59 +4,85 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Account_Service.Features.Transactions
 {
-    public class Transaction
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="accountId"></param>
+    /// <param name="counterpartyAccountId"></param>
+    /// <param name="sum"></param>
+    /// <param name="currency"></param>
+    /// <param name="type"></param>
+    /// <param name="description"></param>
+    /// <param name="dateTime"></param>
+    public class Transaction(
+        Guid id,
+        Guid accountId,
+        Guid counterpartyAccountId,
+        decimal sum,
+        CurrencyCode currency,
+        TransactionType type,
+        string description,
+        DateTime dateTime)
     {
+        /// <summary>
+        /// 
+        /// </summary>
         [Required]
         [Column("id")]
-        public Guid Id { get; }
+        public Guid Id { get; } = id;
+
+        /// <summary>
+        /// 
+        /// </summary>
         [Required]
         [Column("accountId")]
-        public Account Account { get; set; }
+        public Guid AccountId { get; set; } = accountId;
+
+        /// <summary>
+        /// 
+        /// </summary>
         [Required]
         [Column("counterpartyAccountId")]
-        public Account CounterpartyAccount { get; set; }
+        public Guid CounterpartyAccountId { get; set; } = counterpartyAccountId;
+
+        /// <summary>
+        /// 
+        /// </summary>
         [Required]
         [Column("sum")]
-        public decimal Sum { get; set; }
+        public decimal Sum { get; set; } = sum;
+
+        /// <summary>
+        /// 
+        /// </summary>
         [Required]
         [Column("currency")]
-        public CurrencyCode Currency { get; set; }
+        public CurrencyCode Currency { get; set; } = currency;
+
+        /// <summary>
+        /// 
+        /// </summary>
         [Required]
         [Column("type")]
-        public TransactionType Type { get; set; }
+        public TransactionType Type { get; set; } = type;
+
+        /// <summary>
+        /// 
+        /// </summary>
         [Required]
         [Column("description")]
-        public string Description { get; set; }
+        public string Description { get; set; } = description;
+
+        /// <summary>
+        /// 
+        /// </summary>
         [Column("dateTime")]
-        public DateTime DateTime { get; set; }
+        public DateTime DateTime { get; set; } = dateTime;
 
-        public Transaction(Guid id)
+        /// <inheritdoc />
+        public Transaction(Guid id, Transaction transaction) : this(id, transaction.AccountId, transaction.CounterpartyAccountId, transaction.Sum, transaction.Currency, transaction.Type, transaction.Description, transaction.DateTime)
         {
-            Id = id;
-        }
-
-        public Transaction(Guid id, Transaction transaction)
-        {
-            Id = id;
-            Account = new Account(transaction.Account.Id, transaction.Account);
-            CounterpartyAccount = new Account(transaction.CounterpartyAccount.Id, transaction.CounterpartyAccount);
-            Sum = transaction.Sum;
-            Currency = transaction.Currency;
-            Type = transaction.Type;
-            Description = transaction.Description;
-            DateTime = transaction.DateTime;
-        }
-
-        public Transaction(Guid id, Account account, Account counterpartyAccount, decimal sum, CurrencyCode currency, TransactionType type, string description, DateTime dateTime) : this(id)
-        {
-            Id = id;
-            Account = new Account(account.Id, account);
-            CounterpartyAccount = new Account(counterpartyAccount.Id, counterpartyAccount);
-            Sum = sum;
-            Currency = currency;
-            Type = type;
-            Description = description;
-            DateTime = dateTime;
         }
     }
 }
