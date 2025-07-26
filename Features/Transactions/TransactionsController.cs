@@ -23,8 +23,8 @@ namespace Account_Service.Features.Transactions
         /// Получение выписки по счёту
         /// </summary>
         /// <param name="accountId">id счёта</param>
-        /// <param name="startDate">начальная дата периода</param>
-        /// <param name="endDate">конечная дата периода</param>
+        /// <param name="startDate">Начальная дата периода</param>
+        /// <param name="endDate">Конечная дата периода</param>
         /// <returns>Выписку по счёту в указанном периоде</returns>
         [HttpGet]
         public async Task<IResult> GetAccountStatementOnPeriod(Guid accountId, DateTime startDate, DateTime endDate)
@@ -46,8 +46,8 @@ namespace Account_Service.Features.Transactions
         /// <summary>
         /// Добавление перевода между счетами
         /// </summary>
-        /// <param name="fromAccountId">id аккаунта, с которого производится перевод</param>
-        /// <param name="toAccountId">id аккаунта, на который производится перевод</param>
+        /// <param name="fromAccountId">Id аккаунта, с которого производится перевод</param>
+        /// <param name="toAccountId">Id аккаунта, на который производится перевод</param>
         /// <param name="requestCommand">Данные транзакции</param>
         /// <returns>Данные транзакции счёта, с которого произведён перевод</returns>
         [HttpPost("from/{fromAccountId}/to/{toAccountId}")]

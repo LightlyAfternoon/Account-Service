@@ -1,5 +1,4 @@
 ﻿using System.Text.Json.Serialization;
-using Account_Service.Features.Accounts;
 using MediatR;
 
 namespace Account_Service.Features.Transactions.UpdateTransaction

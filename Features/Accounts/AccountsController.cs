@@ -32,7 +32,7 @@ namespace Account_Service.Features.Accounts
         /// <summary>
         /// Получение информации о том, есть ли у клиента счета
         /// </summary>
-        /// <param name="ownerId">id клиента</param>
+        /// <param name="ownerId">Id клиента</param>
         /// <returns>Сообщение с информации о том, есть или нет у данного клиента счетов</returns>
         [HttpGet("client/{ownerId}")]
         public async Task<IResult> GetClientHasAnyAccount(Guid ownerId)

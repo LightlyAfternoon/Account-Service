@@ -24,7 +24,7 @@ namespace Account_Service.Features.Accounts.UpdateAccount
             RuleFor(a => a.Balance).NotEmpty().WithMessage("Отсутствует баланс счёта");
 
             RuleFor(a => a.InterestRate).Empty()
-                .When(a => a.Type.Equals(AccountType.Checking)).WithMessage("Для текущего счёта не может быть процентной ставки");
+                .When(a => Enum.Parse<AccountType>(a.Type).Equals(AccountType.Checking)).WithMessage("Для текущего счёта не может быть процентной ставки");
             
             RuleFor(a => a.OpenDate).NotEmpty().WithMessage("Отсутствует дата открытия счёта");
 
