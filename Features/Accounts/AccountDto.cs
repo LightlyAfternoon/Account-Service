@@ -17,8 +17,8 @@ namespace Account_Service.Features.Accounts
     public class AccountDto(
         Guid id,
         Guid ownerId,
-        AccountType type,
-        CurrencyCode currency,
+        string type,
+        string currency,
         decimal balance,
         decimal? interestRate,
         DateOnly openDate,
@@ -35,11 +35,11 @@ namespace Account_Service.Features.Accounts
         /// <summary>
         /// 
         /// </summary>
-        public AccountType Type { get; set; } = type;
+        public string Type { get; set; } = type;
         /// <summary>
         /// 
         /// </summary>
-        public CurrencyCode Currency { get; set; } = currency;
+        public string Currency { get; set; } = currency;
         /// <summary>
         /// 
         /// </summary>

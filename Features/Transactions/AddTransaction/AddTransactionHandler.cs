@@ -1,5 +1,4 @@
-﻿using Account_Service.Features.Accounts;
-using Account_Service.Infrastructure;
+﻿using Account_Service.Infrastructure.Mappers;
 using MediatR;
 
 namespace Account_Service.Features.Transactions.AddTransaction
@@ -25,8 +24,8 @@ namespace Account_Service.Features.Transactions.AddTransaction
                 accountId: requestCommand.AccountId,
                 counterpartyAccountId: Guid.Empty,
                 sum: requestCommand.Sum,
-                currency: Enum.Parse<CurrencyCode>(requestCommand.Currency),
-                type: Enum.Parse<TransactionType>(requestCommand.Type),
+                currency: requestCommand.Currency,
+                type: requestCommand.Type,
                 description: requestCommand.Description,
                 dateTime: requestCommand.DateTime);
 

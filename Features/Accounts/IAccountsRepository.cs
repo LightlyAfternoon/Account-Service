@@ -1,4 +1,4 @@
-﻿using Account_Service.Infrastructure;
+﻿using Account_Service.Infrastructure.Repositories;
 
 namespace Account_Service.Features.Accounts
 {

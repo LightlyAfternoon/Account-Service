@@ -23,9 +23,9 @@ namespace Account_Service.Features.Transactions.AddTransferTransactions
 
             RuleFor(t => t.DateTime).NotEmpty().WithMessage("Отсутствует дата и время отправки транзакции");
 
-            RuleFor(t => accountService.FindById(t.FromAccountId)).NotEmpty().WithMessage("Счёт с данным id не существует");
+            RuleFor(t => accountService.FindById(t.FromAccountId).Result).NotEmpty().WithMessage("Счёт с данным id не существует");
 
-            RuleFor(t => accountService.FindById(t.ToAccountId)).NotEmpty().WithMessage("Счёт с данным id не существует");
+            RuleFor(t => accountService.FindById(t.ToAccountId).Result).NotEmpty().WithMessage("Счёт с данным id не существует");
 
             RuleFor(t => t.FromAccountId).NotEqual(t => t.ToAccountId).WithMessage("Счёт, с которого, и счёт, на который отправляются деньги, не могут быть одним и тем же счётом");
         }

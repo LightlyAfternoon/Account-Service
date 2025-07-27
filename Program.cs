@@ -3,7 +3,7 @@ using Account_Service.Exceptions;
 using Account_Service.Features.Accounts;
 using Account_Service.Features.Transactions;
 using Account_Service.Features.Users;
-using Account_Service.Infrastructure;
+using Account_Service.Infrastructure.Repositories;
 using Account_Service.PipelineBehavior;
 using FluentValidation;
 using MediatR;

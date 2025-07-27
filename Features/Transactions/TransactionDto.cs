@@ -1,5 +1,4 @@
-﻿using Account_Service.Features.Accounts;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Account_Service.Features.Transactions
 {
@@ -20,8 +19,8 @@ namespace Account_Service.Features.Transactions
         Guid accountId,
         Guid counterpartyAccountId,
         decimal sum,
-        CurrencyCode currency,
-        TransactionType type,
+        string currency,
+        string type,
         string description,
         DateTime dateTime)
     {
@@ -44,11 +43,11 @@ namespace Account_Service.Features.Transactions
         /// <summary>
         /// 
         /// </summary>
-        public CurrencyCode Currency { get; set; } = currency;
+        public string Currency { get; set; } = currency;
         /// <summary>
         /// 
         /// </summary>
-        public TransactionType Type { get; set; } = type;
+        public string Type { get; set; } = type;
         /// <summary>
         /// 
         /// </summary>

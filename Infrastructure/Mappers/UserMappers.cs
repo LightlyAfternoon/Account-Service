@@ -1,6 +1,6 @@
 ﻿using Account_Service.Features.Users;
 
-namespace Account_Service.Infrastructure
+namespace Account_Service.Infrastructure.Mappers
 {
     /// <inheritdoc />
     public class UserMappers : IMappers<UserDto, User>

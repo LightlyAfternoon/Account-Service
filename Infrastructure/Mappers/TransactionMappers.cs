@@ -1,6 +1,7 @@
-﻿using Account_Service.Features.Transactions;
+﻿using Account_Service.Features.Accounts;
+using Account_Service.Features.Transactions;
 
-namespace Account_Service.Infrastructure
+namespace Account_Service.Infrastructure.Mappers
 {
     /// <inheritdoc />
     public class TransactionMappers : IMappers<TransactionDto, Transaction>
@@ -10,8 +11,8 @@ namespace Account_Service.Infrastructure
             accountId: transaction.AccountId,
             counterpartyAccountId: transaction.CounterpartyAccountId,
             sum: transaction.Sum,
-            currency: transaction.Currency,
-            type: transaction.Type,
+            currency: transaction.Currency.ToString(),
+            type: transaction.Type.ToString(),
             description: transaction.Description,
             dateTime: transaction.DateTime);
 
@@ -20,8 +21,8 @@ namespace Account_Service.Infrastructure
             accountId: transactionDto.AccountId,
             counterpartyAccountId: transactionDto.CounterpartyAccountId,
             sum: transactionDto.Sum,
-            currency: transactionDto.Currency,
-            type: transactionDto.Type,
+            currency: Enum.Parse<CurrencyCode>(transactionDto.Currency),
+            type: Enum.Parse<TransactionType>(transactionDto.Type),
             description: transactionDto.Description,
             dateTime: transactionDto.DateTime);
     }

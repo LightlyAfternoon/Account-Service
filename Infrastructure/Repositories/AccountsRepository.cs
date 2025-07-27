@@ -1,7 +1,7 @@
 ﻿using Account_Service.Features.Accounts;
 using Account_Service.ObjectStorage;
 
-namespace Account_Service.Infrastructure
+namespace Account_Service.Infrastructure.Repositories
 {
     /// <inheritdoc />
     public class AccountsRepository : IAccountsRepository

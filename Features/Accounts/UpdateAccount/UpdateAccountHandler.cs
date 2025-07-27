@@ -1,4 +1,4 @@
-﻿using Account_Service.Infrastructure;
+﻿using Account_Service.Infrastructure.Mappers;
 using MediatR;
 
 namespace Account_Service.Features.Accounts.UpdateAccount
@@ -22,8 +22,8 @@ namespace Account_Service.Features.Accounts.UpdateAccount
         {
             AccountDto dto = new AccountDto(id: requestCommand.Id,
                 ownerId: requestCommand.OwnerId,
-                type: Enum.Parse<AccountType>(requestCommand.Type),
-                currency: Enum.Parse<CurrencyCode>(requestCommand.Currency),
+                type: requestCommand.Type,
+                currency: requestCommand.Currency,
                 balance: requestCommand.Balance,
                 interestRate: requestCommand.InterestRate,
                 openDate: requestCommand.OpenDate,

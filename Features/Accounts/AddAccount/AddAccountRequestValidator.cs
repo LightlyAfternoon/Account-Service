@@ -29,7 +29,7 @@ namespace Account_Service.Features.Accounts.AddAccount
             RuleFor(a => a.CloseDate).GreaterThanOrEqualTo(a => a.OpenDate)
                 .When(a => a.CloseDate != null).WithMessage("Дата закрытия счёта раньше даты открытия");
 
-            RuleFor(a => usersService.FindById(a.OwnerId)).NotEmpty().WithMessage("Владелец с данным id не существует");
+            RuleFor(a => usersService.FindById(a.OwnerId).Result).NotEmpty().WithMessage("Владелец с данным id не существует");
         }
     }
 }

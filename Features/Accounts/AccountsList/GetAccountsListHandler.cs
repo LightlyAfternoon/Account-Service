@@ -1,4 +1,4 @@
-﻿using Account_Service.Infrastructure;
+﻿using Account_Service.Infrastructure.Mappers;
 using MediatR;
 
 namespace Account_Service.Features.Accounts.AccountsList

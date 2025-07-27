@@ -25,7 +25,7 @@ namespace Account_Service.Features.Transactions.AddTransaction
 
             RuleFor(t => t.DateTime).NotEmpty().WithMessage("Отсутствует дата и время отправки транзакции");
 
-            RuleFor(t => accountService.FindById(t.AccountId)).NotEmpty().WithMessage("Счёт с данным id не существует");
+            RuleFor(t => accountService.FindById(t.AccountId).Result).NotEmpty().WithMessage("Счёт с данным id не существует");
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace Account_Service.Infrastructure
+﻿namespace Account_Service.Infrastructure.Mappers
 {
     /// <summary>
     /// 
