@@ -3,16 +3,16 @@
 namespace Account_Service.Features.Transactions
 {
     /// <summary>
-    /// 
+    /// DTO транзакции
     /// </summary>
-    /// <param name="id"></param>
-    /// <param name="accountId"></param>
-    /// <param name="counterpartyAccountId"></param>
-    /// <param name="sum"></param>
-    /// <param name="currency"></param>
-    /// <param name="type"></param>
-    /// <param name="description"></param>
-    /// <param name="dateTime"></param>
+    /// <param name="id">Id транзакции</param>
+    /// <param name="accountId">Id счёта</param>
+    /// <param name="counterpartyAccountId">Id счёта-контрагента</param>
+    /// <param name="sum">Сумма транзакции</param>
+    /// <param name="currency">Тип валюты</param>
+    /// <param name="type">Тип транзакции</param>
+    /// <param name="description">Описание транзакции</param>
+    /// <param name="dateTime">Дата/время транзакции</param>
     [method: JsonConstructor]
     public class TransactionDto(
         Guid id,
@@ -25,35 +25,35 @@ namespace Account_Service.Features.Transactions
         DateTime dateTime)
     {
         /// <summary>
-        /// 
+        /// Id транзакции
         /// </summary>
         public Guid Id { get; } = id;
         /// <summary>
-        /// 
+        /// Id счёта
         /// </summary>
         public Guid AccountId { get; set; } = accountId;
         /// <summary>
-        /// 
+        /// Id счёта-контрагента
         /// </summary>
         public Guid CounterpartyAccountId { get; set; } = counterpartyAccountId;
         /// <summary>
-        /// 
+        /// Сумма транзакции
         /// </summary>
         public decimal Sum { get; set; } = sum;
         /// <summary>
-        /// 
+        /// Тип валюты
         /// </summary>
         public string Currency { get; set; } = currency;
         /// <summary>
-        /// 
+        /// Тип транзакции
         /// </summary>
         public string Type { get; set; } = type;
         /// <summary>
-        /// 
+        /// Описание транзакции
         /// </summary>
         public string Description { get; set; } = description;
         /// <summary>
-        /// 
+        /// Дата/время проведения транзакции
         /// </summary>
         public DateTime DateTime { get; set; } = dateTime;
 

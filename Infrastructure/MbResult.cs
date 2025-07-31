@@ -24,6 +24,6 @@ namespace Account_Service.Infrastructure
         /// Ошибки при выполнении запроса
         /// </summary>
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public TValue? MbError { get; set; }
+        public List<string>? MbError { get; set; }
     }
 }

@@ -81,7 +81,7 @@ namespace Account_Service.Features.Accounts
             if (isDeleted)
                 return new MbResult<string> { Status = HttpStatusCode.OK, Value = $"Пользователь с id={id} удалён" };
             else
-                return new MbResult<string> { Status = HttpStatusCode.BadRequest, MbError = $"Не получилось удалить пользователя с id={id}" };
+                return new MbResult<string> { Status = HttpStatusCode.BadRequest, MbError = [$"Не получилось удалить пользователя с id={id}"] };
         }
     }
 }
