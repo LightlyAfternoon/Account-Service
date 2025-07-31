@@ -1,11 +1,11 @@
 ﻿using Account_Service.Features.Accounts;
 using FluentValidation;
+using JetBrains.Annotations;
 
 namespace Account_Service.Features.Transactions.AddTransaction
 {
     /// <inheritdoc />
-    // ReSharper disable once GrammarMistakeInComment
-    // ReSharper disable once UnusedMember.Global Используется FluentValidator во время выполнения программы
+    [UsedImplicitly]
     public class AddTransactionValidator : AbstractValidator<AddTransactionRequestCommand>
     {
         /// <inheritdoc />
