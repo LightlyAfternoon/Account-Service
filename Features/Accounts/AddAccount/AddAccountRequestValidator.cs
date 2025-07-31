@@ -11,7 +11,10 @@ namespace Account_Service.Features.Accounts.AddAccount
         /// <inheritdoc />
         public AddAccountRequestValidator(IUsersService usersService)
         {
-            RuleFor(a => a.OwnerId).NotEmpty().WithMessage("Отсутствует id владельца счёта");
+            RuleLevelCascadeMode = CascadeMode.Stop;
+
+            RuleFor(a => a.OwnerId).NotEmpty().WithMessage("Отсутствует id владельца счёта")
+                .Must(a => usersService.FindById(a).Result != null);
 
             RuleFor(a => a.Type).NotEmpty().WithMessage("Отсутствует тип счёта");
 
@@ -30,8 +33,6 @@ namespace Account_Service.Features.Accounts.AddAccount
 
             RuleFor(a => a.CloseDate).GreaterThanOrEqualTo(a => a.OpenDate)
                 .When(a => a.CloseDate != null).WithMessage("Дата закрытия счёта раньше даты открытия");
-
-            RuleFor(a => usersService.FindById(a.OwnerId).Result).NotEmpty().WithMessage("Владелец с данным id не существует");
         }
     }
 }
