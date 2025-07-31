@@ -4,6 +4,8 @@ using FluentValidation;
 namespace Account_Service.Features.Accounts.UpdateAccount
 {
     /// <inheritdoc />
+    // ReSharper disable once GrammarMistakeInComment
+    // ReSharper disable once UnusedMember.Global Используется FluentValidator во время выполнения программы
     public class UpdateAccountRequestValidator : AbstractValidator<UpdateAccountRequestCommand>
     {
         /// <inheritdoc />

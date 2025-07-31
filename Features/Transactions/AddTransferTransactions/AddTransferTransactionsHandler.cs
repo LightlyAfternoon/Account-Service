@@ -1,4 +1,5 @@
 ﻿using Account_Service.Features.Accounts;
+using Account_Service.Features.Accounts.UpdateAccount;
 using Account_Service.Infrastructure.Mappers;
 using MediatR;
 
@@ -8,14 +9,17 @@ namespace Account_Service.Features.Transactions.AddTransferTransactions
     public class AddTransferTransactionsHandler : IRequestHandler<AddTransferTransactionsRequestCommand, TransactionDto?>
     {
         private readonly ITransactionsRepository _transactionsRepository;
+        private readonly IAccountService _accountService;
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="transactionsRepository"></param>
-        public AddTransferTransactionsHandler(ITransactionsRepository transactionsRepository)
+        /// <param name="accountService"></param>
+        public AddTransferTransactionsHandler(ITransactionsRepository transactionsRepository, IAccountService accountService)
         {
             _transactionsRepository = transactionsRepository;
+            _accountService = accountService;
         }
 
         /// <inheritdoc />
@@ -40,9 +44,22 @@ namespace Account_Service.Features.Transactions.AddTransferTransactions
                 description: requestCommand.Description,
                 dateTime: requestCommand.DateTime);
 
+            AccountDto? accountDtoFrom = await _accountService.FindById(requestCommand.FromAccountId);
+            AccountDto? accountDtoTo = await _accountService.FindById(requestCommand.ToAccountId);
+
+            if (accountDtoFrom != null)
+                accountDtoFrom.Balance -= requestCommand.Sum;
+            if (accountDtoTo != null)
+                accountDtoTo.Balance += requestCommand.Sum;
+
             await _transactionsRepository.Save(transactionTo);
             if ((transactionFrom = await _transactionsRepository.Save(transactionFrom)) != null)
             {
+                if (accountDtoFrom != null)
+                    await _accountService.Update(accountDtoFrom.Id, new UpdateAccountRequestCommand(accountDtoFrom));
+                if (accountDtoTo != null)
+                    await _accountService.Update(accountDtoTo.Id, new UpdateAccountRequestCommand(accountDtoTo));
+
                 return TransactionMappers.MapToDto(transactionFrom);
             }
 

@@ -3,10 +3,16 @@ using Account_Service.Features.Transactions;
 
 namespace Account_Service.Infrastructure.Mappers
 {
-    /// <inheritdoc />
-    public class TransactionMappers : IMappers<TransactionDto, Transaction>
+    /// <summary>
+    /// 
+    /// </summary>
+    public class TransactionMappers
     {
-        /// <inheritdoc />
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="transaction"></param>
+        /// <returns></returns>
         public static TransactionDto MapToDto(Transaction transaction) => new(id: transaction.Id,
             accountId: transaction.AccountId,
             counterpartyAccountId: transaction.CounterpartyAccountId,
@@ -16,7 +22,11 @@ namespace Account_Service.Infrastructure.Mappers
             description: transaction.Description,
             dateTime: transaction.DateTime);
 
-        /// <inheritdoc />
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="transactionDto"></param>
+        /// <returns></returns>
         public static Transaction MapToEntity(TransactionDto transactionDto) => new(id: transactionDto.Id,
             accountId: transactionDto.AccountId,
             counterpartyAccountId: transactionDto.CounterpartyAccountId,

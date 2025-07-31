@@ -38,5 +38,17 @@ namespace Account_Service.Features.Accounts.UpdateAccount
         /// 
         /// </summary>
         public DateOnly? CloseDate { get; set; } = closeDate;
+
+        /// <inheritdoc />
+        public UpdateAccountRequestCommand(AccountDto accountDto) : this(id: accountDto.Id,
+            ownerId: accountDto.OwnerId,
+            type: accountDto.Type,
+            currency: accountDto.Currency,
+            balance: accountDto.Balance,
+            interestRate: accountDto.InterestRate,
+            openDate: accountDto.OpenDate,
+            closeDate: accountDto.CloseDate)
+        {
+        }
     }
 }

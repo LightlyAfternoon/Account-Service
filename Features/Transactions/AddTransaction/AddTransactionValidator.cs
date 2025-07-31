@@ -4,6 +4,8 @@ using FluentValidation;
 namespace Account_Service.Features.Transactions.AddTransaction
 {
     /// <inheritdoc />
+    // ReSharper disable once GrammarMistakeInComment
+    // ReSharper disable once UnusedMember.Global Используется FluentValidator во время выполнения программы
     public class AddTransactionValidator : AbstractValidator<AddTransactionRequestCommand>
     {
         /// <inheritdoc />
@@ -26,6 +28,16 @@ namespace Account_Service.Features.Transactions.AddTransaction
             RuleFor(t => t.DateTime).NotEmpty().WithMessage("Отсутствует дата и время отправки транзакции");
 
             RuleFor(t => accountService.FindById(t.AccountId).Result).NotEmpty().WithMessage("Счёт с данным id не существует");
+
+            RuleFor(t => t).Must(t =>
+            {
+                AccountDto? accountDto = accountService.FindById(t.AccountId).Result;
+
+                if (accountDto != null && Enum.Parse<TransactionType>(t.Type).Equals(TransactionType.Credit))
+                    return t.Sum <= accountDto.Balance;
+
+                return true;
+            }).WithMessage("Сумма транзакции больше текущего баланса на счёте");
         }
     }
 }

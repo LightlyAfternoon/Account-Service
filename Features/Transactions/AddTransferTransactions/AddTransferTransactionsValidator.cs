@@ -4,6 +4,8 @@ using FluentValidation;
 namespace Account_Service.Features.Transactions.AddTransferTransactions
 {
     /// <inheritdoc />
+    // ReSharper disable once GrammarMistakeInComment
+    // ReSharper disable once UnusedMember.Global Используется FluentValidator во время выполнения программы
     public class AddTransferTransactionsValidator : AbstractValidator<AddTransferTransactionsRequestCommand>
     {
         /// <inheritdoc />
@@ -28,6 +30,16 @@ namespace Account_Service.Features.Transactions.AddTransferTransactions
             RuleFor(t => accountService.FindById(t.ToAccountId).Result).NotEmpty().WithMessage("Счёт с данным id не существует");
 
             RuleFor(t => t.FromAccountId).NotEqual(t => t.ToAccountId).WithMessage("Счёт, с которого, и счёт, на который отправляются деньги, не могут быть одним и тем же счётом");
+
+            RuleFor(t => t).Must(t =>
+            {
+                AccountDto? accountDto = accountService.FindById(t.FromAccountId).Result;
+
+                if (accountDto != null)
+                    return t.Sum <= accountDto.Balance;
+
+                return true;
+            }).WithMessage("Сумма транзакции больше текущего баланса на счёте, с которого происходит списание");
         }
     }
 }
