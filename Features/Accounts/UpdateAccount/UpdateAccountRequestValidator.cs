@@ -24,7 +24,7 @@ namespace Account_Service.Features.Accounts.UpdateAccount
             RuleFor(a => a.Currency).NotEmpty().WithMessage("Отсутствует валюта счёта")
                 .Must(type => Enum.TryParse(type, out CurrencyCode _)).WithMessage("Валюта с данным кодом не поддерживается");
 
-            RuleFor(a => a.Balance).NotEmpty().WithMessage("Отсутствует баланс счёта");
+            RuleFor(a => a.Balance).GreaterThanOrEqualTo(0).WithMessage("Баланс счёта меньше 0");
 
             RuleFor(a => a.InterestRate).Empty()
                 .When(a => Enum.Parse<AccountType>(a.Type).Equals(AccountType.Checking)).WithMessage("Для текущего счёта не может быть процентной ставки");

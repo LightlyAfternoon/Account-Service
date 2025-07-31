@@ -1,6 +1,8 @@
 ﻿using Account_Service.Features.Transactions.AddTransaction;
 using Account_Service.Features.Transactions.AddTransferTransactions;
+using Account_Service.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -27,9 +29,9 @@ namespace Account_Service.Features.Transactions
         /// <param name="endDate">Конечная дата периода</param>
         /// <returns>Выписку по счёту в указанном периоде</returns>
         [HttpGet]
-        public async Task<IResult> GetAccountStatementOnPeriod(Guid accountId, DateTime startDate, DateTime endDate)
+        public async Task<MbResult<List<TransactionDto>>> GetAccountStatementOnPeriod(Guid accountId, DateTime startDate, DateTime endDate)
         {
-            return Results.Json(await _transactionsService.GetAccountStatementOnPeriod(accountId, startDate, endDate));
+            return new MbResult<List<TransactionDto>> { Status = HttpStatusCode.OK, Value = await _transactionsService.GetAccountStatementOnPeriod(accountId, startDate, endDate) };
         }
 
         /// <summary>
@@ -38,9 +40,9 @@ namespace Account_Service.Features.Transactions
         /// <param name="requestCommand">Данные транзакции</param>
         /// <returns>Данные транзакции с новым id</returns>
         [HttpPost]
-        public async Task<IResult> Post([FromBody] AddTransactionRequestCommand requestCommand)
+        public async Task<MbResult<TransactionDto?>> Post([FromBody] AddTransactionRequestCommand requestCommand)
         {
-            return Results.Json(await _transactionsService.Add(requestCommand));
+            return new MbResult<TransactionDto?> { Status = HttpStatusCode.OK, Value = await _transactionsService.Add(requestCommand) };
         }
 
         /// <summary>
@@ -51,9 +53,9 @@ namespace Account_Service.Features.Transactions
         /// <param name="requestCommand">Данные транзакции</param>
         /// <returns>Данные транзакции счёта, с которого произведён перевод</returns>
         [HttpPost("from/{fromAccountId}/to/{toAccountId}")]
-        public async Task<IResult> MakeTransfer(Guid fromAccountId, Guid toAccountId, [FromBody] AddTransferTransactionsRequestCommand requestCommand)
+        public async Task<MbResult<TransactionDto?>> MakeTransfer(Guid fromAccountId, Guid toAccountId, [FromBody] AddTransferTransactionsRequestCommand requestCommand)
         {
-            return Results.Json(await _transactionsService.Transfer(fromAccountId, toAccountId, requestCommand));
+            return new MbResult<TransactionDto?> { Status = HttpStatusCode.OK, Value = await _transactionsService.Transfer(fromAccountId, toAccountId, requestCommand) };
         }
     }
 }

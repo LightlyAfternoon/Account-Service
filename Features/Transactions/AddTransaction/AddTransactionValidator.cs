@@ -16,7 +16,7 @@ namespace Account_Service.Features.Transactions.AddTransaction
             RuleFor(t => t.AccountId).NotEmpty().WithMessage("Отсутствует id счёта, с которого происходит транзакция")
                 .Must(t => accountService.FindById(t).Result != null).WithMessage("Счёт с данным id не существует");
 
-            RuleFor(t => t).Must(t => t.Sum > 0).WithMessage("Отсутствует сумма транзакции")
+            RuleFor(t => t).Must(t => t.Sum > 0).WithMessage("Отсутствует сумма транзакции или она меньше 0")
                 .Must(t =>
                 {
                     AccountDto? accountDto = accountService.FindById(t.AccountId).Result;

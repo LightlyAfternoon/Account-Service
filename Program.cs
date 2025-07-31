@@ -53,6 +53,8 @@ namespace Account_Service
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
 
+            builder.Services.AddCors();
+
             var app = builder.Build();
 
             app.UseExceptionHandler();
@@ -67,7 +69,6 @@ namespace Account_Service
 
             app.UseAuthorization();
 
-
             app.MapControllers();
 
             if (app.Environment.IsDevelopment())
@@ -75,6 +76,13 @@ namespace Account_Service
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+
+            app.UseCors(policyBuilder =>
+            {
+                policyBuilder.AllowAnyOrigin();
+                policyBuilder.AllowAnyMethod();
+                policyBuilder.AllowAnyHeader();
+            });
 
             app.Run();
         }
