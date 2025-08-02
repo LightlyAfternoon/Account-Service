@@ -3,12 +3,14 @@ using Account_Service.Features.Accounts.UpdateAccount;
 using Account_Service.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
+using Microsoft.AspNetCore.Authorization;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace Account_Service.Features.Accounts
 {
     /// <inheritdoc />
+    [Authorize]
     [Route("accounts")]
     [ApiController]
     public class AccountsController : ControllerBase

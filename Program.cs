@@ -7,6 +7,7 @@ using Account_Service.PipelineBehavior;
 using FluentValidation;
 using MediatR;
 using System.Reflection;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace Account_Service
 {
@@ -55,6 +56,15 @@ namespace Account_Service
 
             builder.Services.AddCors();
 
+            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.Authority = "http://localhost:7080/realms/account-service";
+                    options.Audience = "account-service-api";
+                    options.RequireHttpsMetadata = false;
+                });
+            builder.Services.AddAuthorizationBuilder();
+
             var app = builder.Build();
 
             app.UseExceptionHandler();
@@ -67,6 +77,7 @@ namespace Account_Service
 
             app.UseHttpsRedirection();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllers();

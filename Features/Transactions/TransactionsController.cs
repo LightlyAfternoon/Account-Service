@@ -1,6 +1,7 @@
 ﻿using Account_Service.Features.Transactions.AddTransaction;
 using Account_Service.Features.Transactions.AddTransferTransactions;
 using Account_Service.Infrastructure;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
@@ -9,6 +10,7 @@ using System.Net;
 namespace Account_Service.Features.Transactions
 {
     /// <inheritdoc />
+    [Authorize]
     [Route("transactions")]
     [ApiController]
     public class TransactionsController : ControllerBase
