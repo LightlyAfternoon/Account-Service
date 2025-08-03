@@ -16,3 +16,5 @@ http://localhost/swagger/index.html (развёртка в докере)
 ## Keycloak
 
 Для получения токенов из Keycloak сервиса, развёрнутого с помощью docker-compose, можно использовать client_id: account-service, grant_type: password, username: employee, password: employee
+
+http://localhost:7080/realms/account-service/protocol/openid-connect/token
