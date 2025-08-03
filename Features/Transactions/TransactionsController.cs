@@ -30,6 +30,9 @@ namespace Account_Service.Features.Transactions
         /// <param name="startDate">Начальная дата периода</param>
         /// <param name="endDate">Конечная дата периода</param>
         /// <returns>Выписку по счёту в указанном периоде</returns>
+        /// <response code="200">Успешное выполнение</response>
+        /// <response code="401">Ошибка валидации токена при аутентификации</response>
+        /// <response code="500">Внутренняя ошибка сервера</response>
         [HttpGet]
         public async Task<MbResult<List<TransactionDto>>> GetAccountStatementOnPeriod(Guid accountId, DateTime startDate, DateTime endDate)
         {
@@ -41,10 +44,14 @@ namespace Account_Service.Features.Transactions
         /// </summary>
         /// <param name="requestCommand">Данные транзакции</param>
         /// <returns>Данные транзакции с новым id</returns>
+        /// <response code="200">Успешное выполнение</response>
+        /// <response code="400">Ошибка валидации тела запроса</response>
+        /// <response code="401">Ошибка валидации токена при аутентификации</response>
+        /// <response code="500">Внутренняя ошибка сервера</response>
         [HttpPost]
         public async Task<MbResult<TransactionDto?>> Post([FromBody] AddTransactionRequestCommand requestCommand)
         {
-            return new MbResult<TransactionDto?> { Status = HttpStatusCode.OK, Value = await _transactionsService.Add(requestCommand) };
+            return new MbResult<TransactionDto?> { Status = HttpStatusCode.Created, Value = await _transactionsService.Add(requestCommand) };
         }
 
         /// <summary>
@@ -54,10 +61,14 @@ namespace Account_Service.Features.Transactions
         /// <param name="toAccountId">Id аккаунта, на который производится перевод</param>
         /// <param name="requestCommand">Данные транзакции</param>
         /// <returns>Данные транзакции счёта, с которого произведён перевод</returns>
+        /// <response code="200">Успешное выполнение</response>
+        /// <response code="400">Ошибка валидации тела запроса</response>
+        /// <response code="401">Ошибка валидации токена при аутентификации</response>
+        /// <response code="500">Внутренняя ошибка сервера</response>
         [HttpPost("from/{fromAccountId}/to/{toAccountId}")]
         public async Task<MbResult<TransactionDto?>> MakeTransfer(Guid fromAccountId, Guid toAccountId, [FromBody] AddTransferTransactionsRequestCommand requestCommand)
         {
-            return new MbResult<TransactionDto?> { Status = HttpStatusCode.OK, Value = await _transactionsService.Transfer(fromAccountId, toAccountId, requestCommand) };
+            return new MbResult<TransactionDto?> { Status = HttpStatusCode.Created, Value = await _transactionsService.Transfer(fromAccountId, toAccountId, requestCommand) };
         }
     }
 }

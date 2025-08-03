@@ -38,6 +38,9 @@ namespace Account_Service.Features.Accounts
         /// </summary>
         /// <param name="ownerId">Id клиента</param>
         /// <returns>Сообщение с информации о том, есть или нет у данного клиента счетов</returns>
+        /// <response code="200">Успешное выполнение</response>
+        /// <response code="401">Ошибка валидации токена при аутентификации</response>
+        /// <response code="500">Внутренняя ошибка сервера</response>
         [HttpGet("client/{ownerId}")]
         public async Task<MbResult<string>> GetClientHasAnyAccount(Guid ownerId)
         {
@@ -52,10 +55,14 @@ namespace Account_Service.Features.Accounts
         /// </summary>
         /// <param name="requestCommand">Данные нового счёта</param>
         /// <returns>Данные счёта с новым id</returns>
+        /// <response code="200">Успешное выполнение</response>
+        /// <response code="400">Ошибка валидации тела запроса</response>
+        /// <response code="401">Ошибка валидации токена при аутентификации</response>
+        /// <response code="500">Внутренняя ошибка сервера</response>
         [HttpPost]
         public async Task<MbResult<AccountDto?>> Post([FromBody] AddAccountRequestCommand requestCommand)
         {
-            return new MbResult<AccountDto?> { Status = HttpStatusCode.OK, Value = await _accountService.Add(requestCommand) };
+            return new MbResult<AccountDto?> { Status = HttpStatusCode.Created, Value = await _accountService.Add(requestCommand) };
         }
 
         /// <summary>
@@ -64,6 +71,10 @@ namespace Account_Service.Features.Accounts
         /// <param name="id">id счёта</param>
         /// <param name="requestCommand"> Данные счёта</param>
         /// <returns>Данные изменённого счёта</returns>
+        /// <response code="200">Успешное выполнение</response>
+        /// <response code="400">Ошибка валидации тела запроса</response>
+        /// <response code="401">Ошибка валидации токена при аутентификации</response>
+        /// <response code="500">Внутренняя ошибка сервера</response>
         [HttpPut("{id}")]
         public async Task<MbResult<AccountDto?>> Put(Guid id, [FromBody] UpdateAccountRequestCommand requestCommand)
         {
@@ -75,6 +86,9 @@ namespace Account_Service.Features.Accounts
         /// </summary>
         /// <param name="id">id счёта</param>
         /// <returns>Сообщение о том, удалён ли счёт или нет</returns>
+        /// <response code="200">Успешное выполнение</response>
+        /// <response code="401">Ошибка валидации токена при аутентификации</response>
+        /// <response code="500">Внутренняя ошибка сервера</response>
         [HttpDelete("{id}")]
         public async Task<MbResult<string>> Delete(Guid id)
         {
