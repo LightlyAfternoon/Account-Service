@@ -1,4 +1,5 @@
 ﻿using Account_Service.Features.Accounts.AddAccount;
+using Account_Service.Features.Accounts.GetClientCurrentAccountBalance;
 using Account_Service.Features.Accounts.UpdateAccount;
 
 namespace Account_Service.Features.Accounts
@@ -46,8 +47,15 @@ namespace Account_Service.Features.Accounts
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="ownerId"></param>
         /// <returns></returns>
-        Task<bool> ClientWithIdHasAnyAccount(Guid id);
+        Task<bool> ClientWithIdHasAnyAccount(Guid ownerId);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ownerId"></param>
+        /// <returns></returns>
+        Task<GetClientCurrentAccountBalanceResponse?> GetClientCurrentAccountBalance(Guid ownerId);
     }
 }

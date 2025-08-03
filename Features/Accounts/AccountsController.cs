@@ -3,6 +3,7 @@ using Account_Service.Features.Accounts.UpdateAccount;
 using Account_Service.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
+using Account_Service.Features.Accounts.GetClientCurrentAccountBalance;
 using Microsoft.AspNetCore.Authorization;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -39,15 +40,33 @@ namespace Account_Service.Features.Accounts
         /// <param name="ownerId">Id клиента</param>
         /// <returns>Сообщение с информации о том, есть или нет у данного клиента счетов</returns>
         /// <response code="200">Успешное выполнение</response>
-        /// <response code="401">Ошибка валидации токена при аутентификации</response>
         /// <response code="500">Внутренняя ошибка сервера</response>
-        [HttpGet("client/{ownerId}")]
+        [HttpGet("client/{ownerId}/has-any-accounts")]
         public async Task<MbResult<string>> GetClientHasAnyAccount(Guid ownerId)
         {
             if (await _accountService.ClientWithIdHasAnyAccount(ownerId))
                 return new MbResult<string> { Status = HttpStatusCode.OK, Value = "У данного пользователя есть счета" };
             else
                 return new MbResult<string> { Status = HttpStatusCode.OK, Value = "У данного пользователя нет счётов" };
+        }
+
+        /// <summary>
+        /// Получение баланса текущего счёта клиента
+        /// </summary>
+        /// <param name="ownerId">Id клиента</param>
+        /// <returns>Id текущего счёта, id клиента, баланс счёта</returns>
+        /// <response code="200">Успешное выполнение</response>
+        /// <response code="404">Клиент с данным id не найден или у него нет текущего счёта</response>
+        /// <response code="500">Внутренняя ошибка сервера</response>
+        [HttpGet("client/{ownerId}/current-account-balance")]
+        public async Task<MbResult<GetClientCurrentAccountBalanceResponse>> GetClientCurrentAccountBalance(Guid ownerId)
+        {
+            var response = await _accountService.GetClientCurrentAccountBalance(ownerId);
+            
+            if (response != null)
+                return new MbResult<GetClientCurrentAccountBalanceResponse> { Status = HttpStatusCode.OK, Value = response };
+            else
+                return new MbResult<GetClientCurrentAccountBalanceResponse> { Status = HttpStatusCode.NotFound, MbError = ["Клиент с данным id не найден или у него нет текущего счёта"] };
         }
 
         /// <summary>

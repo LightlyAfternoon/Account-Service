@@ -2,6 +2,7 @@
 using Account_Service.Features.Accounts.AddAccount;
 using Account_Service.Features.Accounts.DeleteAccount;
 using Account_Service.Features.Accounts.GetAccount;
+using Account_Service.Features.Accounts.GetClientCurrentAccountBalance;
 using Account_Service.Features.Accounts.UpdateAccount;
 using Account_Service.Features.Accounts.UserAccount;
 using MediatR;
@@ -73,6 +74,12 @@ namespace Account_Service.Features.Accounts
         public async Task<bool> ClientWithIdHasAnyAccount(Guid ownerId)
         {
             return await _mediator.Send(new ClientWithIdHasAnyAccountRequestCommand(ownerId));
+        }
+
+        /// <inheritdoc />
+        public async Task<GetClientCurrentAccountBalanceResponse?> GetClientCurrentAccountBalance(Guid ownerId)
+        {
+            return await _mediator.Send(new GetClientCurrentAccountBalanceRequestCommand(ownerId));
         }
     }
 }
