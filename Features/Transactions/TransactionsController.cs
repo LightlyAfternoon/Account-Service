@@ -29,8 +29,7 @@ namespace Account_Service.Features.Transactions
         /// <param name="accountId">id счёта</param>
         /// <param name="startDate">Начальная дата периода</param>
         /// <param name="endDate">Конечная дата периода</param>
-        /// <returns>Выписку по счёту в указанном периоде</returns>
-        /// <response code="200">Успешное выполнение</response>
+        /// <response code="200">MbResult &lt; List &lt; TransactionDto &gt; &gt; с Выпиской по счёту в указанном периоде</response>
         /// <response code="401">Ошибка валидации токена при аутентификации</response>
         /// <response code="500">Внутренняя ошибка сервера</response>
         [HttpGet]
@@ -43,8 +42,7 @@ namespace Account_Service.Features.Transactions
         /// Добавление новой транзакции
         /// </summary>
         /// <param name="requestCommand">Данные транзакции</param>
-        /// <returns>Данные транзакции с новым id</returns>
-        /// <response code="200">Успешное выполнение</response>
+        /// <response code="200">MbResult &lt; TransactionDto? &gt; с Данными транзакции с новым id</response>
         /// <response code="400">Ошибка валидации тела запроса</response>
         /// <response code="401">Ошибка валидации токена при аутентификации</response>
         /// <response code="500">Внутренняя ошибка сервера</response>
@@ -60,8 +58,7 @@ namespace Account_Service.Features.Transactions
         /// <param name="fromAccountId">Id аккаунта, с которого производится перевод</param>
         /// <param name="toAccountId">Id аккаунта, на который производится перевод</param>
         /// <param name="requestCommand">Данные транзакции</param>
-        /// <returns>Данные транзакции счёта, с которого произведён перевод</returns>
-        /// <response code="200">Успешное выполнение</response>
+        /// <response code="200">MbResult &lt; TransactionDto? &gt; с Данными транзакции счёта, с которого произведён перевод</response>
         /// <response code="400">Ошибка валидации тела запроса</response>
         /// <response code="401">Ошибка валидации токена при аутентификации</response>
         /// <response code="500">Внутренняя ошибка сервера</response>

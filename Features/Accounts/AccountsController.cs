@@ -27,7 +27,7 @@ namespace Account_Service.Features.Accounts
         /// <summary>
         /// Получение списка всех счетов
         /// </summary>
-        /// <returns>Все счета из БД</returns>
+        /// <response code="200">MbResult &lt; List &lt; AccountDto &gt; &gt; со Всеми счетами из БД</response>
         [HttpGet]
         public async Task<MbResult<List<AccountDto>>> GetAllAccounts()
         {
@@ -38,8 +38,7 @@ namespace Account_Service.Features.Accounts
         /// Получение информации о том, есть ли у клиента счета
         /// </summary>
         /// <param name="ownerId">Id клиента</param>
-        /// <returns>Сообщение с информации о том, есть или нет у данного клиента счетов</returns>
-        /// <response code="200">Успешное выполнение</response>
+        /// <response code="200">MbResult &lt; string &gt; с Сообщением с информации о том, есть или нет у данного клиента счетов</response>
         /// <response code="500">Внутренняя ошибка сервера</response>
         [HttpGet("client/{ownerId}/has-any-accounts")]
         public async Task<MbResult<string>> GetClientHasAnyAccount(Guid ownerId)
@@ -54,8 +53,7 @@ namespace Account_Service.Features.Accounts
         /// Получение баланса текущего счёта клиента
         /// </summary>
         /// <param name="ownerId">Id клиента</param>
-        /// <returns>Id текущего счёта, id клиента, баланс счёта</returns>
-        /// <response code="200">Успешное выполнение</response>
+        /// <response code="200">MbResult &lt; GetClientCurrentAccountBalanceResponse &gt; с Id текущего счёта, id клиента, баланс счёта</response>
         /// <response code="404">Клиент с данным id не найден или у него нет текущего счёта</response>
         /// <response code="500">Внутренняя ошибка сервера</response>
         [HttpGet("client/{ownerId}/current-account-balance")]
@@ -73,8 +71,7 @@ namespace Account_Service.Features.Accounts
         /// Добавление нового счёта
         /// </summary>
         /// <param name="requestCommand">Данные нового счёта</param>
-        /// <returns>Данные счёта с новым id</returns>
-        /// <response code="200">Успешное выполнение</response>
+        /// <response code="200">MbResult &lt; AccountDto? &gt; с Данными счёта с новым id</response>
         /// <response code="400">Ошибка валидации тела запроса</response>
         /// <response code="401">Ошибка валидации токена при аутентификации</response>
         /// <response code="500">Внутренняя ошибка сервера</response>
@@ -89,8 +86,7 @@ namespace Account_Service.Features.Accounts
         /// </summary>
         /// <param name="id">id счёта</param>
         /// <param name="requestCommand"> Данные счёта</param>
-        /// <returns>Данные изменённого счёта</returns>
-        /// <response code="200">Успешное выполнение</response>
+        /// <response code="200">MbResult &lt; AccountDto? &gt; с Данными изменённого счёта</response>
         /// <response code="400">Ошибка валидации тела запроса</response>
         /// <response code="401">Ошибка валидации токена при аутентификации</response>
         /// <response code="500">Внутренняя ошибка сервера</response>
@@ -104,8 +100,7 @@ namespace Account_Service.Features.Accounts
         /// Удаление счёта
         /// </summary>
         /// <param name="id">id счёта</param>
-        /// <returns>Сообщение о том, удалён ли счёт или нет</returns>
-        /// <response code="200">Успешное выполнение</response>
+        /// <response code="200">MbResult &lt; string &gt; с Сообщением о том, удалён ли счёт или нет</response>
         /// <response code="401">Ошибка валидации токена при аутентификации</response>
         /// <response code="500">Внутренняя ошибка сервера</response>
         [HttpDelete("{id}")]
