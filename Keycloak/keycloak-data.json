@@ -1,0 +1,76 @@
+﻿{
+  "realm": "account-service",
+  "enabled": "true",
+  "users": [
+    {
+      "username": "employee",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Employee",
+      "lastName": "User",
+      "email": "employee@example.com",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "employee"
+        }
+      ],
+      "realmRoles": [ "employee" ]
+    }
+  ],
+  "roles": {
+    "realm": [
+      {
+        "name": "employee"
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "account-service-api",
+      "enabled": true,
+      "publicClient": true
+    },
+    {
+      "clientId": "account-service",
+      "enabled": true,
+      "directAccessGrantsEnabled": true,
+      "publicClient": true,
+      "redirectUris": [ "http://localhost:7080/*" ],
+      "defaultClientScopes": [
+        "account-service-api.all"
+      ]
+    }
+  ],
+  "clientScopes": [
+    {
+      "id": "9855cfd3-3c00-416c-8abc-6fced58cb0b7",
+      "name": "account-service-api.all",
+      "description": "",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "true",
+        "gui.order": "",
+        "consent.screen.text": ""
+      },
+      "protocolMappers": [
+        {
+          "id": "47a3ccca-1f2f-4d0f-910a-3e4395683af3",
+          "name": "account-service-api as audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.client.audience": "account-service-api",
+            "id.token.claim": "false",
+            "lightweight.claim": "false",
+            "introspection.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "false"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -2,15 +2,17 @@
 
 namespace Account_Service.Infrastructure.Mappers
 {
-    /// <inheritdoc />
-    public class UserMappers : IMappers<UserDto, User>
+    /// <summary>
+    /// 
+    /// </summary>
+    public class UserMappers
     {
-        /// <inheritdoc />
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
         public static UserDto MapToDto(User user) => new(id: user.Id,
             name: user.Name);
-
-        /// <inheritdoc />
-        public static User MapToEntity(UserDto userDto) => new(id: userDto.Id,
-            userDto.Name);
     }
 }

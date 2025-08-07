@@ -7,7 +7,7 @@ namespace Account_Service.ObjectStorage
     /// </summary>
     public class TransactionsStorage
     {
-        private static readonly List<Transaction> Transactions = new();
+        private static readonly List<Transaction> Transactions = [];
 
         /// <summary>
         /// 

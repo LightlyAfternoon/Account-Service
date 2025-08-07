@@ -1,15 +1,20 @@
 ﻿using Account_Service.Features.Users;
 using FluentValidation;
+using JetBrains.Annotations;
 
 namespace Account_Service.Features.Accounts.AddAccount
 {
     /// <inheritdoc />
+    [UsedImplicitly]
     public class AddAccountRequestValidator : AbstractValidator<AddAccountRequestCommand>
     {
         /// <inheritdoc />
         public AddAccountRequestValidator(IUsersService usersService)
         {
-            RuleFor(a => a.OwnerId).NotEmpty().WithMessage("Отсутствует id владельца счёта");
+            RuleLevelCascadeMode = CascadeMode.Stop;
+
+            RuleFor(a => a.OwnerId).NotEmpty().WithMessage("Отсутствует id владельца счёта")
+                .Must(a => usersService.FindById(a).Result != null).WithMessage("Счёта с данным id не существует");
 
             RuleFor(a => a.Type).NotEmpty().WithMessage("Отсутствует тип счёта");
 
@@ -19,7 +24,7 @@ namespace Account_Service.Features.Accounts.AddAccount
 
             RuleFor(a => a.Currency).Must(type => Enum.TryParse(type, out CurrencyCode _)).WithMessage("Валюта с данным кодом не поддерживается");
 
-            RuleFor(a => a.Balance).NotEmpty().WithMessage("Отсутствует баланс счёта");
+            RuleFor(a => a.Balance).GreaterThanOrEqualTo(0).WithMessage("Баланс счёта меньше 0");
 
             RuleFor(a => a.InterestRate).Empty()
                 .When(a => a.Type.Equals(nameof(AccountType.Checking))).WithMessage("Для текущего счёта не может быть процентной ставки");
@@ -28,8 +33,6 @@ namespace Account_Service.Features.Accounts.AddAccount
 
             RuleFor(a => a.CloseDate).GreaterThanOrEqualTo(a => a.OpenDate)
                 .When(a => a.CloseDate != null).WithMessage("Дата закрытия счёта раньше даты открытия");
-
-            RuleFor(a => usersService.FindById(a.OwnerId).Result).NotEmpty().WithMessage("Владелец с данным id не существует");
         }
     }
 }

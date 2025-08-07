@@ -1,4 +1,6 @@
-﻿using Account_Service.Infrastructure.Mappers;
+﻿using Account_Service.Features.Accounts;
+using Account_Service.Features.Accounts.UpdateAccount;
+using Account_Service.Infrastructure.Mappers;
 using MediatR;
 
 namespace Account_Service.Features.Transactions.AddTransaction
@@ -7,14 +9,17 @@ namespace Account_Service.Features.Transactions.AddTransaction
     public class AddTransactionHandler : IRequestHandler<AddTransactionRequestCommand, TransactionDto?>
     {
         private readonly ITransactionsRepository _transactionsRepository;
-
+        private readonly IAccountService _accountService;
+        
         /// <summary>
         /// 
         /// </summary>
         /// <param name="transactionsRepository"></param>
-        public AddTransactionHandler(ITransactionsRepository transactionsRepository)
+        /// <param name="accountService"></param>
+        public AddTransactionHandler(ITransactionsRepository transactionsRepository, IAccountService accountService)
         {
             _transactionsRepository = transactionsRepository;
+            _accountService = accountService;
         }
 
         /// <inheritdoc />
@@ -30,6 +35,18 @@ namespace Account_Service.Features.Transactions.AddTransaction
                 dateTime: requestCommand.DateTime);
 
             Transaction? transaction = await _transactionsRepository.Save(TransactionMappers.MapToEntity(dto));
+
+            AccountDto? accountDto = await _accountService.FindById(requestCommand.AccountId);
+
+            if (accountDto != null)
+            {
+                if (Enum.Parse<TransactionType>(requestCommand.Type).Equals(TransactionType.Credit))
+                    accountDto.Balance -= requestCommand.Sum;
+                else
+                    accountDto.Balance += requestCommand.Sum;
+
+                await _accountService.Update(accountDto.Id, new UpdateAccountRequestCommand(accountDto));
+            }
 
             if (transaction != null)
             {

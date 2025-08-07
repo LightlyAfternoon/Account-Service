@@ -2,10 +2,16 @@
 
 namespace Account_Service.Infrastructure.Mappers
 {
-    /// <inheritdoc />
-    public class AccountMappers : IMappers<AccountDto, Account>
+    /// <summary>
+    /// 
+    /// </summary>
+    public class AccountMappers
     {
-        /// <inheritdoc />
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="account"></param>
+        /// <returns></returns>
         public static AccountDto MapToDto(Account account) => new(id: account.Id,
             ownerId: account.OwnerId,
             type: account.Type.ToString(),
@@ -15,7 +21,11 @@ namespace Account_Service.Infrastructure.Mappers
             openDate: account.OpenDate,
             closeDate: account.CloseDate);
 
-        /// <inheritdoc />
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="accountDto"></param>
+        /// <returns></returns>
         public static Account MapToEntity(AccountDto accountDto) => new(id: accountDto.Id,
             ownerId: accountDto.OwnerId,
             type: Enum.Parse<AccountType>(accountDto.Type),

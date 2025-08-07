@@ -1,12 +1,15 @@
-
 using Account_Service.Exceptions;
 using Account_Service.Features.Accounts;
 using Account_Service.Features.Transactions;
 using Account_Service.Features.Users;
+using Account_Service.Infrastructure;
 using Account_Service.Infrastructure.Repositories;
 using Account_Service.PipelineBehavior;
 using FluentValidation;
 using MediatR;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Net;
 using System.Reflection;
 
 namespace Account_Service
@@ -54,6 +57,42 @@ namespace Account_Service
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
 
+            builder.Services.AddCors();
+
+            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.Authority = builder.Configuration["JWT_AUTHORITY"];
+                    options.Audience = "account-service-api";
+                    options.RequireHttpsMetadata = false;
+
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidIssuers = new List<string>
+                        {
+                            "http://localhost:7080/realms/account-service",
+                            "http://keycloak:7080/realms/account-service"
+                        }
+                    };
+
+                    options.Events = new JwtBearerEvents
+                    {
+                        OnChallenge = async context =>
+                        {
+                            context.HandleResponse();
+
+                            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+
+                            await context.Response.WriteAsJsonAsync(new MbResult<string>
+                            {
+                                Status = HttpStatusCode.Unauthorized,
+                                MbError = [$"{context.Error}: {context.ErrorDescription}"]
+                            });
+                        }
+                    };
+                });
+            builder.Services.AddAuthorizationBuilder();
+
             var app = builder.Build();
 
             app.UseExceptionHandler();
@@ -66,8 +105,8 @@ namespace Account_Service
 
             app.UseHttpsRedirection();
 
+            app.UseAuthentication();
             app.UseAuthorization();
-
 
             app.MapControllers();
 
@@ -76,6 +115,13 @@ namespace Account_Service
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+
+            app.UseCors(policyBuilder =>
+            {
+                policyBuilder.AllowAnyOrigin();
+                policyBuilder.AllowAnyMethod();
+                policyBuilder.AllowAnyHeader();
+            });
 
             app.Run();
         }
