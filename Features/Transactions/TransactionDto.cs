@@ -17,7 +17,7 @@ namespace Account_Service.Features.Transactions
     public class TransactionDto(
         Guid id,
         Guid accountId,
-        Guid counterpartyAccountId,
+        Guid? counterpartyAccountId,
         decimal sum,
         string currency,
         string type,
@@ -35,7 +35,7 @@ namespace Account_Service.Features.Transactions
         /// <summary>
         /// Id счёта-контрагента
         /// </summary>
-        public Guid CounterpartyAccountId { get; set; } = counterpartyAccountId;
+        public Guid? CounterpartyAccountId { get; set; } = counterpartyAccountId;
         /// <summary>
         /// Сумма транзакции
         /// </summary>

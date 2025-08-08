@@ -1,21 +1,35 @@
 ﻿using Account_Service.Features.Transactions;
-using Account_Service.ObjectStorage;
+using Account_Service.Infrastructure.Db;
+using Microsoft.EntityFrameworkCore;
 
 namespace Account_Service.Infrastructure.Repositories
 {
     /// <inheritdoc />
     public class TransactionsRepository : ITransactionsRepository
     {
+        private readonly ApplicationContext _context;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="context"></param>
+        public TransactionsRepository(ApplicationContext context)
+        {
+            _context = context;
+        }
+
         /// <inheritdoc />
         public async Task<Transaction?> FindById(Guid id)
         {
-            return await TransactionsStorage.Find(id);
+            await using ApplicationContext db = new ApplicationContext(_context.ConnectionString);
+            return await db.Transactions.FindAsync(id);
         }
 
         /// <inheritdoc />
         public async Task<List<Transaction>> FindAll()
         {
-            return await TransactionsStorage.FindAll();
+            await using ApplicationContext db = new ApplicationContext(_context.ConnectionString);
+            return await db.Transactions.ToListAsync();
         }
 
         /// <inheritdoc />
@@ -23,18 +37,36 @@ namespace Account_Service.Infrastructure.Repositories
         {
             if (entity.Id == Guid.Empty)
             {
-                return await TransactionsStorage.Add(entity);
+                await using ApplicationContext db = new ApplicationContext(_context.ConnectionString);
+                await db.Transactions.AddAsync(entity);
+                await db.SaveChangesAsync();
+
+                return entity;
             }
             else
             {
-                return await TransactionsStorage.Update(entity);
+                await using ApplicationContext db = new ApplicationContext(_context.ConnectionString);
+                db.Transactions.Update(entity);
+                await db.SaveChangesAsync();
+
+                return entity;
             }
         }
 
         /// <inheritdoc />
         public async Task<bool> DeleteById(Guid id)
         {
-            return await TransactionsStorage.Delete(id);
+            await using ApplicationContext db = new ApplicationContext(_context.ConnectionString);
+            Transaction? transaction = await db.Transactions.FindAsync(id);
+
+            if (transaction != null)
+            {
+                db.Transactions.Remove(transaction);
+
+                return true;
+            }
+
+            return false;
         }
     }
 }

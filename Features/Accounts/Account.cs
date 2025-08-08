@@ -1,6 +1,5 @@
 ﻿using Account_Service.Features.Transactions;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using Account_Service.Features.Users;
 
 namespace Account_Service.Features.Accounts
 {
@@ -28,56 +27,47 @@ namespace Account_Service.Features.Accounts
         /// <summary>
         /// 
         /// </summary>
-        [Required]
-        [Column("id")]
         public Guid Id { get; } = id;
 
         /// <summary>
         /// 
         /// </summary>
-        [Required]
-        [Column("ownerId")]
         public Guid OwnerId { get; set; } = ownerId;
 
         /// <summary>
         /// 
         /// </summary>
-        [Required]
-        [Column("type")]
         public AccountType Type { get; set; } = type;
 
         /// <summary>
         /// 
         /// </summary>
-        [Required]
-        [Column("currency")]
         public CurrencyCode Currency { get; set; } = currency;
 
         /// <summary>
         /// 
         /// </summary>
-        [Required]
-        [Column("balance")]
         public decimal Balance { get; set; } = balance;
 
         /// <summary>
         /// 
         /// </summary>
-        [Column("interestRate")]
         public decimal? InterestRate { get; set; } = interestRate;
 
         /// <summary>
         /// 
         /// </summary>
-        [Required]
-        [Column("openDate")]
         public DateOnly OpenDate { get; set; } = openDate;
 
         /// <summary>
         /// 
         /// </summary>
-        [Column("closeDate")]
         public DateOnly? CloseDate { get; set; } = closeDate;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public User? Owner { get; set; }
 
         /// <summary>
         /// 

@@ -3,6 +3,7 @@ using Account_Service.Features.Accounts;
 using Account_Service.Features.Transactions;
 using Account_Service.Features.Users;
 using Account_Service.Infrastructure;
+using Account_Service.Infrastructure.Db;
 using Account_Service.Infrastructure.Repositories;
 using Account_Service.PipelineBehavior;
 using FluentValidation;
@@ -39,7 +40,7 @@ namespace Account_Service
 
                 options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
-                    Description = @"Введите JWT токен авторизации.",
+                    Description = "Введите JWT токен авторизации.",
                     Name = "Authorization",
                     In = ParameterLocation.Header,
                     Type = SecuritySchemeType.ApiKey,
@@ -62,6 +63,7 @@ namespace Account_Service
                 });
             });
 
+            builder.Services.AddDbContext<ApplicationContext>();
             builder.Services.AddScoped<IAccountsRepository, AccountsRepository>();
             builder.Services.AddScoped<ITransactionsRepository, TransactionsRepository>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -117,6 +119,8 @@ namespace Account_Service
                     };
                 });
             builder.Services.AddAuthorizationBuilder();
+
+            builder.Services.Configure<DbSettings>(builder.Configuration.GetSection("DbSettings"));
 
             var app = builder.Build();
 

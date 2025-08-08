@@ -1,7 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-
-namespace Account_Service.Features.Users
+﻿namespace Account_Service.Features.Users
 {
     /// <summary>
     /// 
@@ -13,15 +10,11 @@ namespace Account_Service.Features.Users
         /// <summary>
         /// 
         /// </summary>
-        [Required]
-        [Column("id")]
         public Guid Id { get; } = id;
 
         /// <summary>
         /// 
         /// </summary>
-        [Required]
-        [Column("name")]
         public string Name { get; set; } = name;
 
         /// <inheritdoc />
