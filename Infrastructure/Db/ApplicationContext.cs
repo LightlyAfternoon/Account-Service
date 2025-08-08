@@ -7,7 +7,7 @@ using Microsoft.Extensions.Options;
 namespace Account_Service.Infrastructure.Db
 {
     /// <inheritdoc />
-    public class ApplicationContext : DbContext
+    public sealed class ApplicationContext : DbContext
     {
         /// <summary>
         /// 
@@ -31,6 +31,8 @@ namespace Account_Service.Infrastructure.Db
         public ApplicationContext(string connectionString)
         {
             ConnectionString = connectionString;
+
+            Database.Migrate();
         }
 
         /// <inheritdoc />
@@ -38,6 +40,8 @@ namespace Account_Service.Infrastructure.Db
         {
             var dbSettings = options.Value;
             ConnectionString = dbSettings.ConnectionString;
+
+            Database.Migrate();
         }
 
         /// <inheritdoc />
@@ -71,11 +75,15 @@ namespace Account_Service.Infrastructure.Db
             modelBuilder.Entity<Transaction>().Property(t => t.Currency).HasColumnName("currency").IsRequired();
             modelBuilder.Entity<Transaction>().Property(t => t.Type).HasColumnName("type").IsRequired();
             modelBuilder.Entity<Transaction>().Property(t => t.Description).HasColumnName("description").IsRequired().HasMaxLength(255);
-            modelBuilder.Entity<Transaction>().Property(t => t.DateTime).HasColumnName("dateTime");
+            modelBuilder.Entity<Transaction>().Property(t => t.DateTime).HasColumnName("date");
             modelBuilder.Entity<Transaction>().HasOne(t => t.CounterpartyAccount).WithMany().HasForeignKey(t => t.CounterpartyAccountId);
 
             modelBuilder.Entity<User>().Property(u => u.Id).HasColumnName("id").IsRequired();
             modelBuilder.Entity<User>().Property(u => u.Name).HasColumnName("name").IsRequired().HasMaxLength(255);
+            
+            modelBuilder.Entity<Account>().HasIndex(a => a.OwnerId).HasMethod("hash");
+            modelBuilder.Entity<Transaction>().HasIndex(t => new { t.AccountId, t.DateTime });
+            modelBuilder.Entity<Transaction>().HasIndex(t => t.DateTime).HasMethod("gist");
 
             base.OnModelCreating(modelBuilder);
         }
