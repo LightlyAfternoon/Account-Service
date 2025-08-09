@@ -57,5 +57,11 @@ namespace Account_Service.Features.Accounts
         /// <param name="ownerId"></param>
         /// <returns></returns>
         Task<GetClientCurrentAccountBalanceResponse?> GetClientCurrentAccountBalance(Guid ownerId);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        Task ProcessDailyAccrueInterest();
     }
 }

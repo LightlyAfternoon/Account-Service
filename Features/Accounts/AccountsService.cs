@@ -1,4 +1,5 @@
 ﻿using Account_Service.Features.Accounts.AccountsList;
+using Account_Service.Features.Accounts.AccrueInterest;
 using Account_Service.Features.Accounts.AddAccount;
 using Account_Service.Features.Accounts.DeleteAccount;
 using Account_Service.Features.Accounts.GetAccount;
@@ -80,6 +81,12 @@ namespace Account_Service.Features.Accounts
         public async Task<GetClientCurrentAccountBalanceResponse?> GetClientCurrentAccountBalance(Guid ownerId)
         {
             return await _mediator.Send(new GetClientCurrentAccountBalanceRequestCommand(ownerId));
+        }
+
+        /// <inheritdoc />
+        public async Task ProcessDailyAccrueInterest()
+        {
+            await _mediator.Send(new AccrueInterestRequestCommand());
         }
     }
 }

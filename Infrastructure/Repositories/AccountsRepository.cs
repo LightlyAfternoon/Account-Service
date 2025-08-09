@@ -75,5 +75,16 @@ namespace Account_Service.Infrastructure.Repositories
             await using ApplicationContext db = new ApplicationContext(_context.ConnectionString);
             return await db.Accounts.Where(a => a.OwnerId.Equals(ownerId)).ToListAsync();
         }
+
+        /// <inheritdoc />
+        public async Task AccrueInterestForAllOpenedAccounts()
+        {
+            await using ApplicationContext db = new ApplicationContext(_context.ConnectionString);
+            foreach (Account account in await db.Accounts.Where(a => a.CloseDate == null
+                                                                      || a.CloseDate >= DateOnly.FromDateTime(DateTime.Now)).ToListAsync())
+            {
+                db.Accounts.FromSqlRaw("CALL accrue_interest({0})", account.Id);
+            }
+        }
     }
 }

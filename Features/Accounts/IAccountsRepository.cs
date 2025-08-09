@@ -11,5 +11,10 @@ namespace Account_Service.Features.Accounts
         /// <param name="ownerId"></param>
         /// <returns></returns>
         Task<List<Account>> FindAllByOwnerId(Guid ownerId);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        Task AccrueInterestForAllOpenedAccounts();
     }
 }

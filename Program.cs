@@ -13,6 +13,10 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Net;
 using System.Reflection;
+using Account_Service.Features.Accounts.AccrueInterest.BackgroundJobs;
+using Hangfire;
+using Hangfire.PostgreSql;
+using Account_Service.Infrastructure.Db.Hangfire;
 
 namespace Account_Service
 {
@@ -63,7 +67,11 @@ namespace Account_Service
                 });
             });
 
+            builder.Services.Configure<DbSettings>(builder.Configuration.GetSection("DbSettings"));
             builder.Services.AddDbContext<ApplicationContext>();
+            builder.Services.Configure<HangfireDbSettings>(builder.Configuration.GetSection("HangfireDbSettings"));
+            builder.Services.AddDbContext<HangfireContext>();
+
             builder.Services.AddScoped<IAccountsRepository, AccountsRepository>();
             builder.Services.AddScoped<ITransactionsRepository, TransactionsRepository>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -71,6 +79,8 @@ namespace Account_Service
             builder.Services.AddScoped<IAccountService, AccountsService>();
             builder.Services.AddScoped<ITransactionsService, TransactionsService>();
             builder.Services.AddScoped<IUsersService, UsersService>();
+
+            builder.Services.AddScoped<DailyAccrueInterestJobScheduler>();
 
             builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<Program>());
             // Validation
@@ -120,7 +130,13 @@ namespace Account_Service
                 });
             builder.Services.AddAuthorizationBuilder();
 
-            builder.Services.Configure<DbSettings>(builder.Configuration.GetSection("DbSettings"));
+            builder.Services.AddHangfire(configuration => configuration
+                .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+                .UseSimpleAssemblyNameTypeSerializer()
+                .UseRecommendedSerializerSettings()
+                .UsePostgreSqlStorage(options =>
+                    options.UseNpgsqlConnection(builder.Configuration["HangfireDbSettings:ConnectionString"])));
+            builder.Services.AddHangfireServer();
 
             var app = builder.Build();
 
@@ -151,6 +167,14 @@ namespace Account_Service
                 policyBuilder.AllowAnyMethod();
                 policyBuilder.AllowAnyHeader();
             });
+
+            using (var scope = app.Services.CreateScope())
+            {
+                var jobScheduler = scope.ServiceProvider.GetRequiredService<DailyAccrueInterestJobScheduler>();
+                jobScheduler.ScheduleJob();
+            }
+
+            app.UseHangfireDashboard();
 
             app.Run();
         }
