@@ -14,7 +14,7 @@ namespace Account_Service.Features.Transactions.AddTransferTransactions
         /// </summary>
         /// <param name="transactionsRepository"></param>
         /// <param name="accountService"></param>
-        public AddTransferTransactionsHandler(ITransactionsRepository transactionsRepository, IAccountService accountService)
+        public AddTransferTransactionsHandler(ITransactionsRepository transactionsRepository, IAccountsService accountService)
         {
             _transactionsRepository = transactionsRepository;
         }

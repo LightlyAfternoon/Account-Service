@@ -11,7 +11,7 @@ using MediatR;
 namespace Account_Service.Features.Accounts
 {
     /// <inheritdoc />
-    public class AccountsService : IAccountService
+    public class AccountsService : IAccountsService
     {
         private readonly IMediator _mediator;
 

@@ -7,7 +7,7 @@ namespace Account_Service.Features.Accounts
     /// <summary>
     /// 
     /// </summary>
-    public interface IAccountService
+    public interface IAccountsService
     {
         /// <summary>
         /// 

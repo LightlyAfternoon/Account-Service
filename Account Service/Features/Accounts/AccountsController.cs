@@ -16,10 +16,10 @@ namespace Account_Service.Features.Accounts
     [ApiController]
     public class AccountsController : ControllerBase
     {
-        private readonly IAccountService _accountService;
+        private readonly IAccountsService _accountService;
 
         /// <inheritdoc />
-        public AccountsController(IAccountService accountService)
+        public AccountsController(IAccountsService accountService)
         {
             _accountService = accountService;
         }

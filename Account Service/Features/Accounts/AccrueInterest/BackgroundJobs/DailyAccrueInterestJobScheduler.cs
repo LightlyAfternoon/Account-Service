@@ -7,7 +7,7 @@ namespace Account_Service.Features.Accounts.AccrueInterest.BackgroundJobs
     /// </summary>
     public class DailyAccrueInterestJobScheduler
     {
-        private readonly IAccountService _accountService;
+        private readonly IAccountsService _accountService;
         private readonly IRecurringJobManager _recurringJobManager;
 
         /// <summary>
@@ -15,7 +15,7 @@ namespace Account_Service.Features.Accounts.AccrueInterest.BackgroundJobs
         /// </summary>
         /// <param name="accountService"></param>
         /// <param name="recurringJobManager"></param>
-        public DailyAccrueInterestJobScheduler(IAccountService accountService, IRecurringJobManager recurringJobManager)
+        public DailyAccrueInterestJobScheduler(IAccountsService accountService, IRecurringJobManager recurringJobManager)
         {
             _accountService = accountService;
             _recurringJobManager = recurringJobManager;

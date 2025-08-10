@@ -83,5 +83,25 @@ namespace Account_Service.Features.Accounts
         public Account(Guid id, Account account) : this(id, account.OwnerId, account.Type, account.Currency, account.Balance, account.InterestRate, account.OpenDate, account.CloseDate)
         {
         }
+
+        /// <inheritdoc />
+        public override bool Equals(object? obj)
+        {
+            var account = obj as Account;
+
+            if (account == null)
+                return false;
+            else
+                return Id.Equals(account.Id) && OwnerId.Equals(account.OwnerId) && Type.Equals(account.Type)
+                       && Currency.Equals(account.Currency) && Balance.Equals(account.Balance)
+                       && InterestRate.Equals(account.InterestRate) && OpenDate.Equals(account.OpenDate)
+                       && CloseDate.Equals(account.CloseDate);
+        }
+
+        /// <inheritdoc />
+        public override int GetHashCode()
+        {
+            return Id.GetHashCode();
+        }
     }
 }

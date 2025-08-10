@@ -40,7 +40,7 @@
       - db
       - hangfire_db
     build:
-      dockerfile: Dockerfile
+      dockerfile: Account Service/Dockerfile
     ports:
       - "0.0.0.0:80:80"
     environment:

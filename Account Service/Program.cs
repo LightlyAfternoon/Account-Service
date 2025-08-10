@@ -76,7 +76,7 @@ namespace Account_Service
             builder.Services.AddScoped<ITransactionsRepository, TransactionsRepository>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
 
-            builder.Services.AddScoped<IAccountService, AccountsService>();
+            builder.Services.AddScoped<IAccountsService, AccountsService>();
             builder.Services.AddScoped<ITransactionsService, TransactionsService>();
             builder.Services.AddScoped<IUsersService, UsersService>();
 

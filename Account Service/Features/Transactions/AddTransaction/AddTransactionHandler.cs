@@ -9,14 +9,14 @@ namespace Account_Service.Features.Transactions.AddTransaction
     public class AddTransactionHandler : IRequestHandler<AddTransactionRequestCommand, TransactionDto?>
     {
         private readonly ITransactionsRepository _transactionsRepository;
-        private readonly IAccountService _accountService;
+        private readonly IAccountsService _accountService;
         
         /// <summary>
         /// 
         /// </summary>
         /// <param name="transactionsRepository"></param>
         /// <param name="accountService"></param>
-        public AddTransactionHandler(ITransactionsRepository transactionsRepository, IAccountService accountService)
+        public AddTransactionHandler(ITransactionsRepository transactionsRepository, IAccountsService accountService)
         {
             _transactionsRepository = transactionsRepository;
             _accountService = accountService;

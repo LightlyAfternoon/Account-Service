@@ -9,7 +9,7 @@ namespace Account_Service.Features.Transactions.AddTransferTransactions
     public class AddTransferTransactionsValidator : AbstractValidator<AddTransferTransactionsRequestCommand>
     {
         /// <inheritdoc />
-        public AddTransferTransactionsValidator(IAccountService accountService)
+        public AddTransferTransactionsValidator(IAccountsService accountService)
         {
             RuleLevelCascadeMode = CascadeMode.Stop;
 
