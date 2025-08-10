@@ -1,22 +1,23 @@
 using Account_Service.Exceptions;
 using Account_Service.Features.Accounts;
+using Account_Service.Features.Accounts.AccrueInterest.BackgroundJobs;
 using Account_Service.Features.Transactions;
 using Account_Service.Features.Users;
 using Account_Service.Infrastructure;
 using Account_Service.Infrastructure.Db;
+using Account_Service.Infrastructure.Db.Hangfire;
 using Account_Service.Infrastructure.Repositories;
 using Account_Service.PipelineBehavior;
 using FluentValidation;
+using Hangfire;
+using Hangfire.PostgreSql;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Net;
 using System.Reflection;
-using Account_Service.Features.Accounts.AccrueInterest.BackgroundJobs;
-using Hangfire;
-using Hangfire.PostgreSql;
-using Account_Service.Infrastructure.Db.Hangfire;
 
 namespace Account_Service
 {
@@ -140,6 +141,12 @@ namespace Account_Service
 
             var app = builder.Build();
 
+            using (var scope = app.Services.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<HangfireContext>();
+                dbContext.Database.Migrate();
+            }
+
             app.UseExceptionHandler();
 
             // Configure the HTTP request pipeline.
@@ -174,7 +181,13 @@ namespace Account_Service
                 jobScheduler.ScheduleJob();
             }
 
-            app.UseHangfireDashboard();
+            app.MapGet("/hangfire", () => "")
+                .WithSummary("Веб-интерфейс Hangfire")
+                .WithDescription("Предназначен для более удобного обзора и управления фоновыми задачами");
+            app.UseHangfireDashboard("/hangfire", new DashboardOptions
+            {
+                Authorization = [new DashboardAuthorizationFilter()]
+            });
 
             app.Run();
         }
