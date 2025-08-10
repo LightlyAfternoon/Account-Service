@@ -1,6 +1,7 @@
-﻿using System.Net;
-using Account_Service.Infrastructure;
+﻿using Account_Service.Infrastructure;
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.EntityFrameworkCore;
+using System.Net;
 
 namespace Account_Service.Exceptions
 {
@@ -21,6 +22,11 @@ namespace Account_Service.Exceptions
                     validationErrors.Add(error.ErrorMessage);
                 }
                 mbResult.MbError = validationErrors;
+            }
+            else if (exception is DbUpdateConcurrencyException)
+            {
+                httpContext.Response.StatusCode = StatusCodes.Status409Conflict;
+                mbResult.MbError = ["Конфликт версий объекта"];
             }
 
             else

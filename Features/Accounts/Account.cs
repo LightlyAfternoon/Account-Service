@@ -67,6 +67,11 @@ namespace Account_Service.Features.Accounts
         /// <summary>
         /// 
         /// </summary>
+        public int RowVersion { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         public User? Owner { get; set; }
 
         /// <summary>

@@ -1,5 +1,7 @@
-﻿using Hangfire.Annotations;
+﻿using Account_Service.Infrastructure;
+using Hangfire.Annotations;
 using Hangfire.Dashboard;
+using System.Net;
 
 namespace Account_Service
 {
@@ -13,10 +15,23 @@ namespace Account_Service
 
             if (httpContext.User.Identity != null)
             {
+                if (!httpContext.User.Identity.IsAuthenticated)
+                {
+                    httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
+
+                    httpContext.Response.WriteAsJsonAsync(new MbResult<string>
+                    {
+                        Status = HttpStatusCode.Unauthorized,
+                        MbError = ["error: no Authorization header with JWT token or token isn't valid"]
+                    }).Wait();
+                }
+
                 return httpContext.User.Identity.IsAuthenticated;
             }
-
-            return false;
+            else
+            {
+                return false;
+            }
         }
     }
 }

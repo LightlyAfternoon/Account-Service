@@ -3,6 +3,7 @@ using System;
 using Account_Service.Infrastructure.Db;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Account_Service.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    partial class ApplicationContextModelSnapshot : ModelSnapshot
+    [Migration("20250810031019_AddNewUser")]
+    partial class AddNewUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -56,8 +59,7 @@ namespace Account_Service.Migrations
                     b.Property<int>("RowVersion")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("integer")
-                        .HasColumnName("rowVersion");
+                        .HasColumnType("integer");
 
                     b.Property<int>("Type")
                         .HasColumnType("integer")
@@ -104,8 +106,7 @@ namespace Account_Service.Migrations
                     b.Property<int>("RowVersion")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("integer")
-                        .HasColumnName("rowVersion");
+                        .HasColumnType("integer");
 
                     b.Property<decimal>("Sum")
                         .HasColumnType("numeric")
@@ -144,8 +145,7 @@ namespace Account_Service.Migrations
                     b.Property<int>("RowVersion")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("integer")
-                        .HasColumnName("rowVersion");
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 

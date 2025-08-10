@@ -85,6 +85,10 @@ namespace Account_Service.Infrastructure.Db
             modelBuilder.Entity<Transaction>().HasIndex(t => new { t.AccountId, t.DateTime });
             modelBuilder.Entity<Transaction>().HasIndex(t => t.DateTime).HasMethod("gist");
 
+            modelBuilder.Entity<Account>().Property(a => a.RowVersion).HasColumnName("rowVersion").IsRowVersion();
+            modelBuilder.Entity<Transaction>().Property(t => t.RowVersion).HasColumnName("rowVersion").IsRowVersion();
+            modelBuilder.Entity<User>().Property(u => u.RowVersion).HasColumnName("rowVersion").IsRowVersion();
+
             base.OnModelCreating(modelBuilder);
         }
     }

@@ -66,6 +66,11 @@ namespace Account_Service.Features.Transactions
         /// <summary>
         /// 
         /// </summary>
+        public int RowVersion { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         public Account? Account { get; set; }
 
         /// <summary>

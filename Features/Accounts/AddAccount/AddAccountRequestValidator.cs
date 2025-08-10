@@ -14,7 +14,7 @@ namespace Account_Service.Features.Accounts.AddAccount
             RuleLevelCascadeMode = CascadeMode.Stop;
 
             RuleFor(a => a.OwnerId).NotEmpty().WithMessage("Отсутствует id владельца счёта")
-                .Must(a => usersService.FindById(a).Result != null).WithMessage("Счёта с данным id не существует");
+                .Must(a => usersService.FindById(a).Result != null).WithMessage("Клиента с данным id не существует");
 
             RuleFor(a => a.Type).NotEmpty().WithMessage("Отсутствует тип счёта");
 

@@ -17,6 +17,11 @@
         /// </summary>
         public string Name { get; set; } = name;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        public int RowVersion { get; set; }
+
         /// <inheritdoc />
         public User(Guid id, User user) : this(id, user.Name)
         {
