@@ -70,7 +70,6 @@ namespace Account_Service
 
             builder.Services.Configure<DbSettings>(builder.Configuration.GetSection("DbSettings"));
             builder.Services.AddDbContext<ApplicationContext>();
-            builder.Services.Configure<HangfireDbSettings>(builder.Configuration.GetSection("HangfireDbSettings"));
             builder.Services.AddDbContext<HangfireContext>();
 
             builder.Services.AddScoped<IAccountsRepository, AccountsRepository>();
@@ -124,7 +123,9 @@ namespace Account_Service
                             await context.Response.WriteAsJsonAsync(new MbResult<string>
                             {
                                 Status = HttpStatusCode.Unauthorized,
-                                MbError = [$"{context.Error}: {context.ErrorDescription}"]
+                                    MbError = context is { Error: not null, ErrorDescription: not null }
+                                        ? [$"{context.Error}: {context.ErrorDescription}"]
+                                        : ["validation_error: нет JWT токена или он не валиден"]
                             });
                         }
                     };
@@ -136,7 +137,7 @@ namespace Account_Service
                 .UseSimpleAssemblyNameTypeSerializer()
                 .UseRecommendedSerializerSettings()
                 .UsePostgreSqlStorage(options =>
-                    options.UseNpgsqlConnection(builder.Configuration["HangfireDbSettings:ConnectionString"])));
+                    options.UseNpgsqlConnection(builder.Configuration["DbSettings:ConnectionString"])));
             builder.Services.AddHangfireServer();
 
             var app = builder.Build();

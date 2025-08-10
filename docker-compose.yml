@@ -35,28 +35,6 @@
       interval: 30s
       timeout: 10s
       retries: 5
-  hangfire_db:
-    depends_on:
-      - db
-    image: postgres:17.4
-    environment:
-      POSTGRES_USER: postus
-      PGUSER: postus
-      POSTGRES_PASSWORD: passus
-      POSTGRES_DB: hangfire_db
-      PGDATA: /data/postgres
-    ports:
-      - "1234:5432"
-    volumes:
-      - db:/data/postgres
-    networks:
-      - db
-    restart: unless-stopped
-    healthcheck:
-      test: [ "CMD", "pg_isready", "-U", "postus", "-d", "hangfire_db" ]
-      interval: 30s
-      timeout: 10s
-      retries: 5
   web:
     depends_on:
       - db
@@ -70,7 +48,6 @@
       - ASPNETCORE_URLS=http://+:80
       - JWT_AUTHORITY=http://keycloak:7080/realms/account-service
       - DbSettings__ConnectionString="Host=db;Port=5432;Database=account_service_db;Username=postus;Password=passus"
-      - HangfireDbSettings__ConnectionString="Host=hangfire_db;Port=5432;Username=postgres;Password=pass;Database=hangfire_db"
     networks:
       - local_network
 

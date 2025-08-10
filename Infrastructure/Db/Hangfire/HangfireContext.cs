@@ -20,10 +20,10 @@ namespace Account_Service.Infrastructure.Db.Hangfire
         }
 
         /// <inheritdoc />
-        public HangfireContext(IOptions<HangfireDbSettings> options)
+        public HangfireContext(IOptions<DbSettings> options)
         {
-            var hangfireDbSettings = options.Value;
-            ConnectionString = hangfireDbSettings.ConnectionString;
+            var dbSettings = options.Value;
+            ConnectionString = dbSettings.ConnectionString;
 
             Database.Migrate();
         }
