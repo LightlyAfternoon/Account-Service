@@ -28,7 +28,7 @@
     volumes:
       - db:/data/postgres
     networks:
-      - db
+      - local_network
     restart: unless-stopped
     healthcheck:
       test: [ "CMD", "pg_isready", "-U", "postus", "-d", "account_service_db" ]
@@ -38,7 +38,6 @@
   web:
     depends_on:
       - db
-      - hangfire_db
     build:
       dockerfile: Account Service/Dockerfile
     ports:

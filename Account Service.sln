@@ -8,6 +8,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Account Service.Tests", "Account Service.Tests\Account Service.Tests.csproj", "{AD1FABEC-0899-4BF3-8271-3D9FEC1237B2}"
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{81DDED9D-158B-E303-5F62-77A2896D2A5A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{93A15BBF-F85B-4F6E-9919-2230CD4496C7} = {93A15BBF-F85B-4F6E-9919-2230CD4496C7}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
