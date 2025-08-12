@@ -187,8 +187,8 @@ namespace Account_Service
             }
 
             app.MapGet("/hangfire", () => "")
-                .WithSummary("Веб-интерфейс Hangfire")
-                .WithDescription("Предназначен для более удобного обзора и управления фоновыми задачами");
+                .WithSummary("Hangfire")
+                .WithDescription("Hangfire Dashboard");
             app.UseHangfireDashboard("/hangfire", new DashboardOptions
             {
                 Authorization = [new DashboardAuthorizationFilter()]
