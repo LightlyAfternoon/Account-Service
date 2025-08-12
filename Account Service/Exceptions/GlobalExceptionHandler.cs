@@ -9,9 +9,10 @@ namespace Account_Service.Exceptions
     public class GlobalExceptionHandler : IExceptionHandler
     {
         /// <inheritdoc />
-        public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
+        public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception,
+            CancellationToken cancellationToken)
         {
-            var mbResult = new MbResult<List<string>>();
+            MbResult<string> mbResult;
 
             if (exception is FluentValidation.ValidationException fluentException)
             {
@@ -21,20 +22,29 @@ namespace Account_Service.Exceptions
                 {
                     validationErrors.Add(error.ErrorMessage);
                 }
-                mbResult.MbError = validationErrors;
+
+                mbResult = new(status: (HttpStatusCode)httpContext.Response.StatusCode)
+                {
+                    MbError = validationErrors
+                };
             }
             else if (exception is DbUpdateConcurrencyException)
             {
                 httpContext.Response.StatusCode = StatusCodes.Status409Conflict;
-                mbResult.MbError = ["Конфликт версий объекта"];
+                mbResult = new(status: (HttpStatusCode)httpContext.Response.StatusCode)
+                {
+                    MbError = ["Конфликт версий объекта"]
+                };
             }
 
             else
             {
-                mbResult.MbError = [exception.Message];
+                mbResult = new MbResult<string>(status: (HttpStatusCode)httpContext.Response.StatusCode)
+                {
+                    MbError = [exception.Source + ":" + exception.Message]
+                };
             }
 
-            mbResult.Status = (HttpStatusCode)httpContext.Response.StatusCode;
             await httpContext.Response.WriteAsJsonAsync(mbResult, cancellationToken).ConfigureAwait(false);
 
             return true;

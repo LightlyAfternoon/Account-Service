@@ -14,6 +14,7 @@ namespace Account_Service.Features.Accounts.UpdateAccount
     /// <param name="interestRate"></param>
     /// <param name="openDate"></param>
     /// <param name="closeDate"></param>
+    [method: JsonConstructor]
     public class UpdateAccountRequestCommand(Guid id, Guid ownerId, string type, string currency, decimal balance, decimal? interestRate, DateOnly openDate, DateOnly? closeDate) : IRequest<AccountDto>
     {
         /// <summary>

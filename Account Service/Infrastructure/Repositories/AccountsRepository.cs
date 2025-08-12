@@ -21,15 +21,17 @@ namespace Account_Service.Infrastructure.Repositories
         /// <inheritdoc />
         public async Task<Account?> FindById(Guid id)
         {
-            await using ApplicationContext db = new ApplicationContext(_context.ConnectionString);
-            return await db.Accounts.FindAsync(id);
+            return await _context.Accounts
+                .Include(a => a.Transactions)
+                .FirstOrDefaultAsync(a => a.Id == id);
         }
 
         /// <inheritdoc />
         public async Task<List<Account>> FindAll()
         {
-            await using ApplicationContext db = new ApplicationContext(_context.ConnectionString);
-            return await db.Accounts.ToListAsync();
+            return await _context.Accounts
+                .Include(a => a.Transactions)
+                .ToListAsync();
         }
 
         /// <inheritdoc />
@@ -37,17 +39,15 @@ namespace Account_Service.Infrastructure.Repositories
         {
             if (entity.Id == Guid.Empty)
             {
-                await using ApplicationContext db = new ApplicationContext(_context.ConnectionString);
-                await db.Accounts.AddAsync(entity);
-                await db.SaveChangesAsync();
+                await _context.Accounts.AddAsync(entity);
+                await _context.SaveChangesAsync();
 
                 return entity;
             }
             else
             {
-                await using ApplicationContext db = new ApplicationContext(_context.ConnectionString);
-                db.Accounts.Update(entity);
-                await db.SaveChangesAsync();
+                _context.Accounts.Update(entity);
+                await _context.SaveChangesAsync();
 
                 return entity;
             }
@@ -56,12 +56,11 @@ namespace Account_Service.Infrastructure.Repositories
         /// <inheritdoc />
         public async Task<bool> DeleteById(Guid id)
         {
-            await using ApplicationContext db = new ApplicationContext(_context.ConnectionString);
-            Account? account = await db.Accounts.FindAsync(id);
+            Account? account = await _context.Accounts.FindAsync(id);
 
             if (account != null)
             {
-                db.Accounts.Remove(account);
+                _context.Accounts.Remove(account);
 
                 return true;
             }
@@ -72,18 +71,19 @@ namespace Account_Service.Infrastructure.Repositories
         /// <inheritdoc />
         public async Task<List<Account>> FindAllByOwnerId(Guid ownerId)
         {
-            await using ApplicationContext db = new ApplicationContext(_context.ConnectionString);
-            return await db.Accounts.Where(a => a.OwnerId.Equals(ownerId)).ToListAsync();
+            return await _context.Accounts.Where(a => a.OwnerId.Equals(ownerId))
+                .Include(a => a.Transactions)
+                .ToListAsync();
         }
 
         /// <inheritdoc />
         public async Task AccrueInterestForAllOpenedAccounts()
         {
-            await using ApplicationContext db = new ApplicationContext(_context.ConnectionString);
-            foreach (Account account in await db.Accounts.Where(a => a.CloseDate == null
-                                                                      || a.CloseDate >= DateOnly.FromDateTime(DateTime.Now)).ToListAsync())
+            foreach (Account account in await _context.Accounts.Where(a => a.CloseDate == null
+                                                                      || a.CloseDate >= DateOnly.FromDateTime(DateTime.Now)
+                                                                      && (a.Type.Equals(AccountType.Deposit) || a.Type.Equals(AccountType.Credit))).ToListAsync())
             {
-                db.Accounts.FromSqlRaw("CALL accrue_interest({0})", account.Id);
+                _context.Accounts.FromSqlRaw("CALL accrue_interest({0})", account.Id);
             }
         }
     }

@@ -31,7 +31,9 @@ namespace Account_Service.Features.Accounts
         [HttpGet]
         public async Task<MbResult<List<AccountDto>>> GetAllAccounts()
         {
-            return new MbResult<List<AccountDto>> { Status = HttpStatusCode.OK, Value = await _accountService.FindAll() };
+            HttpContext.Response.StatusCode = (int)HttpStatusCode.OK;
+            return new MbResult<List<AccountDto>>(status: HttpStatusCode.OK)
+                { Value = await _accountService.FindAll() };
         }
 
         /// <summary>
@@ -44,9 +46,17 @@ namespace Account_Service.Features.Accounts
         public async Task<MbResult<string>> GetClientHasAnyAccount(Guid ownerId)
         {
             if (await _accountService.ClientWithIdHasAnyAccount(ownerId))
-                return new MbResult<string> { Status = HttpStatusCode.OK, Value = "У данного пользователя есть счета" };
+            {
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.OK;
+                return new MbResult<string>(status: HttpStatusCode.OK)
+                    { Value = "У данного пользователя есть счета" };
+            }
             else
-                return new MbResult<string> { Status = HttpStatusCode.OK, Value = "У данного пользователя нет счётов" };
+            {
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.OK;
+                return new MbResult<string>(status: HttpStatusCode.OK)
+                    { Value = "У данного пользователя нет счётов" };
+            }
         }
 
         /// <summary>
@@ -60,11 +70,19 @@ namespace Account_Service.Features.Accounts
         public async Task<MbResult<GetClientCurrentAccountBalanceResponse>> GetClientCurrentAccountBalance(Guid ownerId)
         {
             var response = await _accountService.GetClientCurrentAccountBalance(ownerId);
-            
+
             if (response != null)
-                return new MbResult<GetClientCurrentAccountBalanceResponse> { Status = HttpStatusCode.OK, Value = response };
+            {
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.OK;
+                return new MbResult<GetClientCurrentAccountBalanceResponse>(status: HttpStatusCode.OK)
+               { Value = response };
+            }
             else
-                return new MbResult<GetClientCurrentAccountBalanceResponse> { Status = HttpStatusCode.NotFound, MbError = ["Клиент с данным id не найден или у него нет текущего счёта"] };
+            {
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                return new MbResult<GetClientCurrentAccountBalanceResponse>(status: HttpStatusCode.NotFound)
+                { MbError = ["Клиент с данным id не найден или у него нет текущего счёта"] };
+            }
         }
 
         /// <summary>
@@ -78,7 +96,9 @@ namespace Account_Service.Features.Accounts
         [HttpPost]
         public async Task<MbResult<AccountDto?>> Post([FromBody] AddAccountRequestCommand requestCommand)
         {
-            return new MbResult<AccountDto?> { Status = HttpStatusCode.Created, Value = await _accountService.Add(requestCommand) };
+            HttpContext.Response.StatusCode = (int)HttpStatusCode.Created;
+            return new MbResult<AccountDto?>(status: HttpStatusCode.Created)
+                { Value = await _accountService.Add(requestCommand) };
         }
 
         /// <summary>
@@ -93,7 +113,9 @@ namespace Account_Service.Features.Accounts
         [HttpPut("{id}")]
         public async Task<MbResult<AccountDto?>> Put(Guid id, [FromBody] UpdateAccountRequestCommand requestCommand)
         {
-            return new MbResult<AccountDto?> { Status = HttpStatusCode.OK, Value = await _accountService.Update(id, requestCommand) };
+            HttpContext.Response.StatusCode = (int)HttpStatusCode.OK;
+            return new MbResult<AccountDto?>(status: HttpStatusCode.OK)
+                { Value = await _accountService.Update(id, requestCommand) };
         }
 
         /// <summary>
@@ -109,9 +131,17 @@ namespace Account_Service.Features.Accounts
             bool isDeleted = await _accountService.DeleteById(id);
 
             if (isDeleted)
-                return new MbResult<string> { Status = HttpStatusCode.OK, Value = $"Пользователь с id={id} удалён" };
+            {
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.OK;
+                return new MbResult<string> (status: HttpStatusCode.OK)
+                    { Value = $"Пользователь с id={id} удалён" };
+            }
             else
-                return new MbResult<string> { Status = HttpStatusCode.BadRequest, MbError = [$"Не получилось удалить пользователя с id={id}"] };
+            {
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return new MbResult<string> (status: HttpStatusCode.BadRequest)
+                    { MbError = [$"Не получилось удалить пользователя с id={id}"] };
+            }
         }
     }
 }

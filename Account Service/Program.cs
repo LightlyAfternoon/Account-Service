@@ -120,13 +120,13 @@ namespace Account_Service
 
                             context.Response.StatusCode = StatusCodes.Status401Unauthorized;
 
-                            await context.Response.WriteAsJsonAsync(new MbResult<string>
-                            {
-                                Status = HttpStatusCode.Unauthorized,
+                            await context.Response.WriteAsJsonAsync(
+                                new MbResult<string>(status: HttpStatusCode.Unauthorized)
+                                {
                                     MbError = context is { Error: not null, ErrorDescription: not null }
                                         ? [$"{context.Error}: {context.ErrorDescription}"]
                                         : ["validation_error: нет JWT токена или он не валиден"]
-                            });
+                                });
                         }
                     };
                 });
@@ -166,7 +166,11 @@ namespace Account_Service
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
-                app.UseSwaggerUI();
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Account Service");
+                    c.RoutePrefix = "";
+                });
             }
 
             app.UseCors(policyBuilder =>

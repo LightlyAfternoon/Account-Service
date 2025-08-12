@@ -24,7 +24,7 @@ namespace Account_Service.Features.Transactions.AddTransferTransactions
             CancellationToken cancellationToken)
         {
             Transaction? transactionFrom = await _transactionsRepository.MakeTransfer(requestCommand.FromAccountId,
-                requestCommand.ToAccountId, requestCommand);
+                requestCommand.ToAccountId, requestCommand, cancellationToken);
             return transactionFrom != null ? TransactionMappers.MapToDto(transactionFrom) : null;
         }
     }

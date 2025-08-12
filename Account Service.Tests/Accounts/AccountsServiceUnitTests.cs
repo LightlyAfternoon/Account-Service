@@ -13,14 +13,14 @@ namespace Account_Service.Tests.Accounts
     /// <summary>
     /// 
     /// </summary>
-    public class AccountServiceUnitTests
+    public class AccountsServiceUnitTests
     {
         private readonly Mock<IMediator> _mediator;
         private readonly Mock<IUserRepository> _userRepository;
         private readonly Mock<IAccountsRepository> _accountsRepository;
         private readonly IAccountsService _accountsService;
 
-        public AccountServiceUnitTests()
+        public AccountsServiceUnitTests()
         {
             _mediator = new Mock<IMediator>();
             _accountsRepository = new Mock<IAccountsRepository>();

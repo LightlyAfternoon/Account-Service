@@ -66,7 +66,7 @@ namespace Account_Service.Features.Transactions
         /// <summary>
         /// 
         /// </summary>
-        public int RowVersion { get; set; }
+        public uint RowVersion { get; set; }
 
         /// <summary>
         /// 
@@ -81,6 +81,26 @@ namespace Account_Service.Features.Transactions
         /// <inheritdoc />
         public Transaction(Guid id, Transaction transaction) : this(id, transaction.AccountId, transaction.CounterpartyAccountId, transaction.Sum, transaction.Currency, transaction.Type, transaction.Description, transaction.DateTime)
         {
+        }
+
+        /// <inheritdoc />
+        public override bool Equals(object? obj)
+        {
+            var transaction = obj as Transaction;
+
+            if (transaction == null)
+                return false;
+            else
+                return Id.Equals(transaction.Id) && AccountId.Equals(transaction.AccountId) &&
+                       CounterpartyAccountId.Equals(transaction.CounterpartyAccountId) && Sum.Equals(transaction.Sum) &&
+                       Currency.Equals(transaction.Currency) && Type.Equals(transaction.Type) &&
+                       Description.Equals(transaction.Description) && DateTime.Equals(transaction.DateTime);
+        }
+
+        /// <inheritdoc />
+        public override int GetHashCode()
+        {
+            return Id.GetHashCode();
         }
     }
 }

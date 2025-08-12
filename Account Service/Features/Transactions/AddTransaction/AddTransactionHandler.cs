@@ -27,7 +27,7 @@ namespace Account_Service.Features.Transactions.AddTransaction
         {
             TransactionDto dto = new TransactionDto(id: Guid.Empty,
                 accountId: requestCommand.AccountId,
-                counterpartyAccountId: Guid.Empty,
+                counterpartyAccountId: null,
                 sum: requestCommand.Sum,
                 currency: requestCommand.Currency,
                 type: requestCommand.Type,

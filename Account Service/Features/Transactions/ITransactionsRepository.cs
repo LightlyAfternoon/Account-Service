@@ -12,7 +12,8 @@ namespace Account_Service.Features.Transactions
         /// <param name="fromAccountId"></param>
         /// <param name="toAccountId"></param>
         /// <param name="requestCommand"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<Transaction?> MakeTransfer(Guid fromAccountId, Guid toAccountId, AddTransferTransactionsRequestCommand requestCommand);
+        Task<Transaction?> MakeTransfer(Guid fromAccountId, Guid toAccountId, AddTransferTransactionsRequestCommand requestCommand, CancellationToken cancellationToken);
     }
 }

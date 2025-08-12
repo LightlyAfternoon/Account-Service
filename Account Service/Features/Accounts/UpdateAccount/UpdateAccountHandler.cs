@@ -20,20 +20,21 @@ namespace Account_Service.Features.Accounts.UpdateAccount
         /// <inheritdoc />
         public async Task<AccountDto?> Handle(UpdateAccountRequestCommand requestCommand, CancellationToken cancellationToken)
         {
-            AccountDto dto = new AccountDto(id: requestCommand.Id,
-                ownerId: requestCommand.OwnerId,
-                type: requestCommand.Type,
-                currency: requestCommand.Currency,
-                balance: requestCommand.Balance,
-                interestRate: requestCommand.InterestRate,
-                openDate: requestCommand.OpenDate,
-                closeDate: requestCommand.CloseDate);
-
-            Account? account = await _accountsRepository.Save(AccountMappers.MapToEntity(dto));
+            Account? account = await _accountsRepository.FindById(requestCommand.Id);
 
             if (account != null)
             {
-                return AccountMappers.MapToDto(account);
+                account.OwnerId = requestCommand.OwnerId;
+                account.Type = Enum.Parse<AccountType>(requestCommand.Type);
+                account.Currency = Enum.Parse<CurrencyCode>(requestCommand.Currency);
+                account.Balance = requestCommand.Balance;
+                account.InterestRate = requestCommand.InterestRate;
+                account.OpenDate = requestCommand.OpenDate;
+                account.CloseDate = requestCommand.CloseDate;
+
+                account = await _accountsRepository.Save(account);
+
+                return AccountMappers.MapToDto(account!);
             }
 
             return null;

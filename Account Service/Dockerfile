@@ -12,10 +12,10 @@ ENV ASPNETCORE_HTTP_PORTS=80
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["Account Service.csproj", "."]
-RUN dotnet restore "./Account Service.csproj"
+COPY ["Account Service/Account Service.csproj", "Account Service/"]
+RUN dotnet restore "./Account Service/Account Service.csproj"
 COPY . .
-WORKDIR "/src/."
+WORKDIR "/src/Account Service"
 RUN dotnet build "./Account Service.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # Этот этап используется для публикации проекта службы, который будет скопирован на последний этап

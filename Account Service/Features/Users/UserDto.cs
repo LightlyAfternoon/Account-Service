@@ -18,5 +18,22 @@ namespace Account_Service.Features.Users
         /// Имя пользователя
         /// </summary>
         public string Name { get; set; } = name;
+
+        /// <inheritdoc />
+        public override bool Equals(object? obj)
+        {
+            var user = obj as UserDto;
+
+            if (user == null)
+                return false;
+            else
+                return Id.Equals(user.Id) && Name.Equals(user.Name);
+        }
+
+        /// <inheritdoc />
+        public override int GetHashCode()
+        {
+            return Id.GetHashCode();
+        }
     }
 }

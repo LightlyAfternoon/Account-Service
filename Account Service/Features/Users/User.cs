@@ -20,11 +20,28 @@
         /// <summary>
         /// 
         /// </summary>
-        public int RowVersion { get; set; }
+        public uint RowVersion { get; set; }
 
         /// <inheritdoc />
         public User(Guid id, User user) : this(id, user.Name)
         {
+        }
+
+        /// <inheritdoc />
+        public override bool Equals(object? obj)
+        {
+            var user = obj as User;
+
+            if (user == null)
+                return false;
+            else
+                return Id.Equals(user.Id) && Name.Equals(user.Name);
+        }
+
+        /// <inheritdoc />
+        public override int GetHashCode()
+        {
+            return Id.GetHashCode();
         }
     }
 }

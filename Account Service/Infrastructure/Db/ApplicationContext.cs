@@ -85,9 +85,12 @@ namespace Account_Service.Infrastructure.Db
             modelBuilder.Entity<Transaction>().HasIndex(t => new { t.AccountId, t.DateTime });
             modelBuilder.Entity<Transaction>().HasIndex(t => t.DateTime).HasMethod("gist");
 
-            modelBuilder.Entity<Account>().Property(a => a.RowVersion).HasColumnName("rowVersion").IsRowVersion();
-            modelBuilder.Entity<Transaction>().Property(t => t.RowVersion).HasColumnName("rowVersion").IsRowVersion();
-            modelBuilder.Entity<User>().Property(u => u.RowVersion).HasColumnName("rowVersion").IsRowVersion();
+            // ReSharper disable once StringLiteralTypo
+            modelBuilder.Entity<Account>().Property(a => a.RowVersion).HasColumnName("xmin").IsRowVersion();
+            // ReSharper disable once StringLiteralTypo
+            modelBuilder.Entity<Transaction>().Property(t => t.RowVersion).HasColumnName("xmin").IsRowVersion();
+            // ReSharper disable once StringLiteralTypo
+            modelBuilder.Entity<User>().Property(u => u.RowVersion).HasColumnName("xmin").IsRowVersion();
 
             base.OnModelCreating(modelBuilder);
         }

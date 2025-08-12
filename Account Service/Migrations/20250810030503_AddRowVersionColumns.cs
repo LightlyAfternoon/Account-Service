@@ -10,26 +10,26 @@ namespace Account_Service.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<int>(
-                name: "rowVersion",
+            migrationBuilder.AddColumn<uint>(
+                name: "xmin",
                 table: "Users",
-                type: "integer",
+                type: "xid",
                 rowVersion: true,
                 nullable: false,
                 defaultValue: 0);
 
-            migrationBuilder.AddColumn<int>(
-                name: "rowVersion",
+            migrationBuilder.AddColumn<uint>(
+                name: "xmin",
                 table: "Transactions",
-                type: "integer",
+                type: "xid",
                 rowVersion: true,
                 nullable: false,
                 defaultValue: 0);
 
-            migrationBuilder.AddColumn<int>(
-                name: "rowVersion",
+            migrationBuilder.AddColumn<uint>(
+                name: "xmin",
                 table: "Accounts",
-                type: "integer",
+                type: "xid",
                 rowVersion: true,
                 nullable: false,
                 defaultValue: 0);
@@ -39,15 +39,15 @@ namespace Account_Service.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "rowVersion",
+                name: "xmin",
                 table: "Users");
 
             migrationBuilder.DropColumn(
-                name: "rowVersion",
+                name: "xmin",
                 table: "Transactions");
 
             migrationBuilder.DropColumn(
-                name: "rowVersion",
+                name: "xmin",
                 table: "Accounts");
         }
     }

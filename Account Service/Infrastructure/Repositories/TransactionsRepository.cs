@@ -1,9 +1,9 @@
-﻿using System.Data;
-using Account_Service.Features.Accounts;
+﻿using Account_Service.Features.Accounts;
 using Account_Service.Features.Transactions;
 using Account_Service.Features.Transactions.AddTransferTransactions;
 using Account_Service.Infrastructure.Db;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 
 namespace Account_Service.Infrastructure.Repositories
 {
@@ -28,15 +28,13 @@ namespace Account_Service.Infrastructure.Repositories
         /// <inheritdoc />
         public async Task<Transaction?> FindById(Guid id)
         {
-            await using ApplicationContext db = new ApplicationContext(_context.ConnectionString);
-            return await db.Transactions.FindAsync(id);
+            return await _context.Transactions.FindAsync(id);
         }
 
         /// <inheritdoc />
         public async Task<List<Transaction>> FindAll()
         {
-            await using ApplicationContext db = new ApplicationContext(_context.ConnectionString);
-            return await db.Transactions.ToListAsync();
+            return await _context.Transactions.ToListAsync();
         }
 
         /// <inheritdoc />
@@ -44,17 +42,15 @@ namespace Account_Service.Infrastructure.Repositories
         {
             if (entity.Id == Guid.Empty)
             {
-                await using ApplicationContext db = new ApplicationContext(_context.ConnectionString);
-                await db.Transactions.AddAsync(entity);
-                await db.SaveChangesAsync();
+                await _context.Transactions.AddAsync(entity);
+                await _context.SaveChangesAsync();
 
                 return entity;
             }
             else
             {
-                await using ApplicationContext db = new ApplicationContext(_context.ConnectionString);
-                db.Transactions.Update(entity);
-                await db.SaveChangesAsync();
+                _context.Transactions.Update(entity);
+                await _context.SaveChangesAsync();
 
                 return entity;
             }
@@ -63,12 +59,12 @@ namespace Account_Service.Infrastructure.Repositories
         /// <inheritdoc />
         public async Task<bool> DeleteById(Guid id)
         {
-            await using ApplicationContext db = new ApplicationContext(_context.ConnectionString);
-            Transaction? transaction = await db.Transactions.FindAsync(id);
+            Transaction? transaction = await _context.Transactions.FindAsync(id);
 
             if (transaction != null)
             {
-                db.Transactions.Remove(transaction);
+                _context.Transactions.Remove(transaction);
+                await _context.SaveChangesAsync();
 
                 return true;
             }
@@ -78,59 +74,55 @@ namespace Account_Service.Infrastructure.Repositories
 
         /// <inheritdoc />
         public async Task<Transaction?> MakeTransfer(Guid fromAccountId, Guid toAccountId,
-            AddTransferTransactionsRequestCommand requestCommand)
+            AddTransferTransactionsRequestCommand requestCommand, CancellationToken cancellationToken)
         {
-            await using ApplicationContext db = new ApplicationContext(_context.ConnectionString);
-            using var transaction = db.Database.BeginTransactionAsync(IsolationLevel.Serializable);
-            Transaction transactionFrom = new Transaction(id: Guid.Empty,
-                accountId: requestCommand.FromAccountId,
-                counterpartyAccountId: requestCommand.ToAccountId,
-                sum: requestCommand.Sum,
-                currency: Enum.Parse<CurrencyCode>(requestCommand.Currency),
-                type: TransactionType.Credit,
-                description: requestCommand.Description,
-                dateTime: requestCommand.DateTime);
-
-            Transaction transactionTo = new Transaction(id: Guid.Empty,
-                accountId: requestCommand.ToAccountId,
-                counterpartyAccountId: requestCommand.FromAccountId,
-                sum: requestCommand.Sum,
-                currency: Enum.Parse<CurrencyCode>(requestCommand.Currency),
-                type: TransactionType.Debit,
-                description: requestCommand.Description,
-                dateTime: requestCommand.DateTime);
-
-            Account? accountFrom = await _accountsRepository.FindById(requestCommand.FromAccountId);
-            Account? accountTo = await _accountsRepository.FindById(requestCommand.ToAccountId);
-
-            if (accountFrom != null)
-                accountFrom.Balance -= requestCommand.Sum;
-            if (accountTo != null)
-                accountTo.Balance += requestCommand.Sum;
-
-            await Save(transactionTo);
-            await Save(transactionFrom);
-
-            if (accountFrom != null)
-                accountFrom = await _accountsRepository.Save(accountFrom);
-            if (accountTo != null)
-                accountTo = await _accountsRepository.Save(accountTo);
-
-            Account? fixedAccountFrom = await _accountsRepository.FindById(requestCommand.FromAccountId);
-            Account? fixedAccountTo = await _accountsRepository.FindById(requestCommand.ToAccountId);
-            if (accountFrom != null && accountTo != null && fixedAccountFrom != null && fixedAccountTo != null
-                && (fixedAccountFrom.Balance - requestCommand.Sum != accountFrom.Balance ||
-                    fixedAccountTo.Balance + requestCommand.Sum != accountTo.Balance))
+            using var transaction =
+                _context.Database.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
+            try
             {
-                await (await transaction).RollbackAsync();
+                Transaction transactionFrom = new Transaction(id: Guid.Empty,
+                    accountId: requestCommand.FromAccountId,
+                    counterpartyAccountId: requestCommand.ToAccountId,
+                    sum: requestCommand.Sum,
+                    currency: Enum.Parse<CurrencyCode>(requestCommand.Currency),
+                    type: TransactionType.Credit,
+                    description: requestCommand.Description,
+                    dateTime: requestCommand.DateTime);
 
-                return null;
-            }
-            else
-            {
-                await (await transaction).CommitAsync();
+                Transaction transactionTo = new Transaction(id: Guid.Empty,
+                    accountId: requestCommand.ToAccountId,
+                    counterpartyAccountId: requestCommand.FromAccountId,
+                    sum: requestCommand.Sum,
+                    currency: Enum.Parse<CurrencyCode>(requestCommand.Currency),
+                    type: TransactionType.Debit,
+                    description: requestCommand.Description,
+                    dateTime: requestCommand.DateTime);
+
+                Account? accountFrom = await _accountsRepository.FindById(requestCommand.FromAccountId);
+                Account? accountTo = await _accountsRepository.FindById(requestCommand.ToAccountId);
+
+                if (accountFrom != null)
+                    accountFrom.Balance -= requestCommand.Sum;
+                if (accountTo != null)
+                    accountTo.Balance += requestCommand.Sum;
+
+                await Save(transactionFrom);
+                await Save(transactionTo);
+
+                if (accountFrom != null)
+                    await _accountsRepository.Save(accountFrom);
+                if (accountTo != null)
+                    await _accountsRepository.Save(accountTo);
+
+                await (await transaction).CommitAsync(cancellationToken);
 
                 return transactionFrom;
+            }
+            catch
+            {
+                await (await transaction).RollbackAsync(cancellationToken);
+
+                throw new DbUpdateConcurrencyException();
             }
         }
     }

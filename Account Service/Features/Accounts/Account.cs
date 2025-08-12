@@ -67,7 +67,7 @@ namespace Account_Service.Features.Accounts
         /// <summary>
         /// 
         /// </summary>
-        public int RowVersion { get; set; }
+        public uint RowVersion { get; set; }
 
         /// <summary>
         /// 

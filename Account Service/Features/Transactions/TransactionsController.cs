@@ -35,7 +35,9 @@ namespace Account_Service.Features.Transactions
         [HttpGet]
         public async Task<MbResult<List<TransactionDto>>> GetAccountStatementOnPeriod(Guid accountId, DateTime startDate, DateTime endDate)
         {
-            return new MbResult<List<TransactionDto>> { Status = HttpStatusCode.OK, Value = await _transactionsService.GetAccountStatementOnPeriod(accountId, startDate, endDate) };
+            HttpContext.Response.StatusCode = (int)HttpStatusCode.OK;
+            return new MbResult<List<TransactionDto>>(status: HttpStatusCode.OK)
+                { Value = await _transactionsService.GetAccountStatementOnPeriod(accountId, startDate, endDate) };
         }
 
         /// <summary>
@@ -49,7 +51,9 @@ namespace Account_Service.Features.Transactions
         [HttpPost]
         public async Task<MbResult<TransactionDto?>> Post([FromBody] AddTransactionRequestCommand requestCommand)
         {
-            return new MbResult<TransactionDto?> { Status = HttpStatusCode.Created, Value = await _transactionsService.Add(requestCommand) };
+            HttpContext.Response.StatusCode = (int)HttpStatusCode.Created;
+            return new MbResult<TransactionDto?>(status: HttpStatusCode.Created)
+                { Value = await _transactionsService.Add(requestCommand) };
         }
 
         /// <summary>
@@ -65,7 +69,9 @@ namespace Account_Service.Features.Transactions
         [HttpPost("from/{fromAccountId}/to/{toAccountId}")]
         public async Task<MbResult<TransactionDto?>> MakeTransfer(Guid fromAccountId, Guid toAccountId, [FromBody] AddTransferTransactionsRequestCommand requestCommand)
         {
-            return new MbResult<TransactionDto?> { Status = HttpStatusCode.Created, Value = await _transactionsService.Transfer(fromAccountId, toAccountId, requestCommand) };
+            HttpContext.Response.StatusCode = (int)HttpStatusCode.Created;
+            return new MbResult<TransactionDto?>(HttpStatusCode.Created)
+                { Value = await _transactionsService.Transfer(fromAccountId, toAccountId, requestCommand) };
         }
     }
 }

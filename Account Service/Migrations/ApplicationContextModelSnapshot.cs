@@ -53,11 +53,11 @@ namespace Account_Service.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("ownerId");
 
-                    b.Property<int>("RowVersion")
+                    b.Property<uint>("RowVersion")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("integer")
-                        .HasColumnName("rowVersion");
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
 
                     b.Property<int>("Type")
                         .HasColumnType("integer")
@@ -101,11 +101,11 @@ namespace Account_Service.Migrations
                         .HasColumnType("character varying(255)")
                         .HasColumnName("description");
 
-                    b.Property<int>("RowVersion")
+                    b.Property<uint>("RowVersion")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("integer")
-                        .HasColumnName("rowVersion");
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
 
                     b.Property<decimal>("Sum")
                         .HasColumnType("numeric")
@@ -141,11 +141,11 @@ namespace Account_Service.Migrations
                         .HasColumnType("character varying(255)")
                         .HasColumnName("name");
 
-                    b.Property<int>("RowVersion")
+                    b.Property<uint>("RowVersion")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("integer")
-                        .HasColumnName("rowVersion");
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
 
                     b.HasKey("Id");
 

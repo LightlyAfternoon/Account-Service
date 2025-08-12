@@ -19,9 +19,8 @@ namespace Account_Service
                 {
                     httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
 
-                    httpContext.Response.WriteAsJsonAsync(new MbResult<string>
+                    httpContext.Response.WriteAsJsonAsync(new MbResult<string>(status: HttpStatusCode.Unauthorized)
                     {
-                        Status = HttpStatusCode.Unauthorized,
                         MbError = ["error: no Authorization header with JWT token or token isn't valid"]
                     }).Wait();
                 }
