@@ -1,4 +1,5 @@
-﻿services:
+﻿
+services:
   keycloak:
     image: quay.io/keycloak/keycloak:26.3
     environment:
@@ -46,7 +47,7 @@
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
       - JWT_AUTHORITY=http://keycloak:7080/realms/account-service
-      - DbSettings__ConnectionString="Host=db;Port=5432;Database=account_service_db;Username=postus;Password=passus"
+      - DbSettings__ConnectionString=Host=db;Port=5432;Database=account_service_db;Username=postus;Password=passus
     networks:
       - local_network
 
@@ -56,3 +57,4 @@ networks:
 
 volumes:
   db:
+    

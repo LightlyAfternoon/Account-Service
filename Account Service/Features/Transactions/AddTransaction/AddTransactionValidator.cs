@@ -21,7 +21,7 @@ namespace Account_Service.Features.Transactions.AddTransaction
                 {
                     AccountDto? accountDto = accountService.FindById(t.AccountId).Result;
 
-                    if (accountDto != null && Enum.Parse<TransactionType>(t.Type).Equals(TransactionType.Credit))
+                    if (accountDto != null && t.Type.Equals(nameof(TransactionType.Credit)))
                         return t.Sum <= accountDto.Balance;
 
                     return true;
