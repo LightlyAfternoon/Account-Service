@@ -79,11 +79,11 @@ namespace Account_Service.Infrastructure.Repositories
         /// <inheritdoc />
         public async Task AccrueInterestForAllOpenedAccounts()
         {
-            foreach (Account account in await _context.Accounts.Where(a => a.CloseDate == null
-                                                                      || a.CloseDate >= DateOnly.FromDateTime(DateTime.Now)
+            foreach (Account account in await _context.Accounts.Where(a => (a.CloseDate == null
+                                                                      || a.CloseDate >= DateOnly.FromDateTime(DateTime.Now))
                                                                       && (a.Type.Equals(AccountType.Deposit) || a.Type.Equals(AccountType.Credit))).ToListAsync())
             {
-                _context.Accounts.FromSqlRaw("CALL accrue_interest({0})", account.Id);
+                await _context.Database.ExecuteSqlRawAsync("CALL accrue_interest({0})", account.Id);
             }
         }
     }

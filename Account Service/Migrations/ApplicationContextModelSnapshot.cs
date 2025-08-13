@@ -30,7 +30,8 @@ namespace Account_Service.Migrations
                         .HasColumnName("id");
 
                     b.Property<decimal>("Balance")
-                        .HasColumnType("numeric")
+                        .HasPrecision(28, 8)
+                        .HasColumnType("numeric(28,8)")
                         .HasColumnName("balance");
 
                     b.Property<DateOnly?>("CloseDate")
@@ -42,7 +43,8 @@ namespace Account_Service.Migrations
                         .HasColumnName("currency");
 
                     b.Property<decimal?>("InterestRate")
-                        .HasColumnType("numeric")
+                        .HasPrecision(28, 8)
+                        .HasColumnType("numeric(28,8)")
                         .HasColumnName("interestRate");
 
                     b.Property<DateOnly>("OpenDate")
@@ -108,7 +110,8 @@ namespace Account_Service.Migrations
                         .HasColumnName("xmin");
 
                     b.Property<decimal>("Sum")
-                        .HasColumnType("numeric")
+                        .HasPrecision(28, 8)
+                        .HasColumnType("numeric(28,8)")
                         .HasColumnName("sum");
 
                     b.Property<int>("Type")

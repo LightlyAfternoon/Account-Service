@@ -62,8 +62,8 @@ namespace Account_Service.Infrastructure.Db
             modelBuilder.Entity<Account>().HasOne(a => a.Owner).WithMany().HasForeignKey(a => a.OwnerId).IsRequired();
             modelBuilder.Entity<Account>().Property(a => a.Type).HasColumnName("type").IsRequired();
             modelBuilder.Entity<Account>().Property(a => a.Currency).HasColumnName("currency").IsRequired();
-            modelBuilder.Entity<Account>().Property(a => a.Balance).HasColumnName("balance").IsRequired();
-            modelBuilder.Entity<Account>().Property(a => a.InterestRate).HasColumnName("interestRate");
+            modelBuilder.Entity<Account>().Property(a => a.Balance).HasColumnName("balance").IsRequired().HasPrecision(28, 8);
+            modelBuilder.Entity<Account>().Property(a => a.InterestRate).HasColumnName("interestRate").HasPrecision(28, 8);
             modelBuilder.Entity<Account>().Property(a => a.OpenDate).HasColumnName("openDate").IsRequired();
             modelBuilder.Entity<Account>().Property(a => a.CloseDate).HasColumnName("closeDate");
             modelBuilder.Entity<Account>().HasMany(a => a.Transactions).WithOne(t => t.Account).HasForeignKey(t => t.AccountId);
@@ -71,7 +71,7 @@ namespace Account_Service.Infrastructure.Db
             modelBuilder.Entity<Transaction>().Property(t => t.Id).HasColumnName("id").IsRequired();
             modelBuilder.Entity<Transaction>().Property(t => t.AccountId).HasColumnName("accountId").IsRequired();
             modelBuilder.Entity<Transaction>().Property(t => t.CounterpartyAccountId).HasColumnName("counterpartyAccountId");
-            modelBuilder.Entity<Transaction>().Property(t => t.Sum).HasColumnName("sum").IsRequired();
+            modelBuilder.Entity<Transaction>().Property(t => t.Sum).HasColumnName("sum").IsRequired().HasPrecision(28, 8);
             modelBuilder.Entity<Transaction>().Property(t => t.Currency).HasColumnName("currency").IsRequired();
             modelBuilder.Entity<Transaction>().Property(t => t.Type).HasColumnName("type").IsRequired();
             modelBuilder.Entity<Transaction>().Property(t => t.Description).HasColumnName("description").IsRequired().HasMaxLength(255);
