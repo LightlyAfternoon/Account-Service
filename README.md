@@ -13,9 +13,9 @@
 
 ## API
 
-http://localhost:5203/swagger/index.html
+http://localhost:5203/index.html
 
-http://localhost/swagger/index.html (развёртка в докере)
+http://localhost/index.html (развёртка в докере)
 
 ## Запуск
 
