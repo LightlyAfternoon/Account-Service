@@ -96,9 +96,20 @@ namespace Account_Service.Features.Accounts
         [HttpPost]
         public async Task<MbResult<AccountDto?>> Post([FromBody] AddAccountRequestCommand requestCommand)
         {
-            HttpContext.Response.StatusCode = (int)HttpStatusCode.Created;
-            return new MbResult<AccountDto?>(status: HttpStatusCode.Created)
-                { Value = await _accountService.Add(requestCommand) };
+            AccountDto? account = await _accountService.Add(requestCommand);
+
+            if (account != null)
+            {
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Created;
+                return new MbResult<AccountDto?>(status: HttpStatusCode.Created)
+                    { Value =  account};
+            }
+            else
+            {
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return new MbResult<AccountDto?>(status: HttpStatusCode.BadRequest)
+                    { MbError = ["Не получилось добавить новый счёт"] };
+            }
         }
 
         /// <summary>
@@ -113,9 +124,20 @@ namespace Account_Service.Features.Accounts
         [HttpPut("{id}")]
         public async Task<MbResult<AccountDto?>> Put(Guid id, [FromBody] UpdateAccountRequestCommand requestCommand)
         {
-            HttpContext.Response.StatusCode = (int)HttpStatusCode.OK;
-            return new MbResult<AccountDto?>(status: HttpStatusCode.OK)
-                { Value = await _accountService.Update(id, requestCommand) };
+            AccountDto? account = await _accountService.Update(id, requestCommand);
+
+            if (account != null)
+            {
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Created;
+                return new MbResult<AccountDto?>(status: HttpStatusCode.Created)
+                    { Value = account };
+            }
+            else
+            {
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return new MbResult<AccountDto?>(status: HttpStatusCode.BadRequest)
+                    { MbError = ["Не получилось обновить счёт с данным id"] };
+            }
         }
 
         /// <summary>

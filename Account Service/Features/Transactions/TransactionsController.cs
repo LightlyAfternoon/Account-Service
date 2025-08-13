@@ -51,9 +51,20 @@ namespace Account_Service.Features.Transactions
         [HttpPost]
         public async Task<MbResult<TransactionDto?>> Post([FromBody] AddTransactionRequestCommand requestCommand)
         {
-            HttpContext.Response.StatusCode = (int)HttpStatusCode.Created;
-            return new MbResult<TransactionDto?>(status: HttpStatusCode.Created)
-                { Value = await _transactionsService.Add(requestCommand) };
+            TransactionDto? transactionDto = await _transactionsService.Add(requestCommand);
+
+            if (transactionDto != null)
+            {
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Created;
+                return new MbResult<TransactionDto?>(status: HttpStatusCode.Created)
+                    { Value = transactionDto };
+            }
+            else
+            {
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return new MbResult<TransactionDto?>(status: HttpStatusCode.BadRequest)
+                    { MbError = ["Не получилось добавить новую транзакцию"] };
+            }
         }
 
         /// <summary>
@@ -69,9 +80,20 @@ namespace Account_Service.Features.Transactions
         [HttpPost("from/{fromAccountId}/to/{toAccountId}")]
         public async Task<MbResult<TransactionDto?>> MakeTransfer(Guid fromAccountId, Guid toAccountId, [FromBody] AddTransferTransactionsRequestCommand requestCommand)
         {
-            HttpContext.Response.StatusCode = (int)HttpStatusCode.Created;
-            return new MbResult<TransactionDto?>(HttpStatusCode.Created)
-                { Value = await _transactionsService.Transfer(fromAccountId, toAccountId, requestCommand) };
+            TransactionDto? transactionDto = await _transactionsService.Transfer(fromAccountId, toAccountId, requestCommand);
+
+            if (transactionDto != null)
+            {
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Created;
+                return new MbResult<TransactionDto?>(status: HttpStatusCode.Created)
+                    { Value = transactionDto };
+            }
+            else
+            {
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return new MbResult<TransactionDto?>(status: HttpStatusCode.BadRequest)
+                    { MbError = ["Не получилось совершить перевод"] };
+            }
         }
     }
 }
