@@ -1,0 +1,67 @@
+﻿using Account_Service.Features.Users;
+using Account_Service.Infrastructure.Db;
+using Microsoft.EntityFrameworkCore;
+
+namespace Account_Service.Infrastructure.Repositories
+{
+    /// <inheritdoc />
+    public class UserRepository : IUserRepository
+    {
+        private readonly ApplicationContext _context;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="context"></param>
+        public UserRepository(ApplicationContext context)
+        {
+            _context = context;
+        }
+
+        /// <inheritdoc />
+        public async Task<User?> FindById(Guid id)
+        {
+            return await _context.Users.FindAsync(id);
+        }
+
+        /// <inheritdoc />
+        public async Task<List<User>> FindAll()
+        {
+            return await _context.Users.ToListAsync();
+        }
+
+        /// <inheritdoc />
+        public async Task<User?> Save(User entity)
+        {
+            if (entity.Id == Guid.Empty)
+            {
+                await _context.Users.AddAsync(entity);
+                await _context.SaveChangesAsync();
+
+                return entity;
+            }
+            else
+            {
+                _context.Users.Update(entity);
+                await _context.SaveChangesAsync();
+
+                return entity;
+            }
+        }
+
+        /// <inheritdoc />
+        public async Task<bool> DeleteById(Guid id)
+        {
+            User? user = await _context.Users.FindAsync(id);
+
+            if (user != null)
+            {
+                _context.Users.Remove(user);
+
+                return true;
+            }
+
+            return false;
+        }
+    }
+}
