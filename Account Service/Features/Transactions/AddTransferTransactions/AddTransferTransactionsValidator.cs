@@ -16,6 +16,15 @@ namespace Account_Service.Features.Transactions.AddTransferTransactions
             RuleFor(t => t.FromAccountId).NotEmpty()
                 .WithMessage("Отсутствует id счёта, с которого происходит списание денег")
                 .Must(t => accountService.FindById(t).Result != null).WithMessage("Счёт с данным id не существует")
+                .Must(t =>
+                {
+                    AccountDto? accountDto = accountService.FindById(t).Result;
+
+                    if (accountDto != null)
+                        return !accountDto.Frozen;
+
+                    return true;
+                }).WithMessage("С замороженного счёта нельзя снимать деньги")
                 .NotEqual(t => t.ToAccountId)
                 .WithMessage(
                     "Счёт, с которого, и счёт, на который отправляются деньги, не могут быть одним и тем же счётом");

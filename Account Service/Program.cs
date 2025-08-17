@@ -1,6 +1,7 @@
 using Account_Service.Exceptions;
 using Account_Service.Features.Accounts;
 using Account_Service.Features.Accounts.AccrueInterest.BackgroundJobs;
+using Account_Service.Features.RabbitMQ;
 using Account_Service.Features.Transactions;
 using Account_Service.Features.Users;
 using Account_Service.Infrastructure;
@@ -16,6 +17,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using RabbitMQ.Client;
 using System.Net;
 using System.Reflection;
 
@@ -75,12 +77,14 @@ namespace Account_Service
             builder.Services.AddScoped<IAccountsRepository, AccountsRepository>();
             builder.Services.AddScoped<ITransactionsRepository, TransactionsRepository>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<IOutboxRepository, OutboxRepository>();
 
             builder.Services.AddScoped<IAccountsService, AccountsService>();
             builder.Services.AddScoped<ITransactionsService, TransactionsService>();
             builder.Services.AddScoped<IUsersService, UsersService>();
 
             builder.Services.AddScoped<DailyAccrueInterestJobScheduler>();
+            builder.Services.AddScoped<RabbitMqDispatcherJobScheduler>();
 
             builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<Program>());
             // Validation
@@ -140,6 +144,41 @@ namespace Account_Service
                     options.UseNpgsqlConnection(builder.Configuration["DbSettings:ConnectionString"])));
             builder.Services.AddHangfireServer();
 
+            builder.Services.Configure<RabbitMqSettings>(settings =>
+            {
+                settings.RabbitMqDefaultUser = builder.Configuration["RABBITMQ_DEFAULT_USER"] ?? "guest";
+                settings.RabbitMqDefaultPass = builder.Configuration["RABBITMQ_DEFAULT_PASS"] ?? "guest";
+            });
+            builder.Services.AddSingleton<IRabbitMqService>(sp =>
+            {
+                var endpoints = new List<AmqpTcpEndpoint>
+                {
+                    new("rabbitmq"),
+                    new("localhost")
+                };
+
+                ConnectionFactory factory = new ConnectionFactory
+                {
+                    UserName = builder.Configuration["RABBITMQ_DEFAULT_USER"] ?? "guest",
+                    Password = builder.Configuration["RABBITMQ_DEFAULT_PASS"] ?? "guest",
+                    ClientProvidedName = "app:audit component:event-consumer"
+                };
+
+                IOutboxRepository scopedService;
+                using (var scope = sp.CreateScope())
+                {
+                    scopedService = scope.ServiceProvider.GetRequiredService<IOutboxRepository>();
+                }
+
+                var rabbitMqConnection =
+                    new RabbitMqService(factory, endpoints, scopedService,
+                        sp.GetRequiredService<IMediator>());
+
+                rabbitMqConnection.Connect();
+
+                return rabbitMqConnection;
+            });
+
             var app = builder.Build();
 
             using (var scope = app.Services.CreateScope())
@@ -183,6 +222,12 @@ namespace Account_Service
             using (var scope = app.Services.CreateScope())
             {
                 var jobScheduler = scope.ServiceProvider.GetRequiredService<DailyAccrueInterestJobScheduler>();
+                jobScheduler.ScheduleJob();
+            }
+
+            using (var scope = app.Services.CreateScope())
+            {
+                var jobScheduler = scope.ServiceProvider.GetRequiredService<RabbitMqDispatcherJobScheduler>();
                 jobScheduler.ScheduleJob();
             }
 

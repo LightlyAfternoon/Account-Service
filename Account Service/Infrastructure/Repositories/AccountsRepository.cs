@@ -35,28 +35,20 @@ namespace Account_Service.Infrastructure.Repositories
         }
 
         /// <inheritdoc />
-        public async Task<Account?> Save(Account entity)
+        public async Task<Account?> Save(Account entity, CancellationToken cancellationToken)
         {
             if (entity.Id == Guid.Empty)
-            {
-                await _context.Accounts.AddAsync(entity);
-                await _context.SaveChangesAsync();
-
-                return entity;
-            }
+                await _context.Accounts.AddAsync(entity, cancellationToken);
             else
-            {
                 _context.Accounts.Update(entity);
-                await _context.SaveChangesAsync();
 
-                return entity;
-            }
+            return entity;
         }
 
         /// <inheritdoc />
         public async Task<bool> DeleteById(Guid id)
         {
-            Account? account = await _context.Accounts.FindAsync(id);
+            Account? account = await FindById(id);
 
             if (account != null)
             {
@@ -77,14 +69,54 @@ namespace Account_Service.Infrastructure.Repositories
         }
 
         /// <inheritdoc />
-        public async Task AccrueInterestForAllOpenedAccounts()
+        public async Task<List<Account>> AccrueInterestForAllOpenedAccounts(CancellationToken cancellationToken)
         {
-            foreach (Account account in await _context.Accounts.Where(a => (a.CloseDate == null
-                                                                      || a.CloseDate >= DateOnly.FromDateTime(DateTime.Now))
-                                                                      && (a.Type.Equals(AccountType.Deposit) || a.Type.Equals(AccountType.Credit))).ToListAsync())
+            var openedAccounts = await _context.Accounts.Where(a => (a.CloseDate == null
+                                                                     || a.CloseDate >=
+                                                                     DateOnly.FromDateTime(DateTime.Now))
+                                                                    && (a.Type.Equals(AccountType.Deposit) ||
+                                                                        a.Type.Equals(AccountType.Credit)))
+                .ToListAsync(cancellationToken);
+            foreach (Account account in openedAccounts)
             {
                 await _context.Database.ExecuteSqlRawAsync("CALL accrue_interest({0})", account.Id);
             }
+
+            return openedAccounts;
+        }
+
+        /// <inheritdoc />
+        public async Task<List<Account>> FrozeAllUserAccounts(Guid ownerId, CancellationToken cancellationToken)
+        {
+            var allUserAccounts = await FindAllByOwnerId(ownerId);
+
+            foreach (var account in allUserAccounts)
+            {
+                account.Frozen = true;
+
+                _context.Accounts.Update(account);
+            }
+
+            await _context.SaveChangesAsync(cancellationToken);
+
+            return allUserAccounts;
+        }
+
+        /// <inheritdoc />
+        public async Task<List<Account>> UnfrozeAllUserAccounts(Guid ownerId, CancellationToken cancellationToken)
+        {
+            var allUserAccounts = await FindAllByOwnerId(ownerId);
+
+            foreach (var account in allUserAccounts)
+            {
+                account.Frozen = false;
+
+                _context.Accounts.Update(account);
+            }
+
+            await _context.SaveChangesAsync(cancellationToken);
+
+            return allUserAccounts;
         }
     }
 }

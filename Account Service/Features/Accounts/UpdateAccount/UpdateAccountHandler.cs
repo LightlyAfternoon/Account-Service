@@ -32,7 +32,7 @@ namespace Account_Service.Features.Accounts.UpdateAccount
                 account.OpenDate = requestCommand.OpenDate;
                 account.CloseDate = requestCommand.CloseDate;
 
-                account = await _accountsRepository.Save(account);
+                account = await _accountsRepository.Save(account, cancellationToken);
 
                 return AccountMappers.MapToDto(account!);
             }

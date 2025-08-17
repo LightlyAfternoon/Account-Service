@@ -79,7 +79,9 @@ namespace Account_Service.Features.Transactions
         public Account? CounterpartyAccount { get; set; }
 
         /// <inheritdoc />
-        public Transaction(Guid id, Transaction transaction) : this(id, transaction.AccountId, transaction.CounterpartyAccountId, transaction.Sum, transaction.Currency, transaction.Type, transaction.Description, transaction.DateTime)
+        public Transaction(Guid id, Transaction transaction) : this(id, transaction.AccountId,
+            transaction.CounterpartyAccountId, transaction.Sum, transaction.Currency, transaction.Type,
+            transaction.Description, transaction.DateTime)
         {
         }
 

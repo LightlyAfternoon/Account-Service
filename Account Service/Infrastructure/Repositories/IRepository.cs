@@ -17,12 +17,15 @@
         /// </summary>
         /// <returns></returns>
         Task<List<T>> FindAll();
+
         /// <summary>
         /// 
         /// </summary>
         /// <param name="entity"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<T?> Save(T entity);
+        Task<T?> Save(T entity, CancellationToken cancellationToken);
+
         /// <summary>
         /// 
         /// </summary>

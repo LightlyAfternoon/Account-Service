@@ -67,6 +67,11 @@ namespace Account_Service.Features.Accounts
         /// <summary>
         /// 
         /// </summary>
+        public bool Frozen { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         public uint RowVersion { get; set; }
 
         /// <summary>
@@ -82,6 +87,7 @@ namespace Account_Service.Features.Accounts
         /// <inheritdoc />
         public Account(Guid id, Account account) : this(id, account.OwnerId, account.Type, account.Currency, account.Balance, account.InterestRate, account.OpenDate, account.CloseDate)
         {
+            Frozen = account.Frozen;
         }
 
         /// <inheritdoc />
@@ -95,7 +101,7 @@ namespace Account_Service.Features.Accounts
                 return Id.Equals(account.Id) && OwnerId.Equals(account.OwnerId) && Type.Equals(account.Type)
                        && Currency.Equals(account.Currency) && Balance.Equals(account.Balance)
                        && InterestRate.Equals(account.InterestRate) && OpenDate.Equals(account.OpenDate)
-                       && CloseDate.Equals(account.CloseDate);
+                       && CloseDate.Equals(account.CloseDate) && Frozen.Equals(account.Frozen);
         }
 
         /// <inheritdoc />

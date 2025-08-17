@@ -3,5 +3,5 @@
 namespace Account_Service.Features.Accounts.AccrueInterest
 {
     /// <inheritdoc />
-    public record AccrueInterestRequestCommand : IRequest;
+    public record AccrueInterestRequestCommand : IRequest<List<AccountDto>>;
 }

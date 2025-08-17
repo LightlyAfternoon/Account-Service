@@ -31,19 +31,19 @@ namespace Account_Service.Infrastructure.Repositories
         }
 
         /// <inheritdoc />
-        public async Task<User?> Save(User entity)
+        public async Task<User?> Save(User entity, CancellationToken cancellationToken)
         {
             if (entity.Id == Guid.Empty)
             {
-                await _context.Users.AddAsync(entity);
-                await _context.SaveChangesAsync();
+                await _context.Users.AddAsync(entity, cancellationToken);
+                await _context.SaveChangesAsync(cancellationToken);
 
                 return entity;
             }
             else
             {
                 _context.Users.Update(entity);
-                await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync(cancellationToken);
 
                 return entity;
             }

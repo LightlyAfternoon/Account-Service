@@ -56,10 +56,15 @@ namespace Account_Service.Features.Accounts
         /// Дата закрытия
         /// </summary>
         public DateOnly? CloseDate { get; set; } = closeDate;
+        /// <summary>
+        /// Флаг статуса заморозки счёта
+        /// </summary>
+        public bool Frozen { get; set; }
 
         /// <inheritdoc />
         public AccountDto(Guid id, AccountDto accountDto) : this(id, accountDto.OwnerId, accountDto.Type, accountDto.Currency, accountDto.Balance, accountDto.InterestRate, accountDto.OpenDate, accountDto.CloseDate)
         {
+            Frozen = accountDto.Frozen;
         }
 
         /// <inheritdoc />
@@ -73,7 +78,8 @@ namespace Account_Service.Features.Accounts
                 return Id.Equals(account.Id) && OwnerId.Equals(account.OwnerId) && Type.Equals(account.Type)
                        && Currency.Equals(account.Currency) && Balance.Equals(account.Balance)
                        && InterestRate.Equals(account.InterestRate) && OpenDate.Equals(account.OpenDate)
-                       && CloseDate.Equals(account.CloseDate);
+                       && CloseDate.Equals(account.CloseDate)
+                       && Frozen.Equals(account.Frozen);
         }
 
         /// <inheritdoc />

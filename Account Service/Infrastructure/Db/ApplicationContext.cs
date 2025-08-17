@@ -1,4 +1,5 @@
 ﻿using Account_Service.Features.Accounts;
+using Account_Service.Features.RabbitMQ;
 using Account_Service.Features.Transactions;
 using Account_Service.Features.Users;
 using Microsoft.EntityFrameworkCore;
@@ -26,6 +27,18 @@ namespace Account_Service.Infrastructure.Db
         /// 
         /// </summary>
         public DbSet<User> Users { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        public DbSet<Inbox> Inboxes { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        public DbSet<InboxDeadLetters> InboxDeadLetters { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        public DbSet<Outbox> Outboxes { get; set; }
 
         /// <inheritdoc />
         public ApplicationContext(string connectionString)
@@ -91,6 +104,29 @@ namespace Account_Service.Infrastructure.Db
             modelBuilder.Entity<Transaction>().Property(t => t.RowVersion).HasColumnName("xmin").IsRowVersion();
             // ReSharper disable once StringLiteralTypo
             modelBuilder.Entity<User>().Property(u => u.RowVersion).HasColumnName("xmin").IsRowVersion();
+
+            modelBuilder.Entity<Outbox>().ToTable("outbox_produced").HasKey(o => o.MessageId);
+            modelBuilder.Entity<Inbox>().ToTable("inbox_consumed").HasKey(o => o.MessageId);
+            modelBuilder.Entity<InboxDeadLetters>().ToTable("inbox_dead_letters").HasKey(o => o.MessageId);
+
+            modelBuilder.Entity<Outbox>().Property(b => b.MessageId).HasColumnName("message_id").IsRequired();
+            modelBuilder.Entity<Outbox>().Property(b => b.RoutingKey).HasColumnName("routing_key").IsRequired().HasMaxLength(255);
+            modelBuilder.Entity<Outbox>().Property(b => b.ProcessedAt).HasColumnName("processed_at");
+            modelBuilder.Entity<Outbox>().Property(b => b.Handler).HasColumnName("handler").IsRequired().HasMaxLength(255);
+            modelBuilder.Entity<Outbox>().Property(b => b.Payload).HasColumnName("payload").IsRequired().HasMaxLength(255);
+
+            modelBuilder.Entity<Inbox>().Property(b => b.MessageId).HasColumnName("message_id").IsRequired();
+            modelBuilder.Entity<Inbox>().Property(b => b.ProcessedAt).HasColumnName("processed_at");
+            modelBuilder.Entity<Inbox>().Property(b => b.Handler).HasColumnName("handler").IsRequired().HasMaxLength(255);
+            modelBuilder.Entity<Inbox>().Property(b => b.Payload).HasColumnName("payload").IsRequired().HasMaxLength(255);
+
+            modelBuilder.Entity<InboxDeadLetters>().Property(b => b.MessageId).HasColumnName("message_id").IsRequired();
+            modelBuilder.Entity<InboxDeadLetters>().Property(b => b.ReceivedAt).HasColumnName("received_at");
+            modelBuilder.Entity<InboxDeadLetters>().Property(b => b.Handler).HasColumnName("handler").IsRequired().HasMaxLength(255);
+            modelBuilder.Entity<InboxDeadLetters>().Property(b => b.Payload).HasColumnName("payload").IsRequired().HasMaxLength(255);
+            modelBuilder.Entity<InboxDeadLetters>().Property(b => b.Error).HasColumnName("error").IsRequired().HasMaxLength(255);
+
+            modelBuilder.Entity<Account>().Property(a => a.Frozen).HasColumnName("frozen");
 
             base.OnModelCreating(modelBuilder);
         }

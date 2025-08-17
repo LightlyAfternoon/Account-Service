@@ -37,3 +37,10 @@ http://localhost/index.html (развёртка в докере)
 Для получения токенов из Keycloak сервиса, развёрнутого с помощью docker-compose, можно использовать client_id: account-service, grant_type: password, username: employee, password: employee
 
 http://localhost:7080/realms/account-service/protocol/openid-connect/token
+
+## RabbitMQ
+
+Логин: 
+Пароль: 
+
+http://localhost:15672

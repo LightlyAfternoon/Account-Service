@@ -21,7 +21,7 @@ namespace Account_Service.Features.Transactions.AddTransaction
                 {
                     AccountDto? accountDto = accountService.FindById(t.AccountId).Result;
 
-                    if (accountDto != null && t.Type.Equals(nameof(TransactionType.Credit)))
+                    if (accountDto != null && t.Type.Equals(nameof(TransactionType.Debit)))
                         return t.Sum <= accountDto.Balance;
 
                     return true;
@@ -31,9 +31,19 @@ namespace Account_Service.Features.Transactions.AddTransaction
                 .Must(type => Enum.TryParse(type, out CurrencyCode _))
                 .WithMessage("Валюта с данным кодом не поддерживается");
 
-            RuleFor(t => t.Type).NotEmpty().WithMessage("Отсутствует тип транзакции")
-                .Must(type => Enum.TryParse(type, out TransactionType _))
-                .WithMessage("Данный тип транзакции не существует");
+            RuleFor(t => t)
+                .Must(t => !string.IsNullOrWhiteSpace(t.Type)).WithMessage("Отсутствует тип транзакции")
+                .Must(t => Enum.TryParse(t.Type, out TransactionType _))
+                .WithMessage("Данный тип транзакции не существует")
+                .Must(t =>
+                {
+                    AccountDto? accountDto = accountService.FindById(t.AccountId).Result;
+
+                    if (accountDto != null)
+                        return !accountDto.Frozen && !t.Type.Equals(nameof(TransactionType.Debit));
+
+                    return true;
+                }).WithMessage("С замороженного счёта нельзя снимать деньги");
 
             RuleFor(t => t.Description).NotEmpty().WithMessage("Отсутствует описание транзакции");
 
