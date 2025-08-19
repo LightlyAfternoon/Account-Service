@@ -2,6 +2,7 @@
 using MediatR;
 
 namespace Account_Service.Features.Transactions.AddTransferTransactions
+// ReSharper disable once ArrangeNamespaceBody
 {
     /// <summary>
     /// Класс для запроса выполнения перевода между счетами (внутри банка)

@@ -5,6 +5,7 @@ using Account_Service.Infrastructure.Db;
 using Microsoft.EntityFrameworkCore;
 
 namespace Account_Service.Infrastructure.Repositories
+// ReSharper disable once ArrangeNamespaceBody
 {
     /// <inheritdoc />
     public class TransactionsRepository : ITransactionsRepository
@@ -42,40 +43,36 @@ namespace Account_Service.Infrastructure.Repositories
             if (entity.Id == Guid.Empty)
             {
                 await _context.Transactions.AddAsync(entity, cancellationToken);
-                await _context.SaveChangesAsync(cancellationToken);
-
-                return entity;
             }
             else
             {
                 _context.Transactions.Update(entity);
-                await _context.SaveChangesAsync(cancellationToken);
-
-                return entity;
             }
+
+            await _context.SaveChangesAsync(cancellationToken);
+            return entity;
         }
 
         /// <inheritdoc />
         public async Task<bool> DeleteById(Guid id)
         {
-            Transaction? transaction = await _context.Transactions.FindAsync(id);
+            var transaction = await _context.Transactions.FindAsync(id);
 
-            if (transaction != null)
-            {
-                _context.Transactions.Remove(transaction);
-                await _context.SaveChangesAsync();
+            if (transaction == null)
+                return false;
 
-                return true;
-            }
+            _context.Transactions.Remove(transaction);
+            await _context.SaveChangesAsync();
 
-            return false;
+            return true;
+
         }
 
         /// <inheritdoc />
         public async Task<Transaction?> MakeTransfer(Guid fromAccountId, Guid toAccountId,
             AddTransferTransactionsRequestCommand requestCommand, CancellationToken cancellationToken)
         {
-            Transaction transactionFrom = new Transaction(id: Guid.Empty,
+            var transactionFrom = new Transaction(id: Guid.Empty,
                 accountId: requestCommand.FromAccountId,
                 counterpartyAccountId: requestCommand.ToAccountId,
                 sum: requestCommand.Sum,
@@ -84,7 +81,7 @@ namespace Account_Service.Infrastructure.Repositories
                 description: requestCommand.Description,
                 dateTime: requestCommand.DateTime);
 
-            Transaction transactionTo = new Transaction(id: Guid.Empty,
+            var transactionTo = new Transaction(id: Guid.Empty,
                 accountId: requestCommand.ToAccountId,
                 counterpartyAccountId: requestCommand.FromAccountId,
                 sum: requestCommand.Sum,
@@ -93,8 +90,8 @@ namespace Account_Service.Infrastructure.Repositories
                 description: requestCommand.Description,
                 dateTime: requestCommand.DateTime);
 
-            Account? accountFrom = await _accountsRepository.FindById(requestCommand.FromAccountId);
-            Account? accountTo = await _accountsRepository.FindById(requestCommand.ToAccountId);
+            var accountFrom = await _accountsRepository.FindById(requestCommand.FromAccountId);
+            var accountTo = await _accountsRepository.FindById(requestCommand.ToAccountId);
 
             if (accountFrom != null)
                 accountFrom.Balance -= requestCommand.Sum;

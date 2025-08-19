@@ -1,6 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 
 namespace Account_Service.Features.Users
+// ReSharper disable once ArrangeNamespaceBody
 {
     /// <summary>
     /// DTO пользователя
@@ -22,12 +23,9 @@ namespace Account_Service.Features.Users
         /// <inheritdoc />
         public override bool Equals(object? obj)
         {
-            var user = obj as UserDto;
-
-            if (user == null)
+            if (obj is not UserDto user)
                 return false;
-            else
-                return Id.Equals(user.Id) && Name.Equals(user.Name);
+            return Id.Equals(user.Id) && Name.Equals(user.Name);
         }
 
         /// <inheritdoc />

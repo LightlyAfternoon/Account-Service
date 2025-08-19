@@ -1,6 +1,7 @@
 ﻿using Account_Service.Infrastructure.Repositories;
 
 namespace Account_Service.Features.Accounts
+// ReSharper disable once ArrangeNamespaceBody
 {
     /// <inheritdoc />
     public interface IAccountsRepository : IRepository<Account>

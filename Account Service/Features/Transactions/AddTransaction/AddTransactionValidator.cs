@@ -3,6 +3,7 @@ using FluentValidation;
 using JetBrains.Annotations;
 
 namespace Account_Service.Features.Transactions.AddTransaction
+// ReSharper disable once ArrangeNamespaceBody
 {
     /// <inheritdoc />
     [UsedImplicitly]
@@ -19,7 +20,7 @@ namespace Account_Service.Features.Transactions.AddTransaction
             RuleFor(t => t).Must(t => t.Sum > 0).WithMessage("Отсутствует сумма транзакции или она меньше 0")
                 .Must(t =>
                 {
-                    AccountDto? accountDto = accountService.FindById(t.AccountId).Result;
+                    var accountDto = accountService.FindById(t.AccountId).Result;
 
                     if (accountDto != null && t.Type.Equals(nameof(TransactionType.Debit)))
                         return t.Sum <= accountDto.Balance;
@@ -37,10 +38,10 @@ namespace Account_Service.Features.Transactions.AddTransaction
                 .WithMessage("Данный тип транзакции не существует")
                 .Must(t =>
                 {
-                    AccountDto? accountDto = accountService.FindById(t.AccountId).Result;
+                    var accountDto = accountService.FindById(t.AccountId).Result;
 
-                    if (accountDto != null)
-                        return !accountDto.Frozen && !t.Type.Equals(nameof(TransactionType.Debit));
+                    if (accountDto != null && t.Type.Equals(nameof(TransactionType.Debit)))
+                        return !accountDto.Frozen;
 
                     return true;
                 }).WithMessage("С замороженного счёта нельзя снимать деньги");
@@ -49,16 +50,13 @@ namespace Account_Service.Features.Transactions.AddTransaction
 
             RuleFor(t => t).Must(t =>
                 {
-                    AccountDto? accountDto = accountService.FindById(t.AccountId).Result;
+                    var accountDto = accountService.FindById(t.AccountId).Result;
 
-                    if (accountDto != null)
-                        return accountDto.CloseDate == null;
-
-                    return true;
+                    return accountDto?.CloseDate == null;
                 }).WithMessage("Счёт закрыт")
                 .Must(t =>
                 {
-                    AccountDto? accountDto = accountService.FindById(t.AccountId).Result;
+                    var accountDto = accountService.FindById(t.AccountId).Result;
 
                     if (accountDto != null)
                         return DateOnly.FromDateTime(t.DateTime) >= accountDto.OpenDate;

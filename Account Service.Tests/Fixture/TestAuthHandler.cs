@@ -1,10 +1,11 @@
-﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.Extensions.Options;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using System.Text.Encodings.Web;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Account_Service.Tests.Fixture
+    // ReSharper disable once ArrangeNamespaceBody
 {
     internal class TestAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions>
     {
@@ -24,12 +25,9 @@ namespace Account_Service.Tests.Fixture
             var roles = rolesHeader.Split([','], StringSplitOptions.RemoveEmptyEntries);
 
             var claims = new List<Claim> { new(ClaimTypes.Name, "TestUser") };
+            claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role.Trim())));
 
             // Add role claims after trimming whitespace
-            foreach (var role in roles)
-            {
-                claims.Add(new Claim(ClaimTypes.Role, role.Trim()));
-            }
 
             var identity = new ClaimsIdentity(claims, "TestScheme");
             var principal = new ClaimsPrincipal(identity);

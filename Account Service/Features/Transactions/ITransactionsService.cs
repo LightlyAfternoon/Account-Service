@@ -2,6 +2,7 @@
 using Account_Service.Features.Transactions.AddTransferTransactions;
 
 namespace Account_Service.Features.Transactions
+// ReSharper disable once ArrangeNamespaceBody
 {
     /// <summary>
     /// 

@@ -1,6 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 
 namespace Account_Service.Features.RabbitMQ
+// ReSharper disable once ArrangeNamespaceBody
 {
     /// <summary>
     /// 

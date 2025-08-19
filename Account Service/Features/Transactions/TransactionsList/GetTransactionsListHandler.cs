@@ -2,6 +2,7 @@
 using MediatR;
 
 namespace Account_Service.Features.Transactions.TransactionsList
+// ReSharper disable once ArrangeNamespaceBody
 {
     /// <inheritdoc />
     public class GetTransactionsListHandler : IRequestHandler<GetTransactionsListRequestCommand, List<TransactionDto>>

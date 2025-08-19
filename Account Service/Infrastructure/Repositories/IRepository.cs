@@ -1,4 +1,5 @@
 ﻿namespace Account_Service.Infrastructure.Repositories
+// ReSharper disable once ArrangeNamespaceBody
 {
     /// <summary>
     /// 

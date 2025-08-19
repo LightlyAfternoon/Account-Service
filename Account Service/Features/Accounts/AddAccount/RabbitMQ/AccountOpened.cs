@@ -1,7 +1,9 @@
-﻿using Account_Service.Features.RabbitMQ;
+﻿using System.Text.Json.Serialization;
+using Account_Service.Features.RabbitMQ;
 using JetBrains.Annotations;
 
 namespace Account_Service.Features.Accounts.AddAccount.RabbitMQ
+// ReSharper disable once ArrangeNamespaceBody
 {
     /// <summary>
     /// 
@@ -13,27 +15,20 @@ namespace Account_Service.Features.Accounts.AddAccount.RabbitMQ
     /// <param name="type"></param>
     /// <param name="meta"></param>
     public class AccountOpened(Guid eventId, DateTime occurredAt, Guid ownerId, string currency, string type, Meta meta)
+        : OutboxPayload(eventId, occurredAt, meta)
     {
         /// <summary>
         /// 
         /// </summary>
         [UsedImplicitly]
-        public Guid EventId { get; } = eventId;
-        /// <summary>
-        /// 
-        /// </summary>
-        [UsedImplicitly]
-        public DateTime OccurredAt { get; } = occurredAt;
-        /// <summary>
-        /// 
-        /// </summary>
-        [UsedImplicitly]
-        public AccountOpenedPayload Payload { get; } = new(ownerId, currency, type);
-        /// <summary>
-        /// 
-        /// </summary>
-        [UsedImplicitly]
-        public Meta Meta { get; set; } = meta;
+        public new AccountOpenedPayload Payload { get; } = new(ownerId, currency, type);
+
+        /// <inheritdoc />
+        [JsonConstructor]
+        public AccountOpened(Guid eventId, DateTime occurredAt, AccountOpenedPayload payload, Meta meta)
+            : this(eventId, occurredAt, payload.OwnerId, payload.Currency, payload.Type, meta)
+        {
+        }
     }
 
     /// <summary>
@@ -42,7 +37,7 @@ namespace Account_Service.Features.Accounts.AddAccount.RabbitMQ
     /// <param name="ownerId"></param>
     /// <param name="currency"></param>
     /// <param name="type"></param>
-    public class AccountOpenedPayload(Guid ownerId, string currency, string type)
+    public class AccountOpenedPayload(Guid ownerId, string currency, string type) : MessagePayload
     {
         /// <summary>
         /// 

@@ -1,6 +1,8 @@
 ﻿using Account_Service.Features.Accounts.AccountsList;
 using Account_Service.Features.Accounts.AccrueInterest;
 using Account_Service.Features.Accounts.AddAccount;
+using Account_Service.Features.Accounts.Antifraud.BlockAccount;
+using Account_Service.Features.Accounts.Antifraud.UnblockAccount;
 using Account_Service.Features.Accounts.DeleteAccount;
 using Account_Service.Features.Accounts.GetAccount;
 using Account_Service.Features.Accounts.GetClientCurrentAccountBalance;
@@ -9,6 +11,7 @@ using Account_Service.Features.Accounts.UserAccount;
 using MediatR;
 
 namespace Account_Service.Features.Accounts
+    // ReSharper disable once ArrangeNamespaceBody
 {
     /// <inheritdoc />
     public class AccountsService : IAccountsService
@@ -87,6 +90,18 @@ namespace Account_Service.Features.Accounts
         public async Task ProcessDailyAccrueInterest()
         {
             await _mediator.Send(new AccrueInterestRequestCommand());
+        }
+
+        /// <inheritdoc />
+        public async Task BlockAccount(string message)
+        {
+            await _mediator.Send(new BlockAccountRequestCommand(message));
+        }
+
+        /// <inheritdoc />
+        public async Task UnblockAccount(string message)
+        {
+            await _mediator.Send(new UnblockAccountRequestCommand(message));
         }
     }
 }

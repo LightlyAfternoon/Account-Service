@@ -1,6 +1,7 @@
 ﻿using Account_Service.Features.Users;
 
 namespace Account_Service.Infrastructure.Mappers
+// ReSharper disable once ArrangeNamespaceBody
 {
     /// <summary>
     /// 

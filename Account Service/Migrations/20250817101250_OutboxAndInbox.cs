@@ -1,7 +1,6 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿#nullable disable
 
-#nullable disable
+using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Account_Service.Migrations
 {
@@ -18,7 +17,7 @@ namespace Account_Service.Migrations
                     message_id = table.Column<Guid>(type: "uuid", nullable: false),
                     processed_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     handler = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
-                    payload = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false)
+                    payload = table.Column<string>(type: "character varying(655)", maxLength: 655, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -32,7 +31,7 @@ namespace Account_Service.Migrations
                     message_id = table.Column<Guid>(type: "uuid", nullable: false),
                     received_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     handler = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
-                    payload = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    payload = table.Column<string>(type: "character varying(655)", maxLength: 655, nullable: false),
                     error = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false)
                 },
                 constraints: table =>
@@ -48,7 +47,7 @@ namespace Account_Service.Migrations
                     routing_key = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
                     processed_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     handler = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
-                    payload = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false)
+                    payload = table.Column<string>(type: "character varying(655)", maxLength: 655, nullable: false)
                 },
                 constraints: table =>
                 {

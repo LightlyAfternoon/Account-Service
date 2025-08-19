@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 namespace Account_Service.Infrastructure.Db
+// ReSharper disable once ArrangeNamespaceBody
 {
     /// <inheritdoc />
     public sealed class ApplicationContext : DbContext
@@ -113,17 +114,17 @@ namespace Account_Service.Infrastructure.Db
             modelBuilder.Entity<Outbox>().Property(b => b.RoutingKey).HasColumnName("routing_key").IsRequired().HasMaxLength(255);
             modelBuilder.Entity<Outbox>().Property(b => b.ProcessedAt).HasColumnName("processed_at");
             modelBuilder.Entity<Outbox>().Property(b => b.Handler).HasColumnName("handler").IsRequired().HasMaxLength(255);
-            modelBuilder.Entity<Outbox>().Property(b => b.Payload).HasColumnName("payload").IsRequired().HasMaxLength(255);
+            modelBuilder.Entity<Outbox>().Property(b => b.Payload).HasColumnName("payload").IsRequired().HasMaxLength(655);
 
             modelBuilder.Entity<Inbox>().Property(b => b.MessageId).HasColumnName("message_id").IsRequired();
             modelBuilder.Entity<Inbox>().Property(b => b.ProcessedAt).HasColumnName("processed_at");
             modelBuilder.Entity<Inbox>().Property(b => b.Handler).HasColumnName("handler").IsRequired().HasMaxLength(255);
-            modelBuilder.Entity<Inbox>().Property(b => b.Payload).HasColumnName("payload").IsRequired().HasMaxLength(255);
+            modelBuilder.Entity<Inbox>().Property(b => b.Payload).HasColumnName("payload").IsRequired().HasMaxLength(655);
 
             modelBuilder.Entity<InboxDeadLetters>().Property(b => b.MessageId).HasColumnName("message_id").IsRequired();
             modelBuilder.Entity<InboxDeadLetters>().Property(b => b.ReceivedAt).HasColumnName("received_at");
             modelBuilder.Entity<InboxDeadLetters>().Property(b => b.Handler).HasColumnName("handler").IsRequired().HasMaxLength(255);
-            modelBuilder.Entity<InboxDeadLetters>().Property(b => b.Payload).HasColumnName("payload").IsRequired().HasMaxLength(255);
+            modelBuilder.Entity<InboxDeadLetters>().Property(b => b.Payload).HasColumnName("payload").IsRequired().HasMaxLength(655);
             modelBuilder.Entity<InboxDeadLetters>().Property(b => b.Error).HasColumnName("error").IsRequired().HasMaxLength(255);
 
             modelBuilder.Entity<Account>().Property(a => a.Frozen).HasColumnName("frozen");

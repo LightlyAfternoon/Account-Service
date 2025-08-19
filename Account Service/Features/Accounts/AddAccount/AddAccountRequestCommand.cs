@@ -1,6 +1,7 @@
 ﻿using MediatR;
 
 namespace Account_Service.Features.Accounts.AddAccount
+// ReSharper disable once ArrangeNamespaceBody
 {
 
     /// <summary>

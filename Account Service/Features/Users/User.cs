@@ -1,4 +1,5 @@
 ﻿namespace Account_Service.Features.Users
+// ReSharper disable once ArrangeNamespaceBody
 {
     /// <summary>
     /// 
@@ -30,12 +31,9 @@
         /// <inheritdoc />
         public override bool Equals(object? obj)
         {
-            var user = obj as User;
-
-            if (user == null)
+            if (obj is not User user)
                 return false;
-            else
-                return Id.Equals(user.Id) && Name.Equals(user.Name);
+            return Id.Equals(user.Id) && Name.Equals(user.Name);
         }
 
         /// <inheritdoc />

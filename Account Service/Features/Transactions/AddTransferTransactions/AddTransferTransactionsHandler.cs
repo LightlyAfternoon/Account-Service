@@ -1,4 +1,6 @@
-﻿using Account_Service.Features.Accounts;
+﻿using System.Data;
+using System.Text.Json;
+using Account_Service.Features.Accounts;
 using Account_Service.Features.Accounts.AccrueInterest;
 using Account_Service.Features.RabbitMQ;
 using Account_Service.Features.Transactions.AddTransferTransactions.RabbitMQ;
@@ -6,14 +8,12 @@ using Account_Service.Infrastructure.Db;
 using Account_Service.Infrastructure.Mappers;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using System.Data;
-using System.Text.Json;
 
 namespace Account_Service.Features.Transactions.AddTransferTransactions
+// ReSharper disable once ArrangeNamespaceBody
 {
     /// <inheritdoc />
-    public class
-        AddTransferTransactionsHandler : IRequestHandler<AddTransferTransactionsRequestCommand, TransactionDto?>
+    public class AddTransferTransactionsHandler : IRequestHandler<AddTransferTransactionsRequestCommand, TransactionDto?>
     {
         private readonly ITransactionsRepository _transactionsRepository;
         private readonly ApplicationContext _context;
@@ -45,34 +45,35 @@ namespace Account_Service.Features.Transactions.AddTransferTransactions
                 _context.Database.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
             try
             {
-                Transaction? transactionFrom = await _transactionsRepository.MakeTransfer(requestCommand.FromAccountId,
+                var transactionFrom = await _transactionsRepository.MakeTransfer(requestCommand.FromAccountId,
                     requestCommand.ToAccountId, requestCommand, cancellationToken);
 
-                if (transactionFrom != null)
-                {
-                    TransactionDto dto = TransactionMappers.MapToDto(transactionFrom);
-                    var body = new TransferCompleted(eventId: Guid.NewGuid(), occurredAt: DateTime.Now,
-                        sourceAccountId: dto.AccountId,
-                        destinationAccountId: (Guid)dto.CounterpartyAccountId!, amount: dto.Sum,
-                        currency: dto.Currency, transferId: dto.Id,
-                        new Meta(version: "v1", source: "Account Service",
-                            correlationId: Guid.Parse("11111111-1111-1111-1111-111111111111"),
-                            causationId: Guid.Parse("22222222-2222-2222-2222-222222222222")));
+                if (transactionFrom == null)
+                    return null;
 
-                    Outbox outbox = new(Guid.Empty, "account.opened", nameof(AccrueInterestHandler),
-                        JsonSerializer.Serialize(body));
-                    await _outboxRepository.Save(outbox, cancellationToken);
+                var dto = TransactionMappers.MapToDto(transactionFrom);
+                var body = new TransferCompleted(eventId: Guid.NewGuid(), occurredAt: DateTime.UtcNow,
+                    sourceAccountId: dto.AccountId,
+                    destinationAccountId: (Guid)dto.CounterpartyAccountId!, amount: dto.Sum,
+                    currency: dto.Currency, transferId: dto.Id,
+                    new Meta(version: "v1", source: "Account Service",
+                        correlationId: Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                        causationId: Guid.Parse("22222222-2222-2222-2222-222222222222")));
 
-                    await _rabbitMqService.Publish(outbox);
+                Outbox? outbox = new(Guid.Empty, "account.opened", nameof(AccrueInterestHandler),
+                    JsonSerializer.Serialize(body));
+                outbox = await _outboxRepository.Save(outbox, cancellationToken);
 
-                    await _context.SaveChangesAsync(cancellationToken);
+                await _context.SaveChangesAsync(cancellationToken);
 
-                    await (await transaction).CommitAsync(cancellationToken);
+                if (outbox != null) await _rabbitMqService.Publish(outbox, cancellationToken);
 
-                    return dto;
-                }
+                await _context.SaveChangesAsync(cancellationToken);
 
-                return null;
+                await (await transaction).CommitAsync(cancellationToken);
+
+                return dto;
+
             }
             catch
             {

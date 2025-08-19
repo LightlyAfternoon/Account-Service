@@ -1,6 +1,7 @@
 ﻿using MediatR;
 
 namespace Account_Service.Features.Accounts.GetClientCurrentAccountBalance
+// ReSharper disable once ArrangeNamespaceBody
 {
     /// <summary>
     /// Класс для запроса получения баланса текущего счёта клиента

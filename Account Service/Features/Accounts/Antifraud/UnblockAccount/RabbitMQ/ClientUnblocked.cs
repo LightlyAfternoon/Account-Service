@@ -1,7 +1,9 @@
-﻿using Account_Service.Features.RabbitMQ;
+﻿using System.Text.Json.Serialization;
+using Account_Service.Features.RabbitMQ;
 using JetBrains.Annotations;
 
 namespace Account_Service.Features.Accounts.Antifraud.UnblockAccount.RabbitMQ
+// ReSharper disable once ArrangeNamespaceBody
 {
     /// <summary>
     /// 
@@ -11,34 +13,27 @@ namespace Account_Service.Features.Accounts.Antifraud.UnblockAccount.RabbitMQ
     /// <param name="clientId"></param>
     /// <param name="meta"></param>
     public class ClientUnblocked(Guid eventId, DateTime occurredAt, Guid clientId, Meta meta)
+        : OutboxPayload(eventId, occurredAt, meta)
     {
         /// <summary>
         /// 
         /// </summary>
         [UsedImplicitly]
-        public Guid EventId { get; } = eventId;
-        /// <summary>
-        /// 
-        /// </summary>
-        [UsedImplicitly]
-        public DateTime OccurredAt { get; } = occurredAt;
-        /// <summary>
-        /// 
-        /// </summary>
-        [UsedImplicitly]
-        public ClientUnblockedPayload Payload { get; } = new(clientId);
-        /// <summary>
-        /// 
-        /// </summary>
-        [UsedImplicitly]
-        public Meta Meta { get; set; } = meta;
+        public new ClientUnblockedPayload Payload { get; } = new(clientId);
+
+        /// <inheritdoc />
+        [JsonConstructor]
+        public ClientUnblocked(Guid eventId, DateTime occurredAt, ClientUnblockedPayload payload, Meta meta)
+            : this(eventId, occurredAt, payload.ClientId, meta)
+        {
+        }
     }
 
     /// <summary>
     /// 
     /// </summary>
     /// <param name="clientId"></param>
-    public class ClientUnblockedPayload(Guid clientId)
+    public class ClientUnblockedPayload(Guid clientId) : MessagePayload
     {
         /// <summary>
         /// 

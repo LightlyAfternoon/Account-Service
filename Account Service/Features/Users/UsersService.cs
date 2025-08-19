@@ -2,6 +2,7 @@
 using MediatR;
 
 namespace Account_Service.Features.Users
+// ReSharper disable once ArrangeNamespaceBody
 {
     /// <inheritdoc />
     public class UsersService : IUsersService

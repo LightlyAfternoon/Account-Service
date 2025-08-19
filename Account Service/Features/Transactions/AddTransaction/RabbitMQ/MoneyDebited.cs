@@ -1,7 +1,9 @@
-﻿using Account_Service.Features.RabbitMQ;
+﻿using System.Text.Json.Serialization;
+using Account_Service.Features.RabbitMQ;
 using JetBrains.Annotations;
 
 namespace Account_Service.Features.Transactions.AddTransaction.RabbitMQ
+// ReSharper disable once ArrangeNamespaceBody
 {
     /// <summary>
     /// 
@@ -20,28 +22,20 @@ namespace Account_Service.Features.Transactions.AddTransaction.RabbitMQ
         decimal amount,
         string currency,
         Guid operationId,
-        Meta meta)
+        Meta meta) : OutboxPayload(eventId, occurredAt, meta)
     {
         /// <summary>
         /// 
         /// </summary>
         [UsedImplicitly]
-        public Guid EventId { get; } = eventId;
-        /// <summary>
-        /// 
-        /// </summary>
-        [UsedImplicitly]
-        public DateTime OccurredAt { get; } = occurredAt;
-        /// <summary>
-        /// 
-        /// </summary>
-        [UsedImplicitly]
-        public MoneyDebitedPayload Payload { get; } = new(ownerId, amount, currency, operationId);
-        /// <summary>
-        /// 
-        /// </summary>
-        [UsedImplicitly]
-        public Meta Meta { get; set; } = meta;
+        public new MoneyDebitedPayload Payload { get; } = new(ownerId, amount, currency, operationId);
+
+        /// <inheritdoc />
+        [JsonConstructor]
+        public MoneyDebited(Guid eventId, DateTime occurredAt, MoneyDebitedPayload payload, Meta meta)
+            : this(eventId, occurredAt, payload.OwnerId, payload.Amount, payload.Currency, payload.OperationId, meta)
+        {
+        }
     }
     /// <summary>
     /// 
@@ -50,7 +44,7 @@ namespace Account_Service.Features.Transactions.AddTransaction.RabbitMQ
     /// <param name="amount"></param>
     /// <param name="currency"></param>
     /// <param name="operationId"></param>
-    public class MoneyDebitedPayload(Guid ownerId, decimal amount, string currency, Guid operationId)
+    public class MoneyDebitedPayload(Guid ownerId, decimal amount, string currency, Guid operationId) : MessagePayload
     {
         /// <summary>
         /// 

@@ -6,30 +6,36 @@ namespace Account_Service.Features.RabbitMQ
     /// <summary>
     /// 
     /// </summary>
-    /// <param name="version"></param>
-    /// <param name="source"></param>
-    /// <param name="correlationId"></param>
-    /// <param name="causationId"></param>
-    public class Meta(string version, string source, Guid correlationId, Guid causationId)
+    /// <param name="eventId"></param>
+    /// <param name="occurredAt"></param>
+    /// <param name="meta"></param>
+    public abstract class OutboxPayload(
+        Guid eventId,
+        DateTime occurredAt,
+        Meta meta)
     {
         /// <summary>
         /// 
         /// </summary>
-        public string Version { get; set; } = version;
+        [UsedImplicitly]
+        public Guid EventId { get; } = eventId;
+
         /// <summary>
         /// 
         /// </summary>
         [UsedImplicitly]
-        public string Source { get; } = source;
+        public DateTime OccurredAt { get; } = occurredAt;
+
         /// <summary>
         /// 
         /// </summary>
         [UsedImplicitly]
-        public Guid CorrelationId { get; } = correlationId;
+        public MessagePayload? Payload { get; }
+
         /// <summary>
         /// 
         /// </summary>
         [UsedImplicitly]
-        public Guid CausationId { get; } = causationId;
+        public Meta Meta { get; set; } = meta;
     }
 }

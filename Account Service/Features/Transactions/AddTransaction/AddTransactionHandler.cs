@@ -1,5 +1,6 @@
-﻿using Account_Service.Features.Accounts;
-using Account_Service.Features.Accounts.AccrueInterest;
+﻿using System.Data;
+using System.Text.Json;
+using Account_Service.Features.Accounts;
 using Account_Service.Features.Accounts.UpdateAccount;
 using Account_Service.Features.RabbitMQ;
 using Account_Service.Features.Transactions.AddTransaction.RabbitMQ;
@@ -7,10 +8,9 @@ using Account_Service.Infrastructure.Db;
 using Account_Service.Infrastructure.Mappers;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using System.Data;
-using System.Text.Json;
 
 namespace Account_Service.Features.Transactions.AddTransaction
+// ReSharper disable once ArrangeNamespaceBody
 {
     /// <inheritdoc />
     public class AddTransactionHandler : IRequestHandler<AddTransactionRequestCommand, TransactionDto?>
@@ -47,7 +47,7 @@ namespace Account_Service.Features.Transactions.AddTransaction
                 _context.Database.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
             try
             {
-                TransactionDto dto = new TransactionDto(id: Guid.Empty,
+                var dto = new TransactionDto(id: Guid.Empty,
                     accountId: requestCommand.AccountId,
                     counterpartyAccountId: null,
                     sum: requestCommand.Sum,
@@ -56,60 +56,58 @@ namespace Account_Service.Features.Transactions.AddTransaction
                     description: requestCommand.Description,
                     dateTime: requestCommand.DateTime);
 
-                Transaction? accountTransaction =
+                var accountTransaction =
                     await _transactionsRepository.Save(TransactionMappers.MapToEntity(dto), cancellationToken);
 
-                AccountDto? accountDto = await _accountService.FindById(requestCommand.AccountId);
+                var accountDto = await _accountService.FindById(requestCommand.AccountId);
 
                 if (accountDto != null)
                 {
-                    if (Enum.Parse<TransactionType>(requestCommand.Type).Equals(TransactionType.Credit))
+                    if (Enum.Parse<TransactionType>(requestCommand.Type).Equals(TransactionType.Debit))
                         accountDto.Balance -= requestCommand.Sum;
-                    else
+                    else if (Enum.Parse<TransactionType>(requestCommand.Type).Equals(TransactionType.Credit))
                         accountDto.Balance += requestCommand.Sum;
 
                     await _accountService.Update(accountDto.Id, new UpdateAccountRequestCommand(accountDto));
                 }
 
-                if (accountTransaction != null)
+                if (accountTransaction == null)
+                    return null;
+
+                object? body = dto.Type switch
                 {
-                    object? body = null;
-                    if (dto.Type.Equals(nameof(TransactionType.Credit)))
-                    {
-                        body = new MoneyCredited(eventId: Guid.NewGuid(), occurredAt: DateTime.Now,
-                            ownerId: dto.AccountId, amount: dto.Sum,
-                            currency: dto.Currency, operationId: dto.Id,
-                            new Meta(version: "v1", source: "Account Service",
-                                correlationId: Guid.Parse("11111111-1111-1111-1111-111111111111"),
-                                causationId: Guid.Parse("22222222-2222-2222-2222-222222222222")));
-                    }
-                    else if (dto.Type.Equals(nameof(TransactionType.Debit)))
-                    {
-                        body = new MoneyDebited(eventId: Guid.NewGuid(), occurredAt: DateTime.Now,
-                            ownerId: dto.AccountId, amount: dto.Sum,
-                            currency: dto.Currency, operationId: dto.Id,
-                            new Meta(version: "v1", source: "Account Service",
-                                correlationId: Guid.Parse("11111111-1111-1111-1111-111111111111"),
-                                causationId: Guid.Parse("22222222-2222-2222-2222-222222222222")));
-                    }
+                    nameof(TransactionType.Credit) => new MoneyCredited(eventId: Guid.NewGuid(),
+                        occurredAt: DateTime.UtcNow, ownerId: dto.AccountId, amount: dto.Sum, currency: dto.Currency,
+                        operationId: dto.Id,
+                        new Meta(version: "v1", source: "Account Service",
+                            correlationId: Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                            causationId: Guid.Parse("22222222-2222-2222-2222-222222222222"))),
+                    nameof(TransactionType.Debit) => new MoneyDebited(eventId: Guid.NewGuid(),
+                        occurredAt: DateTime.UtcNow, ownerId: dto.AccountId, amount: dto.Sum, currency: dto.Currency,
+                        operationId: dto.Id,
+                        new Meta(version: "v1", source: "Account Service",
+                            correlationId: Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                            causationId: Guid.Parse("22222222-2222-2222-2222-222222222222"))),
+                    _ => null
+                };
 
-                    if (body != null)
-                    {
-                        Outbox outbox = new(Guid.Empty, "account.opened", nameof(AccrueInterestHandler),
-                            JsonSerializer.Serialize(body));
-                        await _outboxRepository.Save(outbox, cancellationToken);
+                if (body == null)
+                    return null;
 
-                        await _rabbitMqService.Publish(outbox);
+                Outbox? outbox = new(Guid.Empty, "account.opened", GetType().Name,
+                    JsonSerializer.Serialize(body));
+                outbox = await _outboxRepository.Save(outbox, cancellationToken);
 
-                        await _context.SaveChangesAsync(cancellationToken);
+                await _context.SaveChangesAsync(cancellationToken);
 
-                        await(await transaction).CommitAsync(cancellationToken);
+                if (outbox != null) await _rabbitMqService.Publish(outbox, cancellationToken);
 
-                        return TransactionMappers.MapToDto(accountTransaction);
-                    }
-                }
+                await _context.SaveChangesAsync(cancellationToken);
 
-                return null;
+                await(await transaction).CommitAsync(cancellationToken);
+
+                return TransactionMappers.MapToDto(accountTransaction);
+
             }
             catch
             {

@@ -1,13 +1,14 @@
-﻿using Account_Service.Features.Accounts.AccrueInterest.RabbitMQ;
+﻿using System.Data;
+using System.Text.Json;
+using Account_Service.Features.Accounts.AccrueInterest.RabbitMQ;
 using Account_Service.Features.RabbitMQ;
 using Account_Service.Infrastructure.Db;
 using Account_Service.Infrastructure.Mappers;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using System.Data;
-using System.Text.Json;
 
 namespace Account_Service.Features.Accounts.AccrueInterest
+    // ReSharper disable once ArrangeNamespaceBody
 {
     /// <inheritdoc />
     public class AccrueInterestHandler : IRequestHandler<AccrueInterestRequestCommand, List<AccountDto>>
@@ -44,21 +45,18 @@ namespace Account_Service.Features.Accounts.AccrueInterest
                 var accountDtos = (await _accountsRepository.AccrueInterestForAllOpenedAccounts(cancellationToken))
                     .Select(AccountMappers.MapToDto).ToList();
 
-                foreach (var accountDto in accountDtos)
+                foreach (var outbox in accountDtos.Select(accountDto => new InterestAccrued(eventId: Guid.NewGuid(), occurredAt: DateTime.UtcNow,
+                             accountId: accountDto.OwnerId, periodFrom: DateTime.Today.AddDays(-1), periodTo: DateTime.Today,
+                             amount: (decimal)(accountDto.Balance +
+                                               accountDto.Balance * (accountDto.InterestRate / 100) / 365)!,
+                             new Meta(version: "v1", source: "Account Service",
+                                 correlationId: Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                                 causationId: Guid.Parse("22222222-2222-2222-2222-222222222222")))).Select(body => new Outbox(Guid.Empty, "money.credited", nameof(AccrueInterestHandler),
+                             JsonSerializer.Serialize(body))))
                 {
-                    var body = new InterestAccrued(eventId: Guid.NewGuid(), occurredAt: DateTime.Now,
-                        accountId: accountDto.OwnerId, periodFrom: DateTime.Today.AddDays(-1), periodTo: DateTime.Today,
-                        amount: (decimal)(accountDto.Balance +
-                                          accountDto.Balance * (accountDto.InterestRate / 100) / 365)!,
-                        new Meta(version: "v1", source: "Account Service",
-                            correlationId: Guid.Parse("11111111-1111-1111-1111-111111111111"),
-                            causationId: Guid.Parse("22222222-2222-2222-2222-222222222222")));
-
-                    Outbox outbox = new(Guid.Empty, "money.credited", nameof(AccrueInterestHandler),
-                        JsonSerializer.Serialize(body));
                     await _outboxRepository.Save(outbox, cancellationToken);
 
-                    await _rabbitMqService.Publish(outbox);
+                    await _rabbitMqService.Publish(outbox, cancellationToken);
                 }
 
                 await _context.SaveChangesAsync(cancellationToken);

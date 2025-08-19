@@ -1,4 +1,5 @@
 ﻿namespace Account_Service.Features.RabbitMQ
+// ReSharper disable once ArrangeNamespaceBody
 {
     /// <summary>
     /// 

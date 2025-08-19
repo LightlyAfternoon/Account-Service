@@ -4,6 +4,7 @@ using Account_Service.Features.Transactions.GetAccountStatementOnPeriod;
 using MediatR;
 
 namespace Account_Service.Features.Transactions
+// ReSharper disable once ArrangeNamespaceBody
 {
     /// <inheritdoc />
     public class TransactionsService : ITransactionsService

@@ -1,18 +1,21 @@
-﻿using Account_Service.Features.Accounts.Antifraud.BlockAccount.RabbitMQ;
+﻿using System.Data;
+using Account_Service.Features.Accounts.AccrueInterest;
+using Account_Service.Features.Accounts.Antifraud.BlockAccount.RabbitMQ;
 using Account_Service.Features.RabbitMQ;
 using Account_Service.Infrastructure.Db;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using System.Data;
-using System.Text.Json;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Account_Service.Features.Accounts.Antifraud.BlockAccount
+// ReSharper disable once ArrangeNamespaceBody
 {
     /// <inheritdoc />
     public class BlockAccountHandler : IRequestHandler<BlockAccountRequestCommand>
     {
         private readonly IAccountsRepository _accountsRepository;
         private readonly ApplicationContext _context;
+        private readonly ILogger<AccrueInterestHandler> _logger;
 
         /// <summary>
         /// 
@@ -20,11 +23,13 @@ namespace Account_Service.Features.Accounts.Antifraud.BlockAccount
         /// <param name="accountsRepository"></param>
         /// <param name="applicationContext"></param>
         /// <param name="rabbitMqService"></param>
+        /// <param name="logger"></param>
         public BlockAccountHandler(IAccountsRepository accountsRepository, ApplicationContext applicationContext,
-            IRabbitMqService rabbitMqService)
+            IRabbitMqService rabbitMqService, ILogger<AccrueInterestHandler> logger)
         {
             _accountsRepository = accountsRepository;
             _context = applicationContext;
+            _logger = logger;
         }
 
         /// <inheritdoc />
@@ -35,26 +40,29 @@ namespace Account_Service.Features.Accounts.Antifraud.BlockAccount
                 _context.Database.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
             try
             {
-                var body = JsonSerializer.Deserialize<Inbox>(requestCommand.Message);
-                var meta = JsonSerializer.Deserialize<Meta>(requestCommand.Message);
+                var body = JsonSerializer.Deserialize<ClientBlocked>(requestCommand.Message);
                 if (body != null &&
-                    await _context.Inboxes.FirstOrDefaultAsync(b => b.MessageId.Equals(body.MessageId), cancellationToken: cancellationToken) == null)
+                    await _context.Inboxes.FirstOrDefaultAsync(b => b.Payload.Equals(body), cancellationToken: cancellationToken) == null)
                 {
+                    var meta = body.Meta;
+                    var payload = JsonSerializer.Deserialize<ClientBlocked>(requestCommand.Message);
                     if (meta is { Version: "v1" })
                     {
-                        var payload = JsonSerializer.Deserialize<ClientBlockedPayload>(requestCommand.Message);
                         if (payload != null)
                         {
-                            await _accountsRepository.FrozeAllUserAccounts(payload.ClientId, cancellationToken);
+                            await _accountsRepository.FrozeAllUserAccounts(payload.Payload.ClientId, cancellationToken);
                         }
 
-                        body.ProcessedAt = DateTime.Now;
-                        await _context.Inboxes.AddAsync(body, cancellationToken);
+                        var inbox = new Inbox(Guid.NewGuid(), GetType().Name, JsonSerializer.Serialize(payload));
+                        await _context.Inboxes.AddAsync(inbox, cancellationToken);
                     }
                     else
                     {
-                        var deadLetter = new InboxDeadLetters(body, "Version not supported");
+                        var inbox = new Inbox(Guid.NewGuid(), GetType().Name, JsonSerializer.Serialize(payload));
+                        var deadLetter = new InboxDeadLetters(inbox, "Version not supported");
                         await _context.InboxDeadLetters.AddAsync(deadLetter, cancellationToken);
+
+                        _logger.LogWarning("InboxDeadLetters\n{Serialize}", JsonSerializer.Serialize(body));
                     }
 
                     await _context.SaveChangesAsync(cancellationToken);

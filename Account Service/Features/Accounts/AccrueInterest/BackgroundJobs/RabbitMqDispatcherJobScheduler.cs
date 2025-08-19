@@ -2,6 +2,7 @@
 using Hangfire;
 
 namespace Account_Service.Features.Accounts.AccrueInterest.BackgroundJobs
+// ReSharper disable once ArrangeNamespaceBody
 {
     /// <summary>
     /// 

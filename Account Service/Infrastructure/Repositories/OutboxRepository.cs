@@ -3,6 +3,7 @@ using Account_Service.Infrastructure.Db;
 using Microsoft.EntityFrameworkCore;
 
 namespace Account_Service.Infrastructure.Repositories
+// ReSharper disable once ArrangeNamespaceBody
 {
     /// <inheritdoc />
     public class OutboxRepository : IOutboxRepository
@@ -31,6 +32,12 @@ namespace Account_Service.Infrastructure.Repositories
         }
 
         /// <inheritdoc />
+        public async Task<List<Outbox>> FindAllNotProcessed()
+        {
+            return await _context.Outboxes.Where(b => !b.ProcessedAt.HasValue).ToListAsync();
+        }
+
+        /// <inheritdoc />
         public async Task<Outbox?> Save(Outbox entity, CancellationToken cancellationToken)
         {
             if (entity.MessageId == Guid.Empty)
@@ -44,16 +51,15 @@ namespace Account_Service.Infrastructure.Repositories
         /// <inheritdoc />
         public async Task<bool> DeleteById(Guid id)
         {
-            Outbox? outbox = await FindById(id);
+            var outbox = await FindById(id);
 
-            if (outbox != null)
-            {
-                _context.Outboxes.Remove(outbox);
+            if (outbox == null)
+                return false;
 
-                return true;
-            }
+            _context.Outboxes.Remove(outbox);
 
-            return false;
+            return true;
+
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using MediatR;
 
 namespace Account_Service.Features.Accounts.Antifraud.BlockAccount
+// ReSharper disable once ArrangeNamespaceBody
 {
     /// <inheritdoc />
     public class BlockAccountRequestCommand(string message) : IRequest

@@ -2,6 +2,7 @@
 using Account_Service.Features.Users;
 
 namespace Account_Service.Features.Accounts
+    // ReSharper disable once ArrangeNamespaceBody
 {
     /// <summary>
     /// 
@@ -14,6 +15,7 @@ namespace Account_Service.Features.Accounts
     /// <param name="interestRate"></param>
     /// <param name="openDate"></param>
     /// <param name="closeDate"></param>
+    /// <param name="frozen"></param>
     public class Account(
         Guid id,
         Guid ownerId,
@@ -22,7 +24,8 @@ namespace Account_Service.Features.Accounts
         decimal balance,
         decimal? interestRate,
         DateOnly openDate,
-        DateOnly? closeDate)
+        DateOnly? closeDate,
+        bool frozen = false)
     {
         /// <summary>
         /// 
@@ -67,7 +70,7 @@ namespace Account_Service.Features.Accounts
         /// <summary>
         /// 
         /// </summary>
-        public bool Frozen { get; set; }
+        public bool Frozen { get; set; } = frozen;
 
         /// <summary>
         /// 
@@ -93,15 +96,12 @@ namespace Account_Service.Features.Accounts
         /// <inheritdoc />
         public override bool Equals(object? obj)
         {
-            var account = obj as Account;
-
-            if (account == null)
+            if (obj is not Account account)
                 return false;
-            else
-                return Id.Equals(account.Id) && OwnerId.Equals(account.OwnerId) && Type.Equals(account.Type)
-                       && Currency.Equals(account.Currency) && Balance.Equals(account.Balance)
-                       && InterestRate.Equals(account.InterestRate) && OpenDate.Equals(account.OpenDate)
-                       && CloseDate.Equals(account.CloseDate) && Frozen.Equals(account.Frozen);
+            return Id.Equals(account.Id) && OwnerId.Equals(account.OwnerId) && Type.Equals(account.Type)
+                   && Currency.Equals(account.Currency) && Balance.Equals(account.Balance)
+                   && InterestRate.Equals(account.InterestRate) && OpenDate.Equals(account.OpenDate)
+                   && CloseDate.Equals(account.CloseDate) && Frozen.Equals(account.Frozen);
         }
 
         /// <inheritdoc />

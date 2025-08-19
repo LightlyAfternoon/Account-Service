@@ -2,6 +2,7 @@
 using MediatR;
 
 namespace Account_Service.Features.Users.GetUser
+// ReSharper disable once ArrangeNamespaceBody
 {
     /// <inheritdoc />
     public class GetUserByIdHandler : IRequestHandler<GetUserByIdRequestCommand, UserDto?>
@@ -20,14 +21,9 @@ namespace Account_Service.Features.Users.GetUser
         /// <inheritdoc />
         public async Task<UserDto?> Handle(GetUserByIdRequestCommand request, CancellationToken cancellationToken)
         {
-            User? user = await _userRepository.FindById(request.Id);
+            var user = await _userRepository.FindById(request.Id);
 
-            if (user != null)
-            {
-                return UserMappers.MapToDto(user);
-            }
-
-            return null;
+            return user != null ? UserMappers.MapToDto(user) : null;
         }
     }
 }

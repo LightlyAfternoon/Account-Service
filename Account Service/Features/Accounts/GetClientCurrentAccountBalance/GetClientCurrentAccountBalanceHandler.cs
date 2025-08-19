@@ -2,6 +2,7 @@
 using MediatR;
 
 namespace Account_Service.Features.Accounts.GetClientCurrentAccountBalance
+// ReSharper disable once ArrangeNamespaceBody
 {
     /// <inheritdoc />
     public class GetClientCurrentAccountBalanceHandler : IRequestHandler<GetClientCurrentAccountBalanceRequestCommand, GetClientCurrentAccountBalanceResponse?>
@@ -23,20 +24,15 @@ namespace Account_Service.Features.Accounts.GetClientCurrentAccountBalance
         /// <inheritdoc />
         public async Task<GetClientCurrentAccountBalanceResponse?> Handle(GetClientCurrentAccountBalanceRequestCommand request, CancellationToken cancellationToken)
         {
-            User? user = await _userRepository.FindById(request.OwnerId);
+            var user = await _userRepository.FindById(request.OwnerId);
 
-            if (user != null)
-            {
-                Account? account = (await _accountsRepository.FindAllByOwnerId(user.Id)).OrderBy(a => a.OpenDate)
-                    .LastOrDefault(a => a.Type.Equals(AccountType.Checking));
+            if (user == null)
+                return null;
 
-                if (account != null)
-                {
-                    return new GetClientCurrentAccountBalanceResponse(account.Id, account.OwnerId, account.Balance);
-                }
-            }
+            var account = (await _accountsRepository.FindAllByOwnerId(user.Id)).OrderBy(a => a.OpenDate)
+                .LastOrDefault(a => a.Type.Equals(AccountType.Checking));
 
-            return null;
+            return account != null ? new GetClientCurrentAccountBalanceResponse(account.Id, account.OwnerId, account.Balance) : null;
         }
     }
 }

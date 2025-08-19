@@ -3,6 +3,7 @@ using Account_Service.Infrastructure.Db;
 using Microsoft.EntityFrameworkCore;
 
 namespace Account_Service.Infrastructure.Repositories
+// ReSharper disable once ArrangeNamespaceBody
 {
     /// <inheritdoc />
     public class UserRepository : IUserRepository
@@ -36,32 +37,28 @@ namespace Account_Service.Infrastructure.Repositories
             if (entity.Id == Guid.Empty)
             {
                 await _context.Users.AddAsync(entity, cancellationToken);
-                await _context.SaveChangesAsync(cancellationToken);
-
-                return entity;
             }
             else
             {
                 _context.Users.Update(entity);
-                await _context.SaveChangesAsync(cancellationToken);
-
-                return entity;
             }
+
+            await _context.SaveChangesAsync(cancellationToken);
+            return entity;
         }
 
         /// <inheritdoc />
         public async Task<bool> DeleteById(Guid id)
         {
-            User? user = await _context.Users.FindAsync(id);
+            var user = await _context.Users.FindAsync(id);
 
-            if (user != null)
-            {
-                _context.Users.Remove(user);
+            if (user == null)
+                return false;
 
-                return true;
-            }
+            _context.Users.Remove(user);
 
-            return false;
+            return true;
+
         }
     }
 }

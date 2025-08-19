@@ -2,6 +2,7 @@
 using MediatR;
 
 namespace Account_Service.Features.Accounts.GetAccount
+// ReSharper disable once ArrangeNamespaceBody
 {
     /// <inheritdoc />
     public class GetAccountByIdHandler : IRequestHandler<GetAccountByIdRequestCommand, AccountDto?>
@@ -20,14 +21,9 @@ namespace Account_Service.Features.Accounts.GetAccount
         /// <inheritdoc />
         public async Task<AccountDto?> Handle(GetAccountByIdRequestCommand request, CancellationToken cancellationToken)
         {
-            Account? account = await _accountsRepository.FindById(request.Id);
+            var account = await _accountsRepository.FindById(request.Id);
 
-            if (account != null)
-            {
-                return AccountMappers.MapToDto(account);
-            }
-
-            return null;
+            return account == null ? null : AccountMappers.MapToDto(account);
         }
     }
 }

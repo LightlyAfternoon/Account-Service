@@ -1,11 +1,16 @@
-﻿using RabbitMQ.Client;
+﻿using System.Text;
+using Account_Service.Features.Accounts;
+using Account_Service.Features.Accounts.AccrueInterest;
+using Account_Service.Features.Accounts.Antifraud.BlockAccount.RabbitMQ;
+using Account_Service.Infrastructure.Db;
+using Newtonsoft.Json;
+using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
-using System.Text;
-using Account_Service.Features.Accounts.Antifraud.BlockAccount;
-using Account_Service.Features.Accounts.Antifraud.UnblockAccount;
-using MediatR;
+using RabbitMQ.Client.Exceptions;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Account_Service.Features.RabbitMQ
+// ReSharper disable once ArrangeNamespaceBody
 {
     /// <inheritdoc />
     public class RabbitMqService : IRabbitMqService
@@ -15,23 +20,23 @@ namespace Account_Service.Features.RabbitMQ
         private readonly List<AmqpTcpEndpoint> _endpoints;
         private static IChannel? _producerChannel;
         private static IChannel? _consumerChannel;
-        private readonly IOutboxRepository _outboxRepository;
-        private readonly IMediator _mediator;
+        private readonly ILogger<RabbitMqService> _logger;
+        private readonly IServiceScopeFactory _serviceScopeFactory;
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="connectionFactory"></param>
         /// <param name="endpoints"></param>
-        /// <param name="outboxRepository"></param>
-        /// <param name="mediator"></param>
+        /// <param name="logger"></param>
+        /// <param name="serviceScopeFactory"></param>
         public RabbitMqService(ConnectionFactory connectionFactory, List<AmqpTcpEndpoint> endpoints,
-            IOutboxRepository outboxRepository, IMediator mediator)
+            ILogger<RabbitMqService> logger, IServiceScopeFactory serviceScopeFactory)
         {
             _factory = connectionFactory;
             _endpoints = endpoints;
-            _outboxRepository = outboxRepository;
-            _mediator = mediator;
+            _logger = logger;
+            _serviceScopeFactory = serviceScopeFactory;
         }
 
         /// <summary>
@@ -50,100 +55,111 @@ namespace Account_Service.Features.RabbitMQ
                 _connection = _factory.CreateConnectionAsync(_endpoints).Result;
                 _producerChannel = GetProducerChannel();
                 _consumerChannel = GetConsumerChannel();
+                Consume().RunSynchronously();
                 return _connection;
             }
             catch
             {
-                _producerChannel = null;
                 return null;
             }
         }
 
-        private IChannel? GetProducerChannel()
+        private static IChannel? GetProducerChannel()
         {
-            if (_producerChannel != null)
+            if (_connection is not { IsOpen: true })
+                return null;
+
+            if (_connection is { IsOpen: true } && _producerChannel != null)
             {
                 return _producerChannel;
             }
 
-            if (_connection is { IsOpen: true })
+            try
             {
-                try
-                {
-                    var channel = _connection.CreateChannelAsync().Result;
+                var channel = _connection.CreateChannelAsync().Result;
 
-                    channel.ExchangeDeclareAsync("account.events", ExchangeType.Topic);
+                channel.ExchangeDeclareAsync("account.events", ExchangeType.Topic);
 
-                    channel.QueueDeclareAsync("account.crm");
-                    channel.QueueBindAsync(queue: "account.crm", exchange: "account.events", routingKey: "account.*");
+                channel.QueueDeclareAsync("account.crm");
+                channel.QueueBindAsync(queue: "account.crm", exchange: "account.events", routingKey: "account.*");
 
-                    channel.QueueDeclareAsync("account.notifications");
-                    channel.QueueBindAsync(queue: "account.notifications", exchange: "account.events",
-                        routingKey: "money.*");
+                channel.QueueDeclareAsync("account.notifications");
+                channel.QueueBindAsync(queue: "account.notifications", exchange: "account.events",
+                    routingKey: "money.*");
 
-                    channel.QueueDeclareAsync("account.antifraud");
-                    channel.QueueBindAsync(queue: "account.antifraud", exchange: "account.events",
-                        routingKey: "client.*");
+                channel.QueueDeclareAsync("account.antifraud");
+                channel.QueueBindAsync(queue: "account.antifraud", exchange: "account.events",
+                    routingKey: "client.#");
 
-                    channel.QueueDeclareAsync("account.audit");
-                    channel.QueueBindAsync(queue: "account.audit", exchange: "account.events", routingKey: "#");
+                channel.QueueDeclareAsync("account.audit");
+                channel.QueueBindAsync(queue: "account.audit", exchange: "account.events", routingKey: "#");
 
-                    return channel;
-                }
-                catch
-                {
-                    return null;
-                }
+                return channel;
             }
-
-            return null;
+            catch
+            {
+                return null;
+            }
         }
 
-        private IChannel? GetConsumerChannel()
+        private static IChannel? GetConsumerChannel()
         {
-            if (_consumerChannel != null)
+            if (_connection is not { IsOpen: true })
+                return null;
+
+            if (_connection is { IsOpen: true } && _producerChannel != null)
             {
                 return _consumerChannel;
             }
 
-            if (_connection is { IsOpen: true })
+            try
+            {
+                var channel = _connection.CreateChannelAsync().Result;
+
+                channel.ExchangeDeclareAsync("account.events", ExchangeType.Topic);
+
+                channel.QueueDeclareAsync("account.antifraud");
+                channel.QueueBindAsync(queue: "account.antifraud", exchange: "account.events",
+                    routingKey: "client.#");
+
+                return channel;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        /// <inheritdoc />
+        public async Task Publish(Outbox outbox, CancellationToken cancellationToken)
+        {
+            if (_connection == null)
+            {
+                Connect();
+            }
+
+            if (_producerChannel != null && !outbox.ProcessedAt.HasValue)
             {
                 try
                 {
-                    var channel = _connection.CreateChannelAsync().Result;
+                    var bodyBytes = Encoding.UTF8.GetBytes(outbox.Payload);
+                    await _producerChannel.BasicPublishAsync(exchange: "account.events",
+                        routingKey: outbox.RoutingKey, body: bodyBytes, cancellationToken: cancellationToken);
 
-                    channel.ExchangeDeclareAsync("account.events", ExchangeType.Topic);
+                    var body = JsonConvert.DeserializeObject<dynamic>(outbox.Payload)!;
+                    _logger.LogInformation((string)"Publish: {EventId}, {Meta}", (object?)body.EventId, (object?)body.Meta);
 
-                    channel.QueueDeclareAsync("account.antifraud");
-                    channel.QueueBindAsync(queue: "account.antifraud", exchange: "account.events",
-                        routingKey: "client.#");
+                    outbox.ProcessedAt = DateTime.UtcNow;
 
-                    return channel;
+                    using var scope = _serviceScopeFactory.CreateScope();
+                    var outboxRepository = scope.ServiceProvider.GetRequiredService<IOutboxRepository>();
+
+                    await outboxRepository.Save(outbox, cancellationToken);
                 }
-                catch
+                catch (AlreadyClosedException)
                 {
-                    return null;
+                    _logger.LogError("Connection to RabbitMQ is closed, unable to publish");
                 }
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="outbox"></param>
-        public async Task Publish(Outbox outbox)
-        {
-            if (_producerChannel != null && !outbox.ProcessedAt.HasValue)
-            {
-                var body = Encoding.UTF8.GetBytes(outbox.Payload);
-                await _producerChannel.BasicPublishAsync(exchange: "account.events",
-                    routingKey: outbox.RoutingKey, body: body);
-
-                outbox.ProcessedAt = DateTime.Now;
-
-                await _outboxRepository.Save(outbox, CancellationToken.None);
             }
         }
 
@@ -152,12 +168,47 @@ namespace Account_Service.Features.RabbitMQ
         {
             if (_producerChannel != null)
             {
-                foreach (var outbox in (await _outboxRepository.FindAll()).Where(b => !b.ProcessedAt.HasValue).ToList())
+                using var scope = _serviceScopeFactory.CreateScope();
+                var outboxRepository = scope.ServiceProvider.GetRequiredService<IOutboxRepository>();
+
+                foreach (var outbox in (await outboxRepository.FindAllNotProcessed()).Where(outbox => !outbox.ProcessedAt.HasValue))
                 {
-                    if (!outbox.ProcessedAt.HasValue)
-                    {
-                        await Publish(outbox);
-                    }
+                    await Publish(outbox, CancellationToken.None);
+                }
+
+                var context = scope.ServiceProvider.GetRequiredService<ApplicationContext>();
+
+                await context.SaveChangesAsync(CancellationToken.None);
+            }
+        }
+
+        /// <inheritdoc />
+        public async Task PublishClientBlocked(Guid id, CancellationToken cancellationToken)
+        {
+            if (_connection == null)
+            {
+                Connect();
+            }
+
+            if (_producerChannel != null)
+            {
+                try
+                {
+                    Outbox outbox = new(Guid.Empty, "client.blocked", nameof(AccrueInterestHandler),
+                        JsonSerializer.Serialize(new ClientBlocked(Guid.NewGuid(), DateTime.UtcNow,
+                            new ClientBlockedPayload(id), new Meta(version: "v1", source: "Client Service",
+                                correlationId: Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                                causationId: Guid.Parse("22222222-2222-2222-2222-222222222222")))));
+                    var bodyBytes = Encoding.UTF8.GetBytes(outbox.Payload);
+                    await _producerChannel.BasicPublishAsync(exchange: "account.events",
+                        routingKey: outbox.RoutingKey, body: bodyBytes, cancellationToken: cancellationToken);
+
+                    var body = JsonConvert.DeserializeObject<dynamic>(outbox.Payload)!;
+                    _logger.LogInformation((string)"Publish: {EventId}, {Meta}", (object?)body.EventId, (object?)body.Meta);
+                }
+                catch (AlreadyClosedException)
+                {
+                    _logger.LogError("Connection to RabbitMQ is closed, unable to publish");
                 }
             }
         }
@@ -167,27 +218,52 @@ namespace Account_Service.Features.RabbitMQ
         /// </summary>
         public async Task Consume()
         {
+            if (_connection == null)
+            {
+                Connect();
+            }
+
             if (_consumerChannel != null)
             {
-                var antifraudConsumer = new AsyncEventingBasicConsumer(_consumerChannel);
-
-                antifraudConsumer.ReceivedAsync += async (_, ea) =>
+                try
                 {
-                    var message = Encoding.UTF8.GetString(ea.Body.ToArray());
-                    if (ea.RoutingKey.Equals("antifraud.client.blocked"))
-                    {
-                        await _mediator.Send(new BlockAccountRequestCommand(message));
-                    }
-                    else if (ea.RoutingKey.Equals("antifraud.client.unblocked"))
-                    {
-                        await _mediator.Send(new UnblockAccountRequestCommand(message));
-                    }
+                    var antifraudConsumer = new AsyncEventingBasicConsumer(_consumerChannel);
 
-                    await _consumerChannel.BasicAckAsync(ea.DeliveryTag, false);
-                };
+                    antifraudConsumer.ReceivedAsync += async (_, ea) =>
+                    {
+                        var message = Encoding.UTF8.GetString(ea.Body.ToArray());
+                        switch (ea.RoutingKey)
+                        {
+                            case "client.blocked":
+                            {
+                                using var scope = _serviceScopeFactory.CreateScope();
+                                var service = scope.ServiceProvider.GetRequiredService<IAccountsService>();
 
-                await _consumerChannel.BasicQosAsync(0, 1, false);
-                await _consumerChannel.BasicConsumeAsync("account.antifraud", false, antifraudConsumer);
+                                await service.BlockAccount(message);
+                                break;
+                            }
+                            case "client.unblocked":
+                            {
+                                using var scope = _serviceScopeFactory.CreateScope();
+                                var service = scope.ServiceProvider.GetRequiredService<IAccountsService>();
+
+                                await service.UnblockAccount(message);
+                                break;
+                            }
+                        }
+
+                        await _consumerChannel.BasicAckAsync(ea.DeliveryTag, false);
+
+                        _logger.LogInformation("Consume: {Message}", message);
+                    };
+
+                    await _consumerChannel.BasicQosAsync(0, 1, false);
+                    await _consumerChannel.BasicConsumeAsync("account.antifraud", false, antifraudConsumer);
+                }
+                catch (AlreadyClosedException)
+                {
+                    _logger.LogError("Connection to RabbitMQ is closed, unable to consume");
+                }
             }
         }
     }

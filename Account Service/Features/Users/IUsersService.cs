@@ -1,4 +1,5 @@
 ﻿namespace Account_Service.Features.Users
+// ReSharper disable once ArrangeNamespaceBody
 {
     /// <summary>
     /// 

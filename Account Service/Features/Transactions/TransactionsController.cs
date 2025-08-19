@@ -1,13 +1,14 @@
-﻿using Account_Service.Features.Transactions.AddTransaction;
+﻿using System.Net;
+using Account_Service.Features.Transactions.AddTransaction;
 using Account_Service.Features.Transactions.AddTransferTransactions;
 using Account_Service.Infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Net;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace Account_Service.Features.Transactions
+// ReSharper disable once ArrangeNamespaceBody
 {
     /// <inheritdoc />
     [Authorize]
@@ -51,7 +52,7 @@ namespace Account_Service.Features.Transactions
         [HttpPost]
         public async Task<MbResult<TransactionDto?>> Post([FromBody] AddTransactionRequestCommand requestCommand)
         {
-            TransactionDto? transactionDto = await _transactionsService.Add(requestCommand);
+            var transactionDto = await _transactionsService.Add(requestCommand);
 
             if (transactionDto != null)
             {
@@ -59,12 +60,10 @@ namespace Account_Service.Features.Transactions
                 return new MbResult<TransactionDto?>(status: HttpStatusCode.Created)
                     { Value = transactionDto };
             }
-            else
-            {
-                HttpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                return new MbResult<TransactionDto?>(status: HttpStatusCode.BadRequest)
-                    { MbError = ["Не получилось добавить новую транзакцию"] };
-            }
+
+            HttpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            return new MbResult<TransactionDto?>(status: HttpStatusCode.BadRequest)
+                { MbError = ["Не получилось добавить новую транзакцию"] };
         }
 
         /// <summary>
@@ -77,10 +76,10 @@ namespace Account_Service.Features.Transactions
         /// <response code="400">Ошибка валидации тела запроса</response>
         /// <response code="401">Ошибка валидации токена при аутентификации</response>
         /// <response code="500">Внутренняя ошибка сервера</response>
-        [HttpPost("from/{fromAccountId}/to/{toAccountId}")]
+        [HttpPost("from/{fromAccountId:guid}/to/{toAccountId:guid}")]
         public async Task<MbResult<TransactionDto?>> MakeTransfer(Guid fromAccountId, Guid toAccountId, [FromBody] AddTransferTransactionsRequestCommand requestCommand)
         {
-            TransactionDto? transactionDto = await _transactionsService.Transfer(fromAccountId, toAccountId, requestCommand);
+            var transactionDto = await _transactionsService.Transfer(fromAccountId, toAccountId, requestCommand);
 
             if (transactionDto != null)
             {
@@ -88,12 +87,10 @@ namespace Account_Service.Features.Transactions
                 return new MbResult<TransactionDto?>(status: HttpStatusCode.Created)
                     { Value = transactionDto };
             }
-            else
-            {
-                HttpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                return new MbResult<TransactionDto?>(status: HttpStatusCode.BadRequest)
-                    { MbError = ["Не получилось совершить перевод"] };
-            }
+
+            HttpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            return new MbResult<TransactionDto?>(status: HttpStatusCode.BadRequest)
+                { MbError = ["Не получилось совершить перевод"] };
         }
     }
 }

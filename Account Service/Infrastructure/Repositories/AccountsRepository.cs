@@ -3,6 +3,7 @@ using Account_Service.Infrastructure.Db;
 using Microsoft.EntityFrameworkCore;
 
 namespace Account_Service.Infrastructure.Repositories
+// ReSharper disable once ArrangeNamespaceBody
 {
     /// <inheritdoc />
     public class AccountsRepository : IAccountsRepository
@@ -42,22 +43,23 @@ namespace Account_Service.Infrastructure.Repositories
             else
                 _context.Accounts.Update(entity);
 
+            await _context.SaveChangesAsync(cancellationToken);
+
             return entity;
         }
 
         /// <inheritdoc />
         public async Task<bool> DeleteById(Guid id)
         {
-            Account? account = await FindById(id);
+            var account = await FindById(id);
 
-            if (account != null)
-            {
-                _context.Accounts.Remove(account);
+            if (account == null)
+                return false;
 
-                return true;
-            }
+            _context.Accounts.Remove(account);
 
-            return false;
+            return true;
+
         }
 
         /// <inheritdoc />
@@ -73,11 +75,11 @@ namespace Account_Service.Infrastructure.Repositories
         {
             var openedAccounts = await _context.Accounts.Where(a => (a.CloseDate == null
                                                                      || a.CloseDate >=
-                                                                     DateOnly.FromDateTime(DateTime.Now))
+                                                                     DateOnly.FromDateTime(DateTime.UtcNow))
                                                                     && (a.Type.Equals(AccountType.Deposit) ||
                                                                         a.Type.Equals(AccountType.Credit)))
                 .ToListAsync(cancellationToken);
-            foreach (Account account in openedAccounts)
+            foreach (var account in openedAccounts)
             {
                 await _context.Database.ExecuteSqlRawAsync("CALL accrue_interest({0})", account.Id);
             }
