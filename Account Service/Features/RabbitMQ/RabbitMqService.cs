@@ -107,7 +107,7 @@ namespace Account_Service.Features.RabbitMQ
             if (_connection is not { IsOpen: true })
                 return null;
 
-            if (_connection is { IsOpen: true } && _producerChannel != null)
+            if (_connection is { IsOpen: true } && _consumerChannel != null)
             {
                 return _consumerChannel;
             }
