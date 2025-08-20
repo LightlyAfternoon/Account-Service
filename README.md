@@ -40,7 +40,11 @@ http://localhost:7080/realms/account-service/protocol/openid-connect/token
 
 ## RabbitMQ
 
-Логин: 
-Пароль: 
+Логин: user
+Пароль: password
 
 http://localhost:15672
+
+## Тесты
+
+В консоли тесты можно запустить с помощью команды dotnet test "Account Service.sln" в папке с решением
