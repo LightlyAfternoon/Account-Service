@@ -1,0 +1,39 @@
+{
+  "profiles": {
+    "http": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "launchUrl": "",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "JWT_AUTHORITY": "http://localhost:7080/realms/account-service"
+      },
+      "dotnetRunMessages": true,
+      "applicationUrl": "http://localhost:5203"
+    },
+    "https": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "launchUrl": "",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "JWT_AUTHORITY": "http://localhost:7080/realms/account-service"
+      },
+      "dotnetRunMessages": true,
+      "applicationUrl": "https://localhost:7053;http://localhost:5203"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker",
+      "launchBrowser": true,
+      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "JWT_AUTHORITY": "http://localhost:7080/realms/account-service",
+        "ASPNETCORE_HTTP_PORTS": "80"
+      },
+      "useSSL": false,
+      "httpPort": 80
+    }
+  },
+  "$schema": "https://json.schemastore.org/launchsettings.json"
+}
