@@ -23,7 +23,8 @@ namespace Account_Service.Tests.Transactions
     {
         private readonly PostgreSqlContainer _container = new PostgreSqlBuilder()
             .WithImage("postgres:17.4")
-            .WithDatabase("account_service_test_2")
+            .WithDatabase("account_service_test_3")
+            .WithPortBinding(61126, 5432)
             .WithCleanUp(true)
             .Build();
 
@@ -31,7 +32,8 @@ namespace Account_Service.Tests.Transactions
             .WithImage("rabbitmq:4-management")
             .WithUsername("test")
             .WithPassword("test")
-            .WithPortBinding(61141, 5672)
+            .WithPortBinding(61142, 5672)
+            .WithPortBinding(15672, true)
             .WithCleanUp(true)
             .Build();
 
@@ -42,6 +44,7 @@ namespace Account_Service.Tests.Transactions
 
         public async ValueTask InitializeAsync()
         {
+            await Task.Delay(TimeSpan.FromSeconds(10), cancellationToken: TestContext.Current.CancellationToken);
             await _container.StartAsync();
             await _rabbitMqContainer.StartAsync();
 
@@ -113,11 +116,11 @@ namespace Account_Service.Tests.Transactions
 
                 var requestCommand = new AddTransferTransactionsRequestCommand(accountFrom.Value.Id,
                     accountTo.Value.Id, 370m, nameof(CurrencyCode.Rub), "перевод", DateTime.UtcNow);
-                var contentTransfer = JsonContent.Create(requestCommand);
 
                 var tasks = new List<Task<HttpResponseMessage>>(50);
                 for (var i = 0; i < 50; i++)
                 {
+                    var contentTransfer = JsonContent.Create(requestCommand);
                     tasks.Add(_httpClient.PostAsync(
                         $"/transactions/from/{accountFrom.Value.Id}/to/{accountTo.Value.Id}", contentTransfer,
                         TestContext.Current.CancellationToken));

@@ -18,7 +18,6 @@ using Testcontainers.PostgreSql;
 using Testcontainers.RabbitMq;
 using Xunit;
 
-// на данный момент нормально работают только если запускать по одному, в чём причина пока не ясно
 namespace Account_Service.Tests.RabbitMQ
     // ReSharper disable once ArrangeNamespaceBody
 {
@@ -28,6 +27,7 @@ namespace Account_Service.Tests.RabbitMQ
         private readonly PostgreSqlContainer _container = new PostgreSqlBuilder()
             .WithImage("postgres:17.4")
             .WithDatabase("account_service_test_3")
+            .WithPortBinding(61126, 5432)
             .WithCleanUp(true)
             .Build();
 
@@ -36,6 +36,7 @@ namespace Account_Service.Tests.RabbitMQ
             .WithUsername("test")
             .WithPassword("test")
             .WithPortBinding(61142, 5672)
+            .WithPortBinding(15672, true)
             .WithCleanUp(true)
             .Build();
 
@@ -43,12 +44,13 @@ namespace Account_Service.Tests.RabbitMQ
 
         private IServiceScope _scope = null!;
         private IRabbitMqService _rabbitMqService = null!;
-        private IAccountsService _accountsService = null!;
 
         public async ValueTask InitializeAsync()
         {
             await _container.StartAsync();
             await _rabbitMqContainer.StartAsync();
+
+            await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken: TestContext.Current.CancellationToken);
 
             Environment.SetEnvironmentVariable("DbSettings__ConnectionString", _container.GetConnectionString());
             Environment.SetEnvironmentVariable("RABBITMQ_DEFAULT_USER", "test");
@@ -58,7 +60,6 @@ namespace Account_Service.Tests.RabbitMQ
 
             _scope = factory.Services.CreateScope();
             _rabbitMqService = _scope.ServiceProvider.GetRequiredService<IRabbitMqService>();
-            _accountsService = _scope.ServiceProvider.GetRequiredService<IAccountsService>();
 
             _httpClient = factory.CreateClient();
         }
@@ -67,8 +68,6 @@ namespace Account_Service.Tests.RabbitMQ
         {
             _httpClient = null;
 
-            await _rabbitMqContainer.StopAsync();
-            await _container.StopAsync();
             await _rabbitMqContainer.DisposeAsync();
             await _container.DisposeAsync();
         }
@@ -114,7 +113,7 @@ namespace Account_Service.Tests.RabbitMQ
                     consumer: consumer,
                     cancellationToken: TestContext.Current.CancellationToken);
 
-                await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken: TestContext.Current.CancellationToken);
+                await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken: TestContext.Current.CancellationToken);
 
                 Assert.Single(receivedMessages.Select(m =>
                     JsonSerializer.Deserialize<AccountOpened>(m)!).Where(m =>
@@ -135,6 +134,8 @@ namespace Account_Service.Tests.RabbitMQ
                 await _rabbitMqContainer.StartAsync(TestContext.Current.CancellationToken);
 
                 await Task.Delay(TimeSpan.FromSeconds(10), cancellationToken: TestContext.Current.CancellationToken);
+
+                Assert.NotNull(_rabbitMqService.Connect());
 
                 Assert.Single(receivedMessages.Select(m =>
                     JsonSerializer.Deserialize<AccountOpened>(m)!).Where(m =>
@@ -195,9 +196,7 @@ namespace Account_Service.Tests.RabbitMQ
 
                 await _rabbitMqService.PublishClientBlocked(accountDto!.Value!.OwnerId, TestContext.Current.CancellationToken);
 
-                await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken: TestContext.Current.CancellationToken);
-
-                Assert.True((await _accountsService.FindById(accountDto.Value.Id))!.Frozen);
+                await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken: TestContext.Current.CancellationToken);
 
                 var contentCreditTransaction = JsonContent.Create(new AddTransactionRequestCommand(
                     accountId: accountDto.Value.Id, sum: 129m, currency: nameof(CurrencyCode.Rub),

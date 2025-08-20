@@ -45,6 +45,11 @@ namespace Account_Service.Features.RabbitMQ
         /// <returns></returns>
         public IConnection? Connect()
         {
+            if (_connection is { IsOpen: false })
+            {
+                return GetConnection();
+            }
+
             if (_connection != null)
             {
                 return _connection;
@@ -52,16 +57,21 @@ namespace Account_Service.Features.RabbitMQ
 
             try
             {
-                _connection = _factory.CreateConnectionAsync(_endpoints).Result;
-                _producerChannel = GetProducerChannel();
-                _consumerChannel = GetConsumerChannel();
-                Consume().RunSynchronously();
-                return _connection;
+                return GetConnection();
             }
             catch
             {
                 return null;
             }
+        }
+
+        private IConnection GetConnection()
+        {
+            _connection = _factory.CreateConnectionAsync(_endpoints).Result;
+            _producerChannel = GetProducerChannel();
+            _consumerChannel = GetConsumerChannel();
+            Consume().RunSynchronously();
+            return _connection;
         }
 
         private static IChannel? GetProducerChannel()
