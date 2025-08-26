@@ -3,6 +3,7 @@ using FluentValidation;
 using JetBrains.Annotations;
 
 namespace Account_Service.Features.Transactions.AddTransaction
+// ReSharper disable once ArrangeNamespaceBody
 {
     /// <inheritdoc />
     [UsedImplicitly]
@@ -19,9 +20,9 @@ namespace Account_Service.Features.Transactions.AddTransaction
             RuleFor(t => t).Must(t => t.Sum > 0).WithMessage("Отсутствует сумма транзакции или она меньше 0")
                 .Must(t =>
                 {
-                    AccountDto? accountDto = accountService.FindById(t.AccountId).Result;
+                    var accountDto = accountService.FindById(t.AccountId).Result;
 
-                    if (accountDto != null && t.Type.Equals(nameof(TransactionType.Credit)))
+                    if (accountDto != null && t.Type.Equals(nameof(TransactionType.Debit)))
                         return t.Sum <= accountDto.Balance;
 
                     return true;
@@ -31,24 +32,31 @@ namespace Account_Service.Features.Transactions.AddTransaction
                 .Must(type => Enum.TryParse(type, out CurrencyCode _))
                 .WithMessage("Валюта с данным кодом не поддерживается");
 
-            RuleFor(t => t.Type).NotEmpty().WithMessage("Отсутствует тип транзакции")
-                .Must(type => Enum.TryParse(type, out TransactionType _))
-                .WithMessage("Данный тип транзакции не существует");
+            RuleFor(t => t)
+                .Must(t => !string.IsNullOrWhiteSpace(t.Type)).WithMessage("Отсутствует тип транзакции")
+                .Must(t => Enum.TryParse(t.Type, out TransactionType _))
+                .WithMessage("Данный тип транзакции не существует")
+                .Must(t =>
+                {
+                    var accountDto = accountService.FindById(t.AccountId).Result;
+
+                    if (accountDto != null && t.Type.Equals(nameof(TransactionType.Debit)))
+                        return !accountDto.Frozen;
+
+                    return true;
+                }).WithMessage("С замороженного счёта нельзя снимать деньги");
 
             RuleFor(t => t.Description).NotEmpty().WithMessage("Отсутствует описание транзакции");
 
             RuleFor(t => t).Must(t =>
                 {
-                    AccountDto? accountDto = accountService.FindById(t.AccountId).Result;
+                    var accountDto = accountService.FindById(t.AccountId).Result;
 
-                    if (accountDto != null)
-                        return accountDto.CloseDate == null;
-
-                    return true;
+                    return accountDto?.CloseDate == null;
                 }).WithMessage("Счёт закрыт")
                 .Must(t =>
                 {
-                    AccountDto? accountDto = accountService.FindById(t.AccountId).Result;
+                    var accountDto = accountService.FindById(t.AccountId).Result;
 
                     if (accountDto != null)
                         return DateOnly.FromDateTime(t.DateTime) >= accountDto.OpenDate;

@@ -1,6 +1,7 @@
 ﻿using MediatR;
 
 namespace Account_Service.Features.Accounts.DeleteAccount
+// ReSharper disable once ArrangeNamespaceBody
 {
     /// <inheritdoc />
     public class DeleteAccountHandler : IRequestHandler<DeleteAccountRequestCommand, bool>

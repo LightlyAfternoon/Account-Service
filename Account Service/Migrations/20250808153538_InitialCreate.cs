@@ -1,7 +1,6 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿#nullable disable
 
-#nullable disable
+using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Account_Service.Migrations
 {
@@ -31,10 +30,11 @@ namespace Account_Service.Migrations
                     ownerId = table.Column<Guid>(type: "uuid", nullable: false),
                     type = table.Column<int>(type: "integer", nullable: false),
                     currency = table.Column<int>(type: "integer", nullable: false),
-                    balance = table.Column<decimal>(type: "numeric(28,8)", nullable: false),
-                    interestRate = table.Column<decimal>(type: "numeric(28,8)", nullable: true),
+                    balance = table.Column<decimal>(type: "numeric(28,8)", precision: 28, scale: 8, nullable: false),
+                    interestRate = table.Column<decimal>(type: "numeric(28,8)", precision: 28, scale: 8, nullable: true),
                     openDate = table.Column<DateOnly>(type: "date", nullable: false),
-                    closeDate = table.Column<DateOnly>(type: "date", nullable: true)
+                    closeDate = table.Column<DateOnly>(type: "date", nullable: true),
+                    frozen = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -54,7 +54,7 @@ namespace Account_Service.Migrations
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     accountId = table.Column<Guid>(type: "uuid", nullable: false),
                     counterpartyAccountId = table.Column<Guid>(type: "uuid", nullable: true),
-                    sum = table.Column<decimal>(type: "numeric(28,8)", nullable: false),
+                    sum = table.Column<decimal>(type: "numeric(28,8)", precision: 28, scale: 8, nullable: false),
                     currency = table.Column<int>(type: "integer", nullable: false),
                     type = table.Column<int>(type: "integer", nullable: false),
                     description = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),

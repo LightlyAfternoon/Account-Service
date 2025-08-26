@@ -2,6 +2,7 @@
 using MediatR;
 
 namespace Account_Service.Features.Accounts.UpdateAccount
+// ReSharper disable once ArrangeNamespaceBody
 {
     /// <summary>
     /// Класс для запроса изменения счёта

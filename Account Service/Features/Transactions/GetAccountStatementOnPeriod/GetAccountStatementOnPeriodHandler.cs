@@ -2,6 +2,7 @@
 using MediatR;
 
 namespace Account_Service.Features.Transactions.GetAccountStatementOnPeriod
+// ReSharper disable once ArrangeNamespaceBody
 {
     /// <inheritdoc />
     public class GetAccountStatementOnPeriodHandler : IRequestHandler<GetAccountStatementOnPeriodRequestCommand, List<TransactionDto>>

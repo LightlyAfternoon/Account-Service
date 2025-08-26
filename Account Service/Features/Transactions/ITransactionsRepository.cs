@@ -2,6 +2,7 @@
 using Account_Service.Infrastructure.Repositories;
 
 namespace Account_Service.Features.Transactions
+// ReSharper disable once ArrangeNamespaceBody
 {
     /// <inheritdoc />
     public interface ITransactionsRepository : IRepository<Transaction>

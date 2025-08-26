@@ -9,6 +9,7 @@ using Moq;
 using Xunit;
 
 namespace Account_Service.Tests.Accounts
+    // ReSharper disable once ArrangeNamespaceBody
 {
     /// <summary>
     /// 
@@ -34,9 +35,9 @@ namespace Account_Service.Tests.Accounts
         [Fact]
         public async Task FindById()
         {
-            Guid guid = Guid.Parse("C1C2E3F7-C66A-480B-814D-591FC15F9954");
-            GetAccountByIdRequestCommand requestCommand = new GetAccountByIdRequestCommand(guid);
-            Account account = new Account(guid, Guid.NewGuid(), AccountType.Checking, CurrencyCode.Rub,
+            var guid = Guid.Parse("C1C2E3F7-C66A-480B-814D-591FC15F9954");
+            var requestCommand = new GetAccountByIdRequestCommand(guid);
+            var account = new Account(guid, Guid.NewGuid(), AccountType.Checking, CurrencyCode.Rub,
                 100.0m, null, DateOnly.FromDateTime(DateTime.Today), null);
 
             _accountsRepository.Setup(r => r.FindById(guid)).ReturnsAsync(account);
@@ -52,8 +53,8 @@ namespace Account_Service.Tests.Accounts
         [Fact]
         public async Task FindAll()
         {
-            GetAccountsListRequestCommand requestCommand = new GetAccountsListRequestCommand();
-            Account account = new Account(Guid.NewGuid(), Guid.NewGuid(), AccountType.Checking, CurrencyCode.Rub,
+            var requestCommand = new GetAccountsListRequestCommand();
+            var account = new Account(Guid.NewGuid(), Guid.NewGuid(), AccountType.Checking, CurrencyCode.Rub,
                 100.0m, null, DateOnly.FromDateTime(DateTime.Today), null);
 
             _accountsRepository.Setup(r => r.FindAll()).ReturnsAsync([account]);
@@ -62,7 +63,7 @@ namespace Account_Service.Tests.Accounts
 
             Assert.Equal([AccountMappers.MapToDto(account)], await _accountsService.FindAll());
 
-            Account account2 = new Account(Guid.NewGuid(), Guid.NewGuid(), AccountType.Credit, CurrencyCode.Rub,
+            var account2 = new Account(Guid.NewGuid(), Guid.NewGuid(), AccountType.Credit, CurrencyCode.Rub,
                 50.0m, null, DateOnly.FromDateTime(DateTime.Today), null);
 
             _accountsRepository.Setup(r => r.FindAll()).ReturnsAsync([account, account2]);
@@ -78,11 +79,11 @@ namespace Account_Service.Tests.Accounts
         [Fact]
         public async Task GetClientCurrentAccountBalance()
         {
-            Guid guid = Guid.Parse("C1C2E3F7-C66A-480B-814D-591FC15F9954");
-            Guid ownerId = Guid.Parse("27DEE97E-7CEE-4025-882C-B8ACCA11A6A3");
-            GetClientCurrentAccountBalanceRequestCommand requestCommand = new GetClientCurrentAccountBalanceRequestCommand(ownerId);
-            User user = new User(ownerId, "new user");
-            Account account = new Account(guid, ownerId, AccountType.Credit, CurrencyCode.Rub,
+            var guid = Guid.Parse("C1C2E3F7-C66A-480B-814D-591FC15F9954");
+            var ownerId = Guid.Parse("27DEE97E-7CEE-4025-882C-B8ACCA11A6A3");
+            var requestCommand = new GetClientCurrentAccountBalanceRequestCommand(ownerId);
+            var user = new User(ownerId, "new user");
+            var account = new Account(guid, ownerId, AccountType.Credit, CurrencyCode.Rub,
                 100.0m, null, DateOnly.FromDateTime(DateTime.Today), null);
 
             _userRepository.Setup(r => r.FindById(ownerId)).ReturnsAsync(user);
@@ -92,8 +93,8 @@ namespace Account_Service.Tests.Accounts
 
             Assert.Null(await _accountsService.GetClientCurrentAccountBalance(ownerId));
 
-            Guid guid2 = Guid.Parse("BD0285BF-AC22-49F4-92B7-AA4B5889CEC9");
-            Account account2 = new Account(guid2, ownerId, AccountType.Checking, CurrencyCode.Rub,
+            var guid2 = Guid.Parse("BD0285BF-AC22-49F4-92B7-AA4B5889CEC9");
+            var account2 = new Account(guid2, ownerId, AccountType.Checking, CurrencyCode.Rub,
                 50.0m, null, DateOnly.FromDateTime(DateTime.Today), null);
 
             _accountsRepository.Setup(r => r.FindAllByOwnerId(ownerId)).ReturnsAsync([account, account2]);

@@ -1,14 +1,15 @@
-﻿using Account_Service.Features.Accounts.AddAccount;
+﻿using System.Net;
+using Account_Service.Features.Accounts.AddAccount;
+using Account_Service.Features.Accounts.GetClientCurrentAccountBalance;
 using Account_Service.Features.Accounts.UpdateAccount;
 using Account_Service.Infrastructure;
-using Microsoft.AspNetCore.Mvc;
-using System.Net;
-using Account_Service.Features.Accounts.GetClientCurrentAccountBalance;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace Account_Service.Features.Accounts
+    // ReSharper disable once ArrangeNamespaceBody
 {
     /// <inheritdoc />
     [Authorize]
@@ -42,7 +43,7 @@ namespace Account_Service.Features.Accounts
         /// <param name="ownerId">Id клиента</param>
         /// <response code="200">MbResult &lt; string &gt; с Сообщением с информации о том, есть или нет у данного клиента счетов</response>
         /// <response code="500">Внутренняя ошибка сервера</response>
-        [HttpGet("client/{ownerId}/has-any-accounts")]
+        [HttpGet("client/{ownerId:guid}/has-any-accounts")]
         public async Task<MbResult<string>> GetClientHasAnyAccount(Guid ownerId)
         {
             if (await _accountService.ClientWithIdHasAnyAccount(ownerId))
@@ -51,12 +52,10 @@ namespace Account_Service.Features.Accounts
                 return new MbResult<string>(status: HttpStatusCode.OK)
                     { Value = "У данного пользователя есть счета" };
             }
-            else
-            {
-                HttpContext.Response.StatusCode = (int)HttpStatusCode.OK;
-                return new MbResult<string>(status: HttpStatusCode.OK)
-                    { Value = "У данного пользователя нет счётов" };
-            }
+
+            HttpContext.Response.StatusCode = (int)HttpStatusCode.OK;
+            return new MbResult<string>(status: HttpStatusCode.OK)
+                { Value = "У данного пользователя нет счётов" };
         }
 
         /// <summary>
@@ -66,7 +65,7 @@ namespace Account_Service.Features.Accounts
         /// <response code="200">MbResult &lt; GetClientCurrentAccountBalanceResponse &gt; с Id текущего счёта, id клиента, баланс счёта</response>
         /// <response code="404">Клиент с данным id не найден или у него нет текущего счёта</response>
         /// <response code="500">Внутренняя ошибка сервера</response>
-        [HttpGet("client/{ownerId}/current-account-balance")]
+        [HttpGet("client/{ownerId:guid}/current-account-balance")]
         public async Task<MbResult<GetClientCurrentAccountBalanceResponse>> GetClientCurrentAccountBalance(Guid ownerId)
         {
             var response = await _accountService.GetClientCurrentAccountBalance(ownerId);
@@ -77,12 +76,10 @@ namespace Account_Service.Features.Accounts
                 return new MbResult<GetClientCurrentAccountBalanceResponse>(status: HttpStatusCode.OK)
                { Value = response };
             }
-            else
-            {
-                HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
-                return new MbResult<GetClientCurrentAccountBalanceResponse>(status: HttpStatusCode.NotFound)
+
+            HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
+            return new MbResult<GetClientCurrentAccountBalanceResponse>(status: HttpStatusCode.NotFound)
                 { MbError = ["Клиент с данным id не найден или у него нет текущего счёта"] };
-            }
         }
 
         /// <summary>
@@ -96,7 +93,7 @@ namespace Account_Service.Features.Accounts
         [HttpPost]
         public async Task<MbResult<AccountDto?>> Post([FromBody] AddAccountRequestCommand requestCommand)
         {
-            AccountDto? account = await _accountService.Add(requestCommand);
+            var account = await _accountService.Add(requestCommand);
 
             if (account != null)
             {
@@ -104,12 +101,10 @@ namespace Account_Service.Features.Accounts
                 return new MbResult<AccountDto?>(status: HttpStatusCode.Created)
                     { Value =  account};
             }
-            else
-            {
-                HttpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                return new MbResult<AccountDto?>(status: HttpStatusCode.BadRequest)
-                    { MbError = ["Не получилось добавить новый счёт"] };
-            }
+
+            HttpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            return new MbResult<AccountDto?>(status: HttpStatusCode.BadRequest)
+                { MbError = ["Не получилось добавить новый счёт"] };
         }
 
         /// <summary>
@@ -121,10 +116,10 @@ namespace Account_Service.Features.Accounts
         /// <response code="400">Ошибка валидации тела запроса</response>
         /// <response code="401">Ошибка валидации токена при аутентификации</response>
         /// <response code="500">Внутренняя ошибка сервера</response>
-        [HttpPut("{id}")]
+        [HttpPut("{id:guid}")]
         public async Task<MbResult<AccountDto?>> Put(Guid id, [FromBody] UpdateAccountRequestCommand requestCommand)
         {
-            AccountDto? account = await _accountService.Update(id, requestCommand);
+            var account = await _accountService.Update(id, requestCommand);
 
             if (account != null)
             {
@@ -132,12 +127,10 @@ namespace Account_Service.Features.Accounts
                 return new MbResult<AccountDto?>(status: HttpStatusCode.Created)
                     { Value = account };
             }
-            else
-            {
-                HttpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                return new MbResult<AccountDto?>(status: HttpStatusCode.BadRequest)
-                    { MbError = ["Не получилось обновить счёт с данным id"] };
-            }
+
+            HttpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            return new MbResult<AccountDto?>(status: HttpStatusCode.BadRequest)
+                { MbError = ["Не получилось обновить счёт с данным id"] };
         }
 
         /// <summary>
@@ -147,10 +140,10 @@ namespace Account_Service.Features.Accounts
         /// <response code="200">MbResult &lt; string &gt; с Сообщением о том, удалён ли счёт или нет</response>
         /// <response code="401">Ошибка валидации токена при аутентификации</response>
         /// <response code="500">Внутренняя ошибка сервера</response>
-        [HttpDelete("{id}")]
+        [HttpDelete("{id:guid}")]
         public async Task<MbResult<string>> Delete(Guid id)
         {
-            bool isDeleted = await _accountService.DeleteById(id);
+            var isDeleted = await _accountService.DeleteById(id);
 
             if (isDeleted)
             {
@@ -158,12 +151,10 @@ namespace Account_Service.Features.Accounts
                 return new MbResult<string> (status: HttpStatusCode.OK)
                     { Value = $"Пользователь с id={id} удалён" };
             }
-            else
-            {
-                HttpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                return new MbResult<string> (status: HttpStatusCode.BadRequest)
-                    { MbError = [$"Не получилось удалить пользователя с id={id}"] };
-            }
+
+            HttpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            return new MbResult<string> (status: HttpStatusCode.BadRequest)
+                { MbError = [$"Не получилось удалить пользователя с id={id}"] };
         }
     }
 }

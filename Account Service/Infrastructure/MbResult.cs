@@ -2,6 +2,7 @@
 using System.Text.Json.Serialization;
 
 namespace Account_Service.Infrastructure
+// ReSharper disable once ArrangeNamespaceBody
 {
     /// <summary>
     /// Класс для возврата в качестве результата HTTP запроса
@@ -31,25 +32,22 @@ namespace Account_Service.Infrastructure
         {
             if (obj is not MbResult<TValue> mbResult)
                 return false;
+            bool value;
+            if (Value is IEnumerable<object> enumerable1 && mbResult.Value is IEnumerable<object> enumerable2 &&
+                Value is not string && mbResult.Value is not string)
+                value = enumerable1.SequenceEqual(enumerable2);
             else
-            {
-                bool value;
-                if (Value is IEnumerable<object> enumerable1 && mbResult.Value is IEnumerable<object> enumerable2 &&
-                    !(Value is string) && !(mbResult.Value is string))
-                    value = (enumerable1).SequenceEqual(enumerable2);
-                else
-                    value = (Value != null ? Value.Equals(mbResult.Value) : mbResult.Value == null);
+                value = Value != null ? Value.Equals(mbResult.Value) : mbResult.Value == null;
 
-                return Status.Equals(mbResult.Status)
-                       && value
-                       && (mbResult.MbError != null && MbError != null ? MbError.SequenceEqual(mbResult.MbError) : MbError == null && mbResult.MbError == null);
-            }
+            return Status.Equals(mbResult.Status)
+                   && value
+                   && (mbResult.MbError != null && MbError != null ? MbError.SequenceEqual(mbResult.MbError) : MbError == null && mbResult.MbError == null);
         }
 
         /// <inheritdoc />
         public override int GetHashCode()
         {
-            int hash = Status.GetHashCode();
+            var hash = Status.GetHashCode();
 
             return hash;
         }

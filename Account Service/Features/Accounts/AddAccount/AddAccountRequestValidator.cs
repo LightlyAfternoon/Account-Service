@@ -3,6 +3,7 @@ using FluentValidation;
 using JetBrains.Annotations;
 
 namespace Account_Service.Features.Accounts.AddAccount
+// ReSharper disable once ArrangeNamespaceBody
 {
     /// <inheritdoc />
     [UsedImplicitly]

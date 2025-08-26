@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Account_Service.Tests.Fixture
+    // ReSharper disable once ArrangeNamespaceBody
 {
     public class CustomWebApplicationFactory<TEntryPoint>(string dbConnectionString) : WebApplicationFactory<TEntryPoint>
         where TEntryPoint : class
@@ -56,7 +57,7 @@ namespace Account_Service.Tests.Fixture
 
                 services.AddAuthentication("TestScheme")
                 .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(
-                    "TestScheme", (_) => { });
+                    "TestScheme", _ => { });
 
                 services.AddAuthorization();
             });

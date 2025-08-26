@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Options;
 
 namespace Account_Service.Infrastructure.Db.Hangfire
+// ReSharper disable once ArrangeNamespaceBody
 {
     /// <inheritdoc />
     public sealed class HangfireContext : DbContext

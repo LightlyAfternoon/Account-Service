@@ -2,6 +2,7 @@
 using MediatR;
 
 namespace Account_Service.PipelineBehavior
+// ReSharper disable once ArrangeNamespaceBody
 {
     /// <inheritdoc />
     public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>

@@ -1,6 +1,7 @@
 ﻿using MediatR;
 
 namespace Account_Service.Features.Transactions.DeleteTransaction
+// ReSharper disable once ArrangeNamespaceBody
 {
     /// <inheritdoc />
     public class DeleteTransactionHandler : IRequestHandler<DeleteTransactionRequestCommand, bool>

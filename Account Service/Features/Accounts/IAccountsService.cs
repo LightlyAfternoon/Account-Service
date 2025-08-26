@@ -3,6 +3,7 @@ using Account_Service.Features.Accounts.GetClientCurrentAccountBalance;
 using Account_Service.Features.Accounts.UpdateAccount;
 
 namespace Account_Service.Features.Accounts
+// ReSharper disable once ArrangeNamespaceBody
 {
     /// <summary>
     /// 
@@ -63,5 +64,19 @@ namespace Account_Service.Features.Accounts
         /// </summary>
         /// <returns></returns>
         Task ProcessDailyAccrueInterest();
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="message"></param>
+        /// <returns></returns>
+        Task BlockAccount(string message);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="message"></param>
+        /// <returns></returns>
+        Task UnblockAccount(string message);
     }
 }

@@ -1,9 +1,10 @@
-﻿using JetBrains.Annotations;
+﻿#nullable disable
+
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-#nullable disable
-
 namespace Account_Service.Migrations.Hangfire
+// ReSharper disable once ArrangeNamespaceBody
 {
     /// <inheritdoc />
     [UsedImplicitly]

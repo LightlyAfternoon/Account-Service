@@ -1,6 +1,7 @@
 ﻿using MediatR;
 
 namespace Account_Service.Features.Transactions.AddTransaction
+// ReSharper disable once ArrangeNamespaceBody
 {
     /// <summary>
     /// Класс для запроса добавления транзакции по счёту

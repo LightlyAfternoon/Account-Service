@@ -2,6 +2,7 @@
 using MediatR;
 
 namespace Account_Service.Features.Transactions.GetTransaction
+// ReSharper disable once ArrangeNamespaceBody
 {
     /// <inheritdoc />
     public class GetTransactionByIdHandler : IRequestHandler<GetTransactionByIdRequestCommand, TransactionDto?>
@@ -20,14 +21,9 @@ namespace Account_Service.Features.Transactions.GetTransaction
         /// <inheritdoc />
         public async Task<TransactionDto?> Handle(GetTransactionByIdRequestCommand request, CancellationToken cancellationToken)
         {
-            Transaction? transaction = await _transactionsRepository.FindById(request.Id);
+            var transaction = await _transactionsRepository.FindById(request.Id);
 
-            if (transaction != null)
-            {
-                return TransactionMappers.MapToDto(transaction);
-            }
-
-            return null;
+            return transaction != null ? TransactionMappers.MapToDto(transaction) : null;
         }
     }
 }

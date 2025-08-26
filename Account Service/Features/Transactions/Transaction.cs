@@ -1,6 +1,7 @@
 ﻿using Account_Service.Features.Accounts;
 
 namespace Account_Service.Features.Transactions
+// ReSharper disable once ArrangeNamespaceBody
 {
     /// <summary>
     /// 
@@ -79,22 +80,21 @@ namespace Account_Service.Features.Transactions
         public Account? CounterpartyAccount { get; set; }
 
         /// <inheritdoc />
-        public Transaction(Guid id, Transaction transaction) : this(id, transaction.AccountId, transaction.CounterpartyAccountId, transaction.Sum, transaction.Currency, transaction.Type, transaction.Description, transaction.DateTime)
+        public Transaction(Guid id, Transaction transaction) : this(id, transaction.AccountId,
+            transaction.CounterpartyAccountId, transaction.Sum, transaction.Currency, transaction.Type,
+            transaction.Description, transaction.DateTime)
         {
         }
 
         /// <inheritdoc />
         public override bool Equals(object? obj)
         {
-            var transaction = obj as Transaction;
-
-            if (transaction == null)
+            if (obj is not Transaction transaction)
                 return false;
-            else
-                return Id.Equals(transaction.Id) && AccountId.Equals(transaction.AccountId) &&
-                       CounterpartyAccountId.Equals(transaction.CounterpartyAccountId) && Sum.Equals(transaction.Sum) &&
-                       Currency.Equals(transaction.Currency) && Type.Equals(transaction.Type) &&
-                       Description.Equals(transaction.Description) && DateTime.Equals(transaction.DateTime);
+            return Id.Equals(transaction.Id) && AccountId.Equals(transaction.AccountId) &&
+                   CounterpartyAccountId.Equals(transaction.CounterpartyAccountId) && Sum.Equals(transaction.Sum) &&
+                   Currency.Equals(transaction.Currency) && Type.Equals(transaction.Type) &&
+                   Description.Equals(transaction.Description) && DateTime.Equals(transaction.DateTime);
         }
 
         /// <inheritdoc />

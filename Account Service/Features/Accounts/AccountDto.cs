@@ -1,6 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 
 namespace Account_Service.Features.Accounts
+    // ReSharper disable once ArrangeNamespaceBody
 {
     /// <summary>
     /// DTO счёта
@@ -13,6 +14,7 @@ namespace Account_Service.Features.Accounts
     /// <param name="interestRate">Процентная ставка (только для типа Deposit и Credit)</param>
     /// <param name="openDate">Дата открытия</param>
     /// <param name="closeDate">Дата закрытия</param>
+    /// <param name="frozen"></param>
     [method: JsonConstructor]
     public class AccountDto(
         Guid id,
@@ -22,7 +24,8 @@ namespace Account_Service.Features.Accounts
         decimal balance,
         decimal? interestRate,
         DateOnly openDate,
-        DateOnly? closeDate)
+        DateOnly? closeDate,
+        bool frozen = false)
     {
         /// <summary>
         /// Id счёта
@@ -57,23 +60,27 @@ namespace Account_Service.Features.Accounts
         /// </summary>
         public DateOnly? CloseDate { get; set; } = closeDate;
 
+        /// <summary>
+        /// Флаг статуса заморозки счёта
+        /// </summary>
+        public bool Frozen { get; set; } = frozen;
+
         /// <inheritdoc />
         public AccountDto(Guid id, AccountDto accountDto) : this(id, accountDto.OwnerId, accountDto.Type, accountDto.Currency, accountDto.Balance, accountDto.InterestRate, accountDto.OpenDate, accountDto.CloseDate)
         {
+            Frozen = accountDto.Frozen;
         }
 
         /// <inheritdoc />
         public override bool Equals(object? obj)
         {
-            var account = obj as AccountDto;
-
-            if (account == null)
+            if (obj is not AccountDto account)
                 return false;
-            else
-                return Id.Equals(account.Id) && OwnerId.Equals(account.OwnerId) && Type.Equals(account.Type)
-                       && Currency.Equals(account.Currency) && Balance.Equals(account.Balance)
-                       && InterestRate.Equals(account.InterestRate) && OpenDate.Equals(account.OpenDate)
-                       && CloseDate.Equals(account.CloseDate);
+            return Id.Equals(account.Id) && OwnerId.Equals(account.OwnerId) && Type.Equals(account.Type)
+                   && Currency.Equals(account.Currency) && Balance.Equals(account.Balance)
+                   && InterestRate.Equals(account.InterestRate) && OpenDate.Equals(account.OpenDate)
+                   && CloseDate.Equals(account.CloseDate)
+                   && Frozen.Equals(account.Frozen);
         }
 
         /// <inheritdoc />

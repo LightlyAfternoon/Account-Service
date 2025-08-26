@@ -2,6 +2,7 @@
 using Account_Service.Features.Transactions;
 
 namespace Account_Service.Infrastructure.Mappers
+// ReSharper disable once ArrangeNamespaceBody
 {
     /// <summary>
     /// 

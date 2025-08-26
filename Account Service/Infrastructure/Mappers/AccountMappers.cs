@@ -1,6 +1,7 @@
 ﻿using Account_Service.Features.Accounts;
 
 namespace Account_Service.Infrastructure.Mappers
+// ReSharper disable once ArrangeNamespaceBody
 {
     /// <summary>
     /// 
@@ -19,7 +20,8 @@ namespace Account_Service.Infrastructure.Mappers
             balance: account.Balance,
             interestRate: account.InterestRate,
             openDate: account.OpenDate,
-            closeDate: account.CloseDate);
+            closeDate: account.CloseDate,
+            frozen: account.Frozen);
 
         /// <summary>
         /// 
@@ -33,6 +35,7 @@ namespace Account_Service.Infrastructure.Mappers
             balance: accountDto.Balance,
             interestRate: accountDto.InterestRate,
             openDate: accountDto.OpenDate,
-            closeDate: accountDto.CloseDate);
+            closeDate: accountDto.CloseDate,
+            frozen: accountDto.Frozen);
     }
 }
