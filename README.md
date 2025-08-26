@@ -7,11 +7,30 @@
 - Папка PipelineBehavior предназначена для класса внедрения валидации в пайплайн MediatR
 - Папка Keycloak предназначена для файла с данными импорта в базу Keycloak сервиса
 
+## Назначение
+
+Сервис Account Service предназначен для сотрудников розничного банка
+
 ## API
 
-http://localhost:5203/swagger/index.html
+http://localhost:5203/index.html
 
-http://localhost/swagger/index.html (развёртка в докере)
+http://localhost/index.html (развёртка в докере)
+
+## Запуск
+
+- Скачать или клонировать проект с Гитхаба
+
+# Локально
+
+- Запустить проект с помощью Visual Studio, либо открыть папку проекта в решении (Account Service/Account Service) в консоли и запустить проект командой 'dotnet run'
+- Далее можно открыть в браузере страницу со сваггером http://localhost:5203/
+
+# Docker
+
+- Запустить Docker Desktop
+- Открыть в консоли папку с решением (Account Service, с файлом docker-compose.yml) и ввести команду docker-compose up
+- После развёртки сервисов с postgresql бд, программой и keycloak можно открыть в браузере страницу со сваггером http://localhost/
 
 ## Keycloak
 

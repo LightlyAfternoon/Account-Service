@@ -15,19 +15,45 @@
       - "7080:7080"
     networks:
       - local_network
+  db:
+    image: postgres:17.4
+    environment:
+      POSTGRES_USER: postus
+      PGUSER: postus
+      POSTGRES_PASSWORD: passus
+      POSTGRES_DB: account_service_db
+      PGDATA: /data/postgres
+    ports:
+      - "1234:5432"
+    volumes:
+      - db:/data/postgres
+    networks:
+      - local_network
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "postus", "-d", "account_service_db" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
   web:
     depends_on:
-      - keycloak
+      db:
+        condition: service_healthy
     build:
-      dockerfile: Dockerfile
+      dockerfile: Account Service/Dockerfile
     ports:
       - "0.0.0.0:80:80"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
       - JWT_AUTHORITY=http://keycloak:7080/realms/account-service
+      - DbSettings__ConnectionString=Host=db;Port=5432;Database=account_service_db;Username=postus;Password=passus
     networks:
       - local_network
+
 networks:
   local_network:
     driver: bridge
+
+volumes:
+  db:
